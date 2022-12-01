@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_tailwind",
 
+    "base.apps.BaseConfig",
     "events.apps.EventsConfig",
 ]
 
@@ -58,7 +59,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "projectCtwApi.urls"
+ROOT_URLCONF = "projectCTW.urls"
 
 TEMPLATES = [
     {
@@ -76,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "projectCtwApi.wsgi.application"
+WSGI_APPLICATION = "projectCTW.wsgi.application"
 
 
 # Database
