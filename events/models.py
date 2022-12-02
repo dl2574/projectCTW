@@ -1,6 +1,23 @@
 from django.db import models
+from django.db.models.deletion import SET_NULL, CASCADE
+from userProfile.models import User
 
-# Create your models here.
+
 class Event(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
+    location = models.CharField(max_length=100)
+    created_by = models.ForeignKey(User, on_delete=SET_NULL, null=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    upvotes = models.ManyToManyField(User, related_name="votes")
+
+    def number_of_upvotes(self):
+        return self.upvotes.count()
+
+    def __str__(self):
+        return self.name
+
+class Plan(models.Model):
+    event = models.OneToOneField(Event, on_delete=CASCADE)
+    volunteers = models.ManyToManyField(User, related_name="volunteers")
