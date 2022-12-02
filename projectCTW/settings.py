@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 
     "base.apps.BaseConfig",
     "events.apps.EventsConfig",
+    "userProfile.apps.UserprofileConfig",
 ]
 
 MIDDLEWARE = [
@@ -60,6 +61,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "projectCTW.urls"
+
+AUTH_USER_MODEL = 'userProfile.User'
 
 TEMPLATES = [
     {
