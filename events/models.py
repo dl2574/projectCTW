@@ -21,3 +21,8 @@ class Event(models.Model):
 class Plan(models.Model):
     event = models.OneToOneField(Event, on_delete=CASCADE)
     volunteers = models.ManyToManyField(User, related_name="volunteers")
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.event.name
