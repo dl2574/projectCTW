@@ -10,7 +10,7 @@ class Event(models.Model):
     created_by = models.ForeignKey(User, on_delete=SET_NULL, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
-    upvotes = models.ManyToManyField(User, related_name="votes")
+    upvotes = models.ManyToManyField(User, related_name="up_votes")
 
     def number_of_upvotes(self):
         return self.upvotes.count()
@@ -26,3 +26,12 @@ class Plan(models.Model):
 
     def __str__(self):
         return self.event.name
+
+class ProposedDate(models.Model):
+    created_by = models.ForeignKey(User, on_delete=SET_NULL, null=True)
+    for_plan = models.ForeignKey(Plan, on_delete=CASCADE)
+    date = models.DateField()
+    votes = models.ManyToManyField(User, related_name="date_votes")
+
+    def number_of_votes(self):
+        return self.votes.count()

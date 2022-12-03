@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tailwind_filters %}
+
+{% block content %}
+<h3>Create Event</h3>
+<div>
+    <form method="POST" action="{% url 'createEvent' %}">
+        {% csrf_token %}
+        {{form|crispy}}
+        <button type="submit">Submit</button>
+    </form>
+</div>
+{% endblock content %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<h3>Proposed Events</h3>
+<div>
+    {% for event  in events %}
+        <div>
+            <h4>{{event.title}}</h4>
+            <p>{{event.location}}</p>
+            <p>{{event.description}}</p>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock content %}
