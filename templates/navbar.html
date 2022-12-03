@@ -21,11 +21,11 @@
                             <a class="hover:text-third" href="#">Profile</a>
                         </li>
                         <li class="pr-2">
-                            <a class="hover:text-third" href="#">Logout</a>
+                            <a class="hover:text-third" href="{% url 'logout' %}">Logout</a>
                         </li>
                     {% else %}
                         <li class="pr-2">
-                            <a class="hover:text-third" href="#">Login</a>
+                            <a class="hover:text-third" href="{% url 'login' %}">Login</a>
                         </li>
                     {% endif %}
                 </ul>

@@ -11,7 +11,7 @@ class UserModelTests(TestCase):
 
 class LoginpageTests(SimpleTestCase):
     def test_url_exists_at_correct_location(self):
-        response = self.client.get("/account/login")
+        response = self.client.get("/account/login/")
         self.assertEqual(response.status_code, 200)
 
     def test_url_available_by_name(self):
@@ -30,7 +30,7 @@ class LoginpageTests(SimpleTestCase):
 
 class RegisterpageTests(SimpleTestCase):
     def test_url_exists_at_correct_location(self):
-        response = self.client.get("/account/register")
+        response = self.client.get("/account/register/")
         self.assertEqual(response.status_code, 200)
 
     def test_url_available_by_name(self):

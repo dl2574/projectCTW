@@ -1,4 +1,4 @@
-{% extends base.html %}
+{% extends 'base.html' %}
 {% load static %}
 {% load tailwind_filters %}
 
@@ -22,7 +22,7 @@
                 </div>
                 <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
             </form>
-        {% elsse %}
+        {% else %}
             <h3>Register</h3>
             <form method="POST" action={% url 'register' %}>
                 {% csrf_token %}
