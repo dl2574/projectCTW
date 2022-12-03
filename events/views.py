@@ -20,5 +20,30 @@ def createEvent(request):
             event.save()
             return redirect("proposals")
 
-    context = {'form': form}
-    return render(request, 'events/create_event.html', context)
+    context = {"form": form}
+    return render(request, "events/create_event.html", context)
+
+
+@login_required(login_url="login")
+def editEvent(request, pk):
+    event = Event.objects.get(id=pk)
+    if request.user != event.created_by:
+        return redirect("home")
+
+    form = EventForm(instance=event)
+
+    if request.method == "POST":
+        form = EventForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+
+    context = {"form": form}
+    return render(request, "events/create_event.html", context)
+
+@login_required(login_url="login")
+def upvoteEvent(request, pk):
+    event = Event.objects.get(id=pk)
+    user = request.user
+    
+    event.upvotes.add(user)

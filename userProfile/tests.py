@@ -1,6 +1,10 @@
 from django.test import TestCase, SimpleTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
 from .models import User
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
 
 
 
@@ -45,3 +49,5 @@ class RegisterpageTests(SimpleTestCase):
         response = self.client.get(reverse("register"))
         self.assertContains(response, "<h3>Register</h3>")
         self.assertNotContains(response, "<h3>Login</h3>")
+
+
