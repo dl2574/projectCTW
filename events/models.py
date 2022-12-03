@@ -1,9 +1,11 @@
 from django.db import models
 from django.db.models.deletion import SET_NULL, CASCADE
 from userProfile.models import User
+import uuid
 
 
 class Event(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=100)
     description = models.TextField()
     location = models.CharField(max_length=100)
@@ -19,6 +21,7 @@ class Event(models.Model):
         return self.name
 
 class Plan(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     event = models.OneToOneField(Event, on_delete=CASCADE)
     volunteers = models.ManyToManyField(User, related_name="volunteers")
     created_on = models.DateTimeField(auto_now_add=True)
@@ -28,6 +31,7 @@ class Plan(models.Model):
         return self.event.name
 
 class ProposedDate(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     created_by = models.ForeignKey(User, on_delete=SET_NULL, null=True)
     for_plan = models.ForeignKey(Plan, on_delete=CASCADE)
     date = models.DateField()

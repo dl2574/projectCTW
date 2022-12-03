@@ -14,7 +14,7 @@
                     </li>
                     {% if request.user.is_authenticated %}
                         <li class="pr-2">
-                            <a class="hover:text-third" href="#">Propose Event</a>
+                            <a class="hover:text-third" href="{% url 'createEvent' %}">Propose Event</a>
                         </li>
 
                         <li class="pr-2">
