@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import EventForm
 from .models import Event
 from django.contrib.auth.decorators import login_required
@@ -41,9 +42,16 @@ def editEvent(request, pk):
     context = {"form": form}
     return render(request, "events/create_event.html", context)
 
-@login_required(login_url="login")
+@login_required()
 def upvoteEvent(request, pk):
-    event = Event.objects.get(id=pk)
     user = request.user
+    event = get_object_or_404(Event, id=pk)
     
-    event.upvotes.add(user)
+    
+    if event.upvotes.filter(id=user.id).exists():
+        event.upvotes.remove(user)
+    else:
+        event.upvotes.add(user)
+    
+    responseString = f"{event.number_of_upvotes()} Up Votes"
+    return HttpResponse(responseString)

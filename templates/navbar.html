@@ -1,35 +1,35 @@
 {% load static %}
 
 <header>
-    <nav class="relative w-full flex flex-wrap items-center justify-between py-4 bg-primary text-fourth focus:text-third shadow-lg">
-        <div class="container-fluid w-full flex flex-wrap items-center justify-between px-6">
-            <div class="flex-grow items-center">
-                <a class="text-xl" href="#">Project CTW</a>
-                <ul class="flex flex-row pl-0 list-style-none mr-auto">
-                    <li class=" px-2">
-                        <a class="hover:text-third" href="{% url 'home' %}">Home</a>
-                    </li>
-                    <li class="pr-2">
-                        <a class="hover:text-third" href="{% url 'about' %}">About</a>
-                    </li>
-                    {% if request.user.is_authenticated %}
-                        <li class="pr-2">
-                            <a class="hover:text-third" href="{% url 'createEvent' %}">Propose Event</a>
-                        </li>
+    <nav class="fixed flex flex-row justify-between bg-primary text-fourth overflow-hidden p-0 m-0 top-0 w-full shadow-lg">
+        <ul class="list-none flex flex-row items-center">
+            <li class="">
+                <a class="block text-center text-xl font-bold py-3.5 px-4" href="{% url 'home' %}">Project CTW</a>
+            </li>
+            <li class="">
+                <a class="block text-center py-3.5 px-4 hover:text-third text-primary bg-third font-bold" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="">
+                <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'about' %}">About</a>
+            </li>
+        </ul>
+        <ul class="list-none flex flex-row items-center">
+            {% if request.user.is_authenticated %}
+                <li class="">
+                    <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'createEvent' %}">Propose Event</a>
+                </li>
+                <li class="">
+                    <a class="block text-center py-3.5 px-4 hover:text-third" href="#">Profile</a>
+                </li>
+                <li class="">
+                    <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'logout' %}">Logout</a>
+                </li>
 
-                        <li class="pr-2">
-                            <a class="hover:text-third" href="#">Profile</a>
-                        </li>
-                        <li class="pr-2">
-                            <a class="hover:text-third" href="{% url 'logout' %}">Logout</a>
-                        </li>
-                    {% else %}
-                        <li class="pr-2">
-                            <a class="hover:text-third" href="{% url 'login' %}">Login</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
+            {% else %}
+                <li class="justify-end">
+                    <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'login' %}">Login</a>
+                </li>
+            {% endif %}
+        </ul>
     </nav>
 </header>

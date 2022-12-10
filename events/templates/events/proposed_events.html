@@ -2,16 +2,18 @@
 {% load static %}
 
 {% block content %}
-<main>
+<section class="flex flex-col w-full p-8">
     <h3>Proposed Events</h3>
-    <div>
+    <div class="flex">
         {% for event  in events %}
             <div>
-                <h4>{{event.title}}</h4>
+                <h4>{{event.name}}</h4>
+                <p>Proposed by: <a href="#"><strong>{{event.created_by.username}}</strong></a></p>
                 <p>{{event.location}}</p>
                 <p>{{event.description}}</p>
+                <button hx-get="{% url 'upvote' event.id %}">{{event.number_of_upvotes}} Up Votes</button>
             </div>
         {% endfor %}
     </div>
-</main>
+</section>
 {% endblock content %}

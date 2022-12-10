@@ -3,8 +3,7 @@
 {% load tailwind_filters %}
 
 {% block content %}
-<main>
-    <section>
+    <section class="flex flex-col justify-center content-center w-full p-8">
         {% if page == "login" %}
             <h3>Login</h3>
             <form method="POST" action={% url 'login' %}>
@@ -28,12 +27,10 @@
                 {% csrf_token %}
                 {{form|crispy}}
                 <div>
-                    <button type="submit">Login</button>
+                    <button type="submit">Register</button>
                 </div>
                 <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
             </form>
         {% endif %}
     </section>
-</main>
-
 {% endblock content %}

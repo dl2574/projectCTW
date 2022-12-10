@@ -3,7 +3,6 @@
 {% load tailwind_filters %}
 
 {% block content %}
-<main>
     <h3>Create Event</h3>
     <div>
         <form method="POST" action="{% url 'createEvent' %}">
@@ -12,5 +11,4 @@
             <button type="submit">Submit</button>
         </form>
     </div>
-</main>
 {% endblock content %}
