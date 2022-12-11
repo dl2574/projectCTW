@@ -594,6 +594,10 @@ video {
   justify-items: center;
 }
 
+.self-center {
+  align-self: center;
+}
+
 .overflow-hidden {
   overflow: hidden;
 }
@@ -671,4 +675,9 @@ video {
 .hover\:text-third:hover {
   --tw-text-opacity: 1;
   color: rgb(144 224 239 / var(--tw-text-opacity));
+}
+
+.hover\:text-secondary:hover {
+  --tw-text-opacity: 1;
+  color: rgb(0 180 216 / var(--tw-text-opacity));
 }

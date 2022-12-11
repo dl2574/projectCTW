@@ -11,7 +11,11 @@
                 <p>Proposed by: <a href="#"><strong>{{event.created_by.username}}</strong></a></p>
                 <p>{{event.location}}</p>
                 <p>{{event.description}}</p>
-                <button hx-get="{% url 'upvote' event.id %}">{{event.number_of_upvotes}} Up Votes</button>
+                {% if request.user.is_authenticated %}
+                    <button hx-post="{% url 'upvote' event.id %}">{{event.number_of_upvotes}} Up Votes</button>
+                {% else %}
+                    <button onclick="window.location.href='{% url "login" %} ';">{{event.number_of_upvotes}} Up Votes</button>
+                {% endif %}
             </div>
         {% endfor %}
     </div>
