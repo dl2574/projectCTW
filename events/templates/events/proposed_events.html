@@ -8,7 +8,7 @@
         {% for event  in events %}
             <div class="p-4 border rounded-lg">
                 <h4 class="text-lg font-semibold">{{event.name}}</h4>
-                <p>Proposed by: <a href="#">{{event.created_by.username}}</a></p>
+                <p>Proposed by: <a href="{% url 'profile' event.created_by.id %}">{{event.created_by.username}}</a></p>
                 <p>Location: {{event.location}}</p>
                 <p>{{event.description}}</p>
                 {% if request.user.is_authenticated %}
