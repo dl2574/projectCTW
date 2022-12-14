@@ -22,7 +22,7 @@
                     <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'createEvent' %}">Propose Event</a>
                 </li>
                 <li class="">
-                    <a class="block text-center py-3.5 px-4 hover:text-third" href="#">Profile</a>
+                    <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'profile' request.user.id %}">Profile</a>
                 </li>
                 <li class="">
                     <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'logout' %}">Logout</a>

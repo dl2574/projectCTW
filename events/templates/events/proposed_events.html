@@ -3,18 +3,18 @@
 
 {% block content %}
 <section class="flex flex-col w-full p-8">
-    <h3>Proposed Events</h3>
-    <div class="flex">
+    <h3 class="text-3xl font-bold mb-3">Proposed Events</h3>
+    <div class="flex flex-col space-y-3">
         {% for event  in events %}
-            <div>
-                <h4>{{event.name}}</h4>
-                <p>Proposed by: <a href="#"><strong>{{event.created_by.username}}</strong></a></p>
-                <p>{{event.location}}</p>
+            <div class="p-4 border rounded-lg">
+                <h4 class="text-lg font-semibold">{{event.name}}</h4>
+                <p>Proposed by: <a href="#">{{event.created_by.username}}</a></p>
+                <p>Location: {{event.location}}</p>
                 <p>{{event.description}}</p>
                 {% if request.user.is_authenticated %}
-                    <button hx-post="{% url 'upvote' event.id %}">{{event.number_of_upvotes}} Up Votes</button>
+                    <button class="border py-1 px-2" hx-post="{% url 'upvote' event.id %}">{{event.number_of_upvotes}} Up Votes</button>
                 {% else %}
-                    <button onclick="window.location.href='{% url "login" %} ';">{{event.number_of_upvotes}} Up Votes</button>
+                    <button class="border py-1 px-2" onclick="window.location.href='{% url "login" %} ';">{{event.number_of_upvotes}} Up Votes</button>
                 {% endif %}
             </div>
         {% endfor %}

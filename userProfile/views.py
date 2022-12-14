@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .forms import CustomUserCreationForm
+from .models import User
 
 def loginUser(request):
     page = "login"
@@ -39,3 +40,10 @@ def registerUser(request):
 def logoutUser(request):
     logout(request)
     return redirect("login")
+
+def userProfile(request, pk):
+    profile = get_object_or_404(User, id=pk)
+
+    context = {"profile": profile}
+    return render(request, "userProfile/user_profile.html", context)
+
