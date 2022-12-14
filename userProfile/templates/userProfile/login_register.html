@@ -3,34 +3,36 @@
 {% load tailwind_filters %}
 
 {% block content %}
-    <section class="flex flex-col justify-center content-center w-full p-8">
+    <section class="container flex flex-col items-center mx-auto p-8">
+        <div class="flex flex-col space-y-2 border p-12 rounded-lg shadow-lg">
         {% if page == "login" %}
-            <h3>Login</h3>
+            <h3 class="text-3xl font-bold mb-3">Login</h3>
             <form method="POST" action={% url 'login' %}>
                 {% csrf_token %}
-                <div>
-                    <label for="email">Email: </label>
-                    <input id="email" type="email" name="email" placeholder="youremail@mail.com">
+                <div class="mb-3">
+                    <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email: </label>
+                    <input id="email" class="w-full rounded-lg py-2 text-gray-700 appearance-none leading-normal focus:outline-none border px-4 block bg-white" type="email" name="email" placeholder="youremail@mail.com">
                 </div>
-                <div>
-                    <label for="password">Password: </label>
-                    <input id="password" type="password" name="password" placeholde="**********">
+                <div class="mb-3">
+                    <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password: </label>
+                    <input id="password" class="w-full rounded-lg py-2 text-gray-700 appearance-none leading-normal focus:outline-none border px-4 block bg-white" type="password" name="password" placeholde="**********">
                 </div>
-                <div>
-                    <button type="submit">Login</button>
+                <div class="mb-3">
+                    <button type="submit" class="border rounded-lg py-3 px-5">Login</button>
                 </div>
-                <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+                <p class="text-sm">Don't have an account? <a href="{% url 'register' %}">Register</a></p>
             </form>
         {% else %}
-            <h3>Register</h3>
+            <h3 class="text-3xl font-bold mb-3">Register</h3>
             <form method="POST" action={% url 'register' %}>
                 {% csrf_token %}
                 {{form|crispy}}
                 <div>
-                    <button type="submit">Register</button>
+                    <button type="submit" class="border rounded-lg py-3 px-5">Register</button>
                 </div>
-                <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+                <p class="text-sm">Already have an account? <a href="{% url 'login' %}">Login</a></p>
             </form>
         {% endif %}
+        </div>
     </section>
 {% endblock content %}
