@@ -1,1 +1,1 @@
-web: gunicorn projectCTW.wsgo --log-file -
+web: gunicorn projectCTW.wsgi --log-file -
