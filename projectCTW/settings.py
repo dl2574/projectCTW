@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG")
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','https://web-production-48e8.up.railway.app/', 'www.projectctw.com']
 
 
 # Application definition
@@ -94,11 +94,11 @@ DATABASES = {
 
     'default': {
         'ENGINE': os.getenv("ENGINE"),
-        'NAME': os.getenv("NAME"),
-        'USER': os.getenv("USER"),
-        'PASSWORD': os.getenv("PASSWORD"),
-        'HOST': os.getenv("HOST"),
-        'PORT': os.getenv("PORT"),
+        'NAME': os.getenv("PGDATABASE"),
+        'USER': os.getenv("PGUSER"),
+        'PASSWORD': os.getenv("PGPASSWORD"),
+        'HOST': os.getenv("PGHOST"),
+        'PORT': os.getenv("PGPORT"),
     }
 }
 
