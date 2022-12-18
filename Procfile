@@ -1,1 +1,1 @@
-web: gunicorn projectCTW.wsgi --log-file -
+web: python manage.py migrate && gunicorn projectCTW.wsgi --log-file -
