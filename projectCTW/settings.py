@@ -98,7 +98,7 @@ DATABASES = {
 
     'default': {
         'ENGINE': os.getenv("ENGINE"),
-        'NAME': os.getenv("PGDATABASE"),
+        'NAME': (os.getenv("PGDATABASE") if os.getenv("PGDATABASE") else "projectCTW"),
         'USER': os.getenv("PGUSER"),
         'PASSWORD': os.getenv("PGPASSWORD"),
         'HOST': os.getenv("PGHOST"),
