@@ -97,7 +97,7 @@ DATABASES = {
     # }
 
     'default': {
-        'ENGINE': os.getenv("ENGINE"),
+        'ENGINE': "django.db.backends.postgresql",
         'NAME': (os.getenv("PGDATABASE") if os.getenv("PGDATABASE") else "projectCTW"),
         'USER': os.getenv("PGUSER"),
         'PASSWORD': os.getenv("PGPASSWORD"),
