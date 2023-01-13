@@ -165,5 +165,7 @@ SESSION_COOKIE_SECURE = True
 
 CSRF_COOKIE_SECURE = True
 
+CSRF_TRUSTED_ORIGINS = ["https://www.projectctw.com", "https://projectctw.com"]
+
 # if DEBUG == False:
 #     SECURE_SSL_REDIRECT = True
