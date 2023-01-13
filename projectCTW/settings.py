@@ -97,8 +97,8 @@ DATABASES = {
     # }
 
     'default': {
-        'ENGINE': os.getenv("ENGINE"),
-        'NAME': os.getenv("PGDATABASE"),
+        'ENGINE': "django.db.backends.postgresql",
+        'NAME': (os.getenv("PGDATABASE") if os.getenv("PGDATABASE") else "projectCTW"),
         'USER': os.getenv("PGUSER"),
         'PASSWORD': os.getenv("PGPASSWORD"),
         'HOST': os.getenv("PGHOST"),
@@ -164,6 +164,8 @@ AUTH_USER_MODEL = 'userProfile.User'
 SESSION_COOKIE_SECURE = True
 
 CSRF_COOKIE_SECURE = True
+
+CSRF_TRUSTED_ORIGINS = ["https://www.projectctw.com", "https://projectctw.com"]
 
 # if DEBUG == False:
 #     SECURE_SSL_REDIRECT = True
