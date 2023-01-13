@@ -54,3 +54,4 @@ jobs:
       env:
         PGHOST: localhost
         PGPORT: 5432
+        PGPASSWORD: postgres
