@@ -17,10 +17,12 @@ jobs:
 
     services:
       postgres:
-        image: postgres
+        image: postgres:15
 
         env:
           POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
 
         options: >-
           --health-cmd pg_isready
@@ -52,7 +54,8 @@ jobs:
         python manage.py test
 
       env:
-        PGHOST: localhost
+        PGHOST: "postgres://postgres:postgres@localhost/postgres"
         PGPORT: 5432
         USER: postgres
+        NAME: postgres
         PGPASSWORD: postgres
