@@ -106,7 +106,7 @@ DATABASES = {
     }
 }
 
-if os.environ.get('GITHUB_WORKFLOW'):
+if os.getenv('GITHUB_WORKFLOW'):
     DATABASE = {
         'default': {
             'ENGINE': "django.db.backends.postgresql",
