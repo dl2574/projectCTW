@@ -8,6 +8,7 @@ on:
 
 env:
   SECRET_KEY: ${{ secrets.TESTING_SECRET_KEY }}
+  GITHUB_WORKFLOW: True
   PGPORT: 5432
 
 jobs:
@@ -50,6 +51,3 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
-
-      env:
-        GITHUB_WORKFLOW: True
