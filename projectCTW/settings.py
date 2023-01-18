@@ -109,7 +109,7 @@ WSGI_APPLICATION = "projectCTW.wsgi.application"
 #if os.getenv('GITHUB_WORKFLOW'):
 DATABASE = {
     'default': {
-        'ENGINE': "django.db.backends.postgresql_psycopg2",
+        'ENGINE': "django.db.backends.postgresql",
         'NAME': "github_actions",
         'USER': "postgres",
         'PASSWORD': "postgres",
