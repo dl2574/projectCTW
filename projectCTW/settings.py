@@ -106,19 +106,6 @@ DATABASES = {
     }
 }
 
-#if os.getenv('GITHUB_WORKFLOW'):
-# DATABASEs = {
-#     'default': {
-#         'ENGINE': "django.db.backends.postgresql",
-#         'NAME': "github_actions",
-#         'USER': "postgres",
-#         'PASSWORD': "postgres",
-#         'HOST': "localhost",
-#         'PORT': "5432",
-#     }
-# }
-
-
 
 
 # Password validation
