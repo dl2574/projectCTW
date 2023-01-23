@@ -28,7 +28,7 @@ class LoginpageTests(SimpleTestCase):
 
     def test_template_content(self):
         response = self.client.get(reverse("login"))
-        self.assertContains(response, f"<form method='POST' action={reverse('login')}>", html=True)
+        self.assertContains(response, f'<form method="POST" action={reverse("login")}>')
         self.assertNotContains(response, "<h3>Register</h3>")
 
 
@@ -47,7 +47,7 @@ class RegisterpageTests(SimpleTestCase):
 
     def test_template_content(self):
         response = self.client.get(reverse("register"))
-        self.assertContains(response, f'<form method="POST" action={reverse("register")}>', html=True)
+        self.assertContains(response, f'<form method="POST" action={reverse("register")}>')
         self.assertNotContains(response, "<h3>Login</h3>")
 
 
