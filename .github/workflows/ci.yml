@@ -9,6 +9,11 @@ on:
 env:
   SECRET_KEY: ${{ secrets.TESTING_SECRET_KEY }}
   GITHUB_WORKFLOW: True
+  ENGINE: django.db.backends.postgresql
+  PGDATABASE: github_actions
+  PGUSER: postgres
+  PGPASSWORD: postgres
+  PGHOST: localhost
   PGPORT: 5432
 
 jobs:
