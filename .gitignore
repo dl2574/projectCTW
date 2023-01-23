@@ -117,3 +117,8 @@ GitHub.sublime-settings
 
 # Secrets #
 secrets.py
+
+#docker
+Dockerfile
+.dockerignore
+docker-compose.yml
