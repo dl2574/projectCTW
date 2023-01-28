@@ -91,14 +91,14 @@ WSGI_APPLICATION = "projectCTW.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    # "default": {
-    #     "ENGINE": "django.db.backends.sqlite3",
-    #     "NAME": BASE_DIR / "db.sqlite3",
-    # }
+#     # "default": {
+#     #     "ENGINE": "django.db.backends.sqlite3",
+#     #     "NAME": BASE_DIR / "db.sqlite3",
+#     # }
 
     'default': {
-        'ENGINE': os.getenv("ENGINE"),
-        'NAME': os.getenv("PGDATABASE"),
+        'ENGINE': "django.db.backends.postgresql",
+        'NAME': (os.getenv("PGDATABASE") if os.getenv("PGDATABASE") else "projectCTW"),
         'USER': os.getenv("PGUSER"),
         'PASSWORD': os.getenv("PGPASSWORD"),
         'HOST': os.getenv("PGHOST"),
@@ -164,6 +164,8 @@ AUTH_USER_MODEL = 'userProfile.User'
 SESSION_COOKIE_SECURE = True
 
 CSRF_COOKIE_SECURE = True
+
+CSRF_TRUSTED_ORIGINS = ["https://www.projectctw.com", "https://projectctw.com"]
 
 # if DEBUG == False:
 #     SECURE_SSL_REDIRECT = True

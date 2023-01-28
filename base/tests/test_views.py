@@ -1,4 +1,4 @@
-from django.test import TestCase, SimpleTestCase
+from django.test import SimpleTestCase
 from django.urls import reverse
 
 class HomepageTests(SimpleTestCase):
@@ -16,8 +16,8 @@ class HomepageTests(SimpleTestCase):
 
     def test_template_content(self):
         response = self.client.get(reverse("home"))
-        self.assertContains(response, "<h1>Hello</h1>")
-        self.assertNotContains(response, "<h1>About</h1>")
+        self.assertContains(response, "Welcome")
+        self.assertNotContains(response, "Our Mission")
 
 
 class AboutpageTests(SimpleTestCase):
@@ -35,5 +35,5 @@ class AboutpageTests(SimpleTestCase):
 
     def test_template_content(self):
         response = self.client.get(reverse("about"))
-        self.assertContains(response, "<h1>About</h1>")
-        self.assertNotContains(response, "<h1>Hello</h1>")
+        self.assertContains(response, "Our Mission")
+        self.assertNotContains(response, "Welcome")
