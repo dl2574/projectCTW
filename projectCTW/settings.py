@@ -32,7 +32,8 @@ if os.getenv("DEBUG") == "True":
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost','web-production-48e8.up.railway.app', 'https://web-production-48e8.up.railway.app/', 'www.projectctw.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'web-production-48e8.up.railway.app',
+                 'https://web-production-48e8.up.railway.app/', 'www.projectctw.com']
 
 
 # Application definition
@@ -91,10 +92,10 @@ WSGI_APPLICATION = "projectCTW.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-#     # "default": {
-#     #     "ENGINE": "django.db.backends.sqlite3",
-#     #     "NAME": BASE_DIR / "db.sqlite3",
-#     # }
+    #     # "default": {
+    #     #     "ENGINE": "django.db.backends.sqlite3",
+    #     #     "NAME": BASE_DIR / "db.sqlite3",
+    #     # }
 
     'default': {
         'ENGINE': "django.db.backends.postgresql",
@@ -107,7 +108,6 @@ DATABASES = {
 }
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -115,9 +115,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator", },
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator", },
 ]
 
 
@@ -147,7 +147,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = "media/"
 
 MEDIA_ROOT = BASE_DIR / 'static/images'
-
 
 
 # Default primary key field type

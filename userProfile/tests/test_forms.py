@@ -2,10 +2,12 @@ from django.test import TestCase
 from ..forms import CustomUserCreationForm
 from ..models import User
 
+
 class UserFormTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user1 = User.objects.create_user("johnblack", "john@black.com", "12345")
+        cls.user1 = User.objects.create_user(
+            "johnblack", "john@black.com", "12345")
 
     def test_unique_email_field(self):
         data = {
@@ -16,7 +18,8 @@ class UserFormTests(TestCase):
             "password2": "12345"
         }
         form = CustomUserCreationForm(data)
-        self.assertFormError(form=form, field="email", errors="User with this Email already exists.")
+        self.assertFormError(form=form, field="email",
+                             errors="User with this Email already exists.")
 
     def test_unique_username_field(self):
         data = {
@@ -27,4 +30,5 @@ class UserFormTests(TestCase):
             "password2": "12345"
         }
         form = CustomUserCreationForm(data)
-        self.assertFormError(form=form, field="username", errors="A user with that username already exists.")
+        self.assertFormError(form=form, field="username",
+                             errors="A user with that username already exists.")
