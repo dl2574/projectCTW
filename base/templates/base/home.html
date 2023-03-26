@@ -2,7 +2,42 @@
 {% load static %}
 
 {% block content %}
-    <section class="">
+    <!-- Title / Hero Section -->
+    <section class="container h-40 m-3 mt-0">
         <h1 class="text-4xl">Welcome to Project CTW</h1>
+        <p class="">A place where anyone can make a difference.</p>
+    </section>
+    <!-- Explination Section -->
+    <section class="flex flex-col space-y-5 md:flex-row md:justify-center md:space-x-5 md:space-y-0">
+        <!-- A card for each step of the process-->
+        <div class="flex flex-col items-center text-center rounded-lg p-4 border-2 border-gray-400">
+            <!-- Image Portion -->
+            <div class="">
+                <i class="fa-solid fa-glasses text-4xl text-gray-400"></i>
+            </div>
+            <!-- Title Portion -->
+            <div class="">
+                <h3 class="text-xl">See a problem</h3>
+            </div>
+            <!-- Description Portion -->
+            <div class="">
+                <p class="text-sm">Find something in your comunity which needs change.</p>
+            </div>
+        </div>
+        <!-- A card for each step of the process-->
+        <div class="flex flex-col items-center text-center rounded-lg p-4 border-2 border-gray-400">
+            <!-- Image Portion -->
+            <div class="">
+                <i class="fa-solid fa-glasses text-4xl"></i>
+            </div>
+            <!-- Title Portion -->
+            <div class="">
+                <h3 class="text-xl">See a problem</h3>
+            </div>
+            <!-- Description Portion -->
+            <div class="">
+                <p class="text-sm">Find something in your comunity which needs change.</p>
+            </div>
+        </div>
     </section>
 {% endblock content %}
