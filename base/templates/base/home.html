@@ -1,43 +1,63 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block content %}
-    <!-- Title / Hero Section -->
-    <section class="container h-40 m-3 mt-0">
-        <h1 class="text-4xl">Welcome to Project CTW</h1>
-        <p class="">A place where anyone can make a difference.</p>
-    </section>
-    <!-- Explination Section -->
-    <section class="flex flex-col space-y-5 md:flex-row md:justify-center md:space-x-5 md:space-y-0">
-        <!-- A card for each step of the process-->
-        <div class="flex flex-col items-center text-center rounded-lg p-4 border-2 border-gray-400">
-            <!-- Image Portion -->
-            <div class="">
-                <i class="fa-solid fa-glasses text-4xl text-gray-400"></i>
-            </div>
-            <!-- Title Portion -->
-            <div class="">
-                <h3 class="text-xl">See a problem</h3>
-            </div>
-            <!-- Description Portion -->
-            <div class="">
-                <p class="text-sm">Find something in your comunity which needs change.</p>
-            </div>
-        </div>
-        <!-- A card for each step of the process-->
-        <div class="flex flex-col items-center text-center rounded-lg p-4 border-2 border-gray-400">
-            <!-- Image Portion -->
-            <div class="">
-                <i class="fa-solid fa-glasses text-4xl"></i>
-            </div>
-            <!-- Title Portion -->
-            <div class="">
-                <h3 class="text-xl">See a problem</h3>
-            </div>
-            <!-- Description Portion -->
-            <div class="">
-                <p class="text-sm">Find something in your comunity which needs change.</p>
-            </div>
-        </div>
-    </section>
+{% extends 'base.html' %} {% load static %} {% block content %}
+<!-- Title / Hero Section -->
+<section class="container h-40 m-3 mt-0">
+  <h1 class="text-4xl">Welcome to Project CTW</h1>
+  <p class="">A place where anyone can make a difference.</p>
+</section>
+<!-- Explination Section -->
+<section
+  class="flex flex-col space-y-5 md:flex-row md:justify-center md:space-x-5 md:space-y-0"
+>
+  <!-- A card for each step of the process-->
+  <div
+    class="flex flex-row justify-center space-x-4 w-96 rounded-lg p-4 border-2 border-gray-400 shadow-lg"
+  >
+    <!-- Image Portion -->
+    <div class="flex items-center content-center basis-3">
+      <i class="fa-solid fa-glasses text-4xl text-gray-400"></i>
+    </div>
+    <!-- Title Portion -->
+    <div class="flex flex-col justify-center">
+      <h3 class="text-xl">See a problem</h3>
+      <!-- Description Portion -->
+      <p class="text-sm">Find something in your comunity which needs change.</p>
+    </div>
+  </div>
+  <!-- A card for each step of the process-->
+  <div
+    class="flex flex-row justify-center space-x-4 w-96 rounded-lg p-4 border-2 border-gray-400 shadow-lg"
+  >
+    <!-- Image Portion -->
+    <div class="flex items-center content-center basis-3">
+      <i class="fa-solid fa-clipboard-list text-4xl text-gray-400"></i>
+    </div>
+    <!-- Title Portion -->
+    <div class="flex flex-col justify-center">
+      <h3 class="text-xl">Pitch a Plan</h3>
+      <!-- Description Portion -->
+      <p class="text-sm">
+        Propose a plan to redemy the problem. If others like your idea, they can
+        volunteer to support!
+      </p>
+    </div>
+  </div>
+  <!-- A card for each step of the process-->
+  <div
+    class="flex flex-row justify-center space-x-4 w-96 rounded-lg p-4 border-2 border-gray-400 shadow-lg"
+  >
+    <!-- Image Portion -->
+    <div class="flex items-center content-center basis-3">
+      <i class="fa-solid fa-people-group text-4xl text-gray-400"></i>
+    </div>
+    <!-- Title Portion -->
+    <div class="flex flex-col justify-center">
+      <h3 class="text-xl">Fix it together</h3>
+      <!-- Description Portion -->
+      <p class="text-sm">
+        Work with other community members to make positive change within your
+        community.
+      </p>
+    </div>
+  </div>
+</section>
 {% endblock content %}
