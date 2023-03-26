@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import CustomUserCreationForm
 from .models import User
 
+
 def loginUser(request):
     page = "login"
 
@@ -21,6 +22,7 @@ def loginUser(request):
     context = {"page": page}
     return render(request, 'userProfile/login_register.html', context)
 
+
 def registerUser(request):
     page = "register"
     form = CustomUserCreationForm()
@@ -33,17 +35,18 @@ def registerUser(request):
 
             login(request, user)
             return redirect("home")
-    
+
     context = {"form": form, "page": page}
     return render(request, "userProfile/login_register.html", context)
+
 
 def logoutUser(request):
     logout(request)
     return redirect("login")
+
 
 def userProfile(request, pk):
     profile = get_object_or_404(User, id=pk)
 
     context = {"profile": profile}
     return render(request, "userProfile/user_profile.html", context)
-

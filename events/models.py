@@ -20,6 +20,7 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+
 class Plan(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     event = models.OneToOneField(Event, on_delete=CASCADE)
@@ -29,6 +30,7 @@ class Plan(models.Model):
 
     def __str__(self):
         return self.event.name
+
 
 class ProposedDate(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
