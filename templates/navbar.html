@@ -1,66 +1,120 @@
 {% load static %}
 
 <header class="">
-    <!-- Navbar -->
-    <nav class="relative container mx-auto p-3">
-        <!-- Flex container -->
-        <div class="flex flex-row-reverse justify-between items-center md:flex-row">
-            <!-- Left Menu -->
-            <ul class="hidden list-none items-center flex-row md:flex">
-                <li class="">
-                    <a class="block text-center text-xl font-bold py-3.5 pr-4" href="{% url 'home' %}">Project CTW</a>
-                </li>
-                <li class="">
-                    <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'home' %}">Home</a>
-                </li>
-                <li class="">
-                    <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'about' %}">About</a>
-                </li>
-                <li class="">
-                    <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'proposals' %}">Event Proposals</a>
-                </li>
-            </ul>
-            <!-- Right Menu -->
-            <ul class="hidden list-none items-center flex-row md:flex">
-                {% if request.user.is_authenticated %}
-                    <li class="">
-                        <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'createEvent' %}">Propose Event</a>
-                    </li>
-                    <li class="">
-                        <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'profile' request.user.id %}">Profile</a>
-                    </li>
-                    <li class="">
-                        <a class="block text-center py-3.5 pl-4 hover:text-third" href="{% url 'logout' %}">Logout</a>
-                    </li>
+  <!-- Navbar -->
+  <nav class="relative container mx-auto p-3">
+    <!-- Flex container -->
+    <div class="flex flex-row-reverse justify-between items-center md:flex-row">
+      <!-- Left Menu -->
+      <ul class="hidden list-none items-center flex-row md:flex">
+        <li class="">
+          <a
+            class="block text-center text-xl font-bold py-3.5 pr-4"
+            href="{% url 'home' %}"
+            >Project CTW</a
+          >
+        </li>
+        <li class="">
+          <a class="block py-3.5 px-4 hover:text-third" href="{% url 'home' %}"
+            >Home</a
+          >
+        </li>
+        <li class="">
+          <a
+            class="block text-center py-3.5 px-4 hover:text-third"
+            href="{% url 'about' %}"
+            >About</a
+          >
+        </li>
+        <li class="">
+          <a
+            class="block text-center py-3.5 px-4 hover:text-third"
+            href="{% url 'proposals' %}"
+            >Event Proposals</a
+          >
+        </li>
+      </ul>
+      <!-- Right Menu -->
+      <ul class="hidden list-none items-center flex-row md:flex">
+        {% if request.user.is_authenticated %}
+        <li class="">
+          <a
+            class="block text-center py-3.5 px-4 hover:text-third"
+            href="{% url 'createEvent' %}"
+            >Propose Event</a
+          >
+        </li>
+        <li class="">
+          <a
+            class="block text-center py-3.5 px-4 hover:text-third"
+            href="{% url 'profile' request.user.id %}"
+            >Profile</a
+          >
+        </li>
+        <li class="">
+          <a
+            class="block text-center py-3.5 pl-4 hover:text-third"
+            href="{% url 'logout' %}"
+            >Logout</a
+          >
+        </li>
 
-                {% else %}
-                    <li class="justify-end">
-                        <a class="block text-center py-3.5 pl-4 hover:text-third" href="{% url 'login' %}">Login</a>
-                    </li>
-                {% endif %}
-            </ul>
-            <!-- Menu button -->
-            <button id="menu-btn" class="block hamburger md:hidden focus:outline-none">
-                <span class="hamburger-top"></span>
-                <span class="hamburger-middle"></span>
-                <span class="hamburger-bottom"></span>
-            </button>
-            <a class="block text-center text-xl font-bold py-3.5 pr-4 md:hidden" href="{% url 'home' %}">Project CTW</a>
-        </div>
-        <!-- Mobile Menu -->
-        <div class="md:hidden">
-            <div id="menu" class="absolute flex-col items-center self-end hidden py-8 mt-10 space-y-6 bg-white sm:w-auto sm:self-center left-6 right-6 drop-shadow-md">
-                <a class="block text-center py-2 px-4" href="{% url 'home' %}">Home</a>
-                <a class="block text-center py-2 px-4" href="{% url 'about' %}">About</a>
-                <a class="block text-center py-2 px-4" href="{% url 'proposals' %}">Event Proposals</a>
-                {% if request.user.is_authenticated %}
-                    <a class="block text-center py-2 px-4" href="{% url 'createEvent' %}">Propose Event</a>
-                    <a class="block text-center py-2 px-4" href="{% url 'profile' request.user.id %}">Profile</a>
-                    <a class="block text-center py-2 px-4" href="{% url 'logout' %}">Logout</a>
-                {% else %}
-                    <a class="block text-center py-2 px-4" href="{% url 'login' %}">Login</a>
-                {% endif %}
-            <div>
-        </div>
-    </nav>
+        {% else %}
+        <li class="justify-end">
+          <a
+            class="block text-center py-3.5 pl-4 hover:text-third"
+            href="{% url 'login' %}"
+            >Login</a
+          >
+        </li>
+        {% endif %}
+      </ul>
+      <!-- Menu button -->
+      <button
+        id="menu-btn"
+        class="block hamburger md:hidden focus:outline-none"
+      >
+        <span class="hamburger-top"></span>
+        <span class="hamburger-middle"></span>
+        <span class="hamburger-bottom"></span>
+      </button>
+      <a
+        class="block text-center text-xl font-bold py-3.5 pr-4 md:hidden"
+        href="{% url 'home' %}"
+        >Project CTW</a
+      >
+    </div>
+    <!-- Mobile Menu -->
+    <div class="md:hidden">
+      <div
+        id="menu"
+        class="absolute flex-col items-center self-end hidden py-8 mt-10 space-y-6 bg-white sm:w-auto sm:self-center left-6 right-6 drop-shadow-md border-2"
+      >
+        <a class="block text-center py-2 px-4" href="{% url 'home' %}">Home</a>
+        <a class="block text-center py-2 px-4" href="{% url 'about' %}"
+          >About</a
+        >
+        <a class="block text-center py-2 px-4" href="{% url 'proposals' %}"
+          >Event Proposals</a
+        >
+        {% if request.user.is_authenticated %}
+        <a class="block text-center py-2 px-4" href="{% url 'createEvent' %}"
+          >Propose Event</a
+        >
+        <a
+          class="block text-center py-2 px-4"
+          href="{% url 'profile' request.user.id %}"
+          >Profile</a
+        >
+        <a class="block text-center py-2 px-4" href="{% url 'logout' %}"
+          >Logout</a
+        >
+        {% else %}
+        <a class="block text-center py-2 px-4" href="{% url 'login' %}"
+          >Login</a
+        >
+        {% endif %}
+      </div>
+    </div>
+  </nav>
 </header>
