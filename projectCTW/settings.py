@@ -46,9 +46,15 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    #3rd Party
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
     "crispy_forms",
     "crispy_tailwind",
+    "django_browser_reload",
 
+    # Local
     "base.apps.BaseConfig",
     "events.apps.EventsConfig",
     "userProfile.apps.UserprofileConfig",
@@ -63,11 +69,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware", # django-allauth
+    "django_browser_reload.middleware.BrowserReloadMiddleware", # django-browser-reload
 ]
 
 ROOT_URLCONF = "projectCTW.urls"
-
-AUTH_USER_MODEL = 'userProfile.User'
 
 TEMPLATES = [
     {
@@ -168,3 +174,21 @@ CSRF_TRUSTED_ORIGINS = ["https://www.projectctw.com", "https://projectctw.com"]
 
 # if DEBUG == False:
 #     SECURE_SSL_REDIRECT = True
+
+#Django-allauth config
+LOGIN_REDIRECT_URL = "home"
+ACCOUNT_LOGOUT_REDIRECT = "home"
+SITE_ID = 1
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+# ACCOUNT_FORMS = {"login": "accounts.forms.CustomLoginForm", 
+#                  "signup": "accounts.forms.CustomSignupForm",
+#                  }
