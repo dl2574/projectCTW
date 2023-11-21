@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-from dotenv import load_dotenv
+from environs import Env
 import os
 
-load_dotenv()
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,13 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.getenv("DEBUG") == "True":
-    DEBUG = True
-else:
-    DEBUG = False
+DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'web-production-48e8.up.railway.app',
                  'https://web-production-48e8.up.railway.app/', 'www.projectctw.com']
@@ -44,6 +42,9 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    
+    "whitenoise.runserver_nostatic",
+    
     "django.contrib.staticfiles",
 
     #3rd Party
@@ -97,20 +98,8 @@ WSGI_APPLICATION = "projectCTW.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    #     # "default": {
-    #     #     "ENGINE": "django.db.backends.sqlite3",
-    #     #     "NAME": BASE_DIR / "db.sqlite3",
-    #     # }
-
-    'default': {
-        'ENGINE': "django.db.backends.postgresql",
-        'NAME': (os.getenv("PGDATABASE") if os.getenv("PGDATABASE") else "projectCTW"),
-        'USER': os.getenv("PGUSER"),
-        'PASSWORD': os.getenv("PGPASSWORD"),
-        'HOST': os.getenv("PGHOST"),
-        'PORT': os.getenv("PGPORT"),
-    }
+DATABASES = {    
+    "default": env.dj_db_url("DATABASE_URL", default="sqlite:///db.sqlite3")
 }
 
 
@@ -150,6 +139,14 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    }
+}
 
 MEDIA_URL = "media/"
 
