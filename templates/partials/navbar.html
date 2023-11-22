@@ -57,9 +57,8 @@
             class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
             {% with request.resolver_match.url_name as url_name %}  
             <!-- Active: "bg-gray-100", Not Active: "" -->
-            <a href="{% url 'createEvent' %}" class="block px-4 py-2 text-sm text-gray-700 {% if url_name == 'createEvent' %}bg-gray-100{% endif %}" role="menuitem" tabindex="-1" id="user-menu-item-0">Create Event</a>  
-            <a href="{% url 'profile' user.pk %}" class="block px-4 py-2 text-sm text-gray-700 {% if url_name == 'profile' %}bg-gray-100{% endif %}" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
-              <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Settings</a>
+              <a href="{% url 'createEvent' %}" class="block px-4 py-2 text-sm text-gray-700 {% if url_name == 'createEvent' %}bg-gray-100{% endif %}" role="menuitem" tabindex="-1" id="user-menu-item-0">Create Event</a>  
+              <a href="{% url 'profile' user.pk %}" class="block px-4 py-2 text-sm text-gray-700 {% if url_name == 'profile' %}bg-gray-100{% endif %}" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
               <a href="{% url 'account_logout' %}" class="block px-4 py-2 text-sm text-gray-700 {% if url_name == 'account_logout' %}bg-gray-100{% endif %}" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</a>
             {% endwith %}
             </div>
@@ -116,7 +115,7 @@
         <!-- Current: "bg-indigo-50 border-indigo-500 text-indigo-700", Default: "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700" -->
         <a href="{% url 'home' %}" class="block border-l-4 py-2 pl-3 pr-4 text-base font-medium {% if url_name == 'home' %} text-indigo-700 border-indigo-500 bg-indigo-50 {% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %}">Home</a>
         <a href="{% url 'about' %}" class="block border-l-4 py-2 pl-3 pr-4 text-base font-medium {% if url_name == 'about' %} text-indigo-700 border-indigo-500 bg-indigo-50 {% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %}">About</a>
-        <a href="{% url 'proposals' %}" class="inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium {% if url_name == 'proposals' %} border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %}">Event Proposals</a>
+        <a href="{% url 'proposals' %}" class="block border-l-4 py-2 pl-3 pr-4 text-base font-medium {% if url_name == 'proposals' %} text-indigo-700 border-indigo-500 bg-indigo-50 {% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %}">Event Proposals</a>
         {% endwith %}
       </div>
       {% if user.is_authenticated %}
