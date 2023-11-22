@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-from dotenv import load_dotenv
+from environs import Env
 import os
 
-load_dotenv()
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,13 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.getenv("DEBUG") == "True":
-    DEBUG = True
-else:
-    DEBUG = False
+DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'web-production-48e8.up.railway.app',
                  'https://web-production-48e8.up.railway.app/', 'www.projectctw.com']
@@ -44,11 +42,20 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    
+    "whitenoise.runserver_nostatic",
+    
     "django.contrib.staticfiles",
 
+    #3rd Party
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
     "crispy_forms",
     "crispy_tailwind",
+    "django_browser_reload",
 
+    # Local
     "base.apps.BaseConfig",
     "events.apps.EventsConfig",
     "userProfile.apps.UserprofileConfig",
@@ -63,11 +70,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware", # django-allauth
+    "django_browser_reload.middleware.BrowserReloadMiddleware", # django-browser-reload
 ]
 
 ROOT_URLCONF = "projectCTW.urls"
-
-AUTH_USER_MODEL = 'userProfile.User'
 
 TEMPLATES = [
     {
@@ -91,20 +98,8 @@ WSGI_APPLICATION = "projectCTW.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    #     # "default": {
-    #     #     "ENGINE": "django.db.backends.sqlite3",
-    #     #     "NAME": BASE_DIR / "db.sqlite3",
-    #     # }
-
-    'default': {
-        'ENGINE': "django.db.backends.postgresql",
-        'NAME': (os.getenv("PGDATABASE") if os.getenv("PGDATABASE") else "projectCTW"),
-        'USER': os.getenv("PGUSER"),
-        'PASSWORD': os.getenv("PGPASSWORD"),
-        'HOST': os.getenv("PGHOST"),
-        'PORT': os.getenv("PGPORT"),
-    }
+DATABASES = {    
+    "default": env.dj_db_url("DATABASE_URL", default="sqlite:///db.sqlite3")
 }
 
 
@@ -143,6 +138,15 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    }
+}
 
 MEDIA_URL = "media/"
 
@@ -168,3 +172,21 @@ CSRF_TRUSTED_ORIGINS = ["https://www.projectctw.com", "https://projectctw.com"]
 
 # if DEBUG == False:
 #     SECURE_SSL_REDIRECT = True
+
+#Django-allauth config
+LOGIN_REDIRECT_URL = "home"
+ACCOUNT_LOGOUT_REDIRECT = "home"
+SITE_ID = 1
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+# ACCOUNT_FORMS = {"login": "accounts.forms.CustomLoginForm", 
+#                  "signup": "accounts.forms.CustomSignupForm",
+#                  }

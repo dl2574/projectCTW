@@ -33,6 +33,7 @@ class Plan(models.Model):
 
 
 class ProposedDate(models.Model):
+    # Allow multiple dates to be propsed and the best date voted on for the plan to happen
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     created_by = models.ForeignKey(User, on_delete=SET_NULL, null=True)
     for_plan = models.ForeignKey(Plan, on_delete=CASCADE)

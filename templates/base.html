@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en">
+<html class="h-full bg-gray-50" lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -11,9 +11,17 @@
       src="https://kit.fontawesome.com/b787fe3984.js"
       crossorigin="anonymous"
     ></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.2/dist/cdn.min.js"></script>
   </head>
-  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-    {% include 'navbar.html' %}
+  <body class="h-full" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    {% include "partials/navbar.html" %}
+    {% if messages %}
+      <ul class="">
+        {% for message in messages %}
+          {% include 'partials/notification.html' with tag=message.tags message=message %}
+        {% endfor %}
+      </ul>
+    {% endif %}
     <main class="container flex flex-col justify-center mx-auto p-3">
       {% block content %} {% endblock content %}
     </main>
