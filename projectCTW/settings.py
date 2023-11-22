@@ -158,9 +158,11 @@ MEDIA_ROOT = BASE_DIR / 'static/images'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Tailwind config
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
-
 CRISPY_TEMPLATE_PACK = "tailwind"
+TAILWIND_INPUT_FILE = "./static/css/input.css"
+TAILWIND_OUTPUT_FILE = "./static/css/main.css"
 
 AUTH_USER_MODEL = 'userProfile.User'
 
