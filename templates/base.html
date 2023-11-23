@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Project CTW</title>
+    <title>{% block title %}Project CTW{% endblock title %}</title>
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
     <script
       src="https://kit.fontawesome.com/b787fe3984.js"
@@ -16,11 +16,13 @@
   <body class="h-full" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% include "partials/navbar.html" %}
     {% if messages %}
-      <ul class="">
-        {% for message in messages %}
-          {% include 'partials/notification.html' with tag=message.tags message=message %}
-        {% endfor %}
-      </ul>
+      <div class="absolute top-8 right-0 z-50 flex items-end px-4 py-6 sm:items-start sm:p-6">
+        <ul class="flex flex-col items-center space-y-4 sm:items-end">
+          {% for message in messages %}
+            {% include 'partials/notification.html' with tag=message.tags message=message %}
+          {% endfor %}
+        </ul>
+      </div>
     {% endif %}
     
     {% block content %} {% endblock content %}
