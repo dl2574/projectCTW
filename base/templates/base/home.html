@@ -1,63 +1,72 @@
 {% extends 'base.html' %} {% load static %} {% block content %}
 <!-- Title / Hero Section -->
-<section class="container h-40 m-3 mt-0">
-  <h1 class="text-4xl">Welcome to Project CTW</h1>
-  <p class="">A place where anyone can make a difference.</p>
-</section>
-<!-- Explination Section -->
-<section
-  class="flex flex-col space-y-5 md:flex-row md:justify-center md:space-x-5 md:space-y-0"
->
-  <!-- A card for each step of the process-->
-  <div
-    class="flex flex-row justify-center space-x-4 w-96 rounded-lg p-4 border-2 border-gray-400 shadow-lg"
-  >
-    <!-- Image Portion -->
-    <div class="flex items-center content-center basis-3">
-      <i class="fa-solid fa-glasses text-4xl text-gray-400"></i>
+<main class="isolate">
+  <div class="relative isolate -z-10 overflow-hidden bg-gradient-to-b from-indigo-100/20 pt-14">
+    <div class="absolute inset-y-0 right-1/2 -z-10 -mr-96 w-[200%] origin-top-right skew-x-[-30deg] bg-white shadow-xl shadow-indigo-600/10 ring-1 ring-indigo-50 sm:-mr-80 lg:-mr-96" aria-hidden="true"></div>
+    <div class="mx-auto max-w-7xl px-6 py-32 sm:py-40 lg:px-8">
+      <div class="mx-auto max-w-2xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:gap-x-16 lg:gap-y-6 xl:grid-cols-1 xl:grid-rows-1 xl:gap-x-8">
+        <h1 class="max-w-2xl text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl lg:col-span-2 xl:col-auto">Empower Your Community, Ignite Change</h1>
+        <div class="mt-6 max-w-xl lg:mt-0 xl:col-end-1 xl:row-start-1">
+          <p class="text-lg leading-8 text-gray-600">
+            Embrace the spirit of collaboration at Project Change The World. Discover, support, and lead projects that turn local dreams into a collective force for positive change.
+          </p>
+          <div class="mt-10 flex items-center gap-x-6">
+            <a href="{% url 'account_signup' %}" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign Up!</a>
+            <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Learn more <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <div class="mt-10 sm:mt-16 lg:mt-0 lg:max-w-none xl:row-span-2 xl:row-end-2 xl:mt-36">
+          <img src="{% static 'images/teamwork.jpg' %}" alt="Hands of a team coming together" class="mt-10 aspect-[6/5] w-full max-w-lg rounded-2xl object-cover ">
+          <span>Photo by <a href="https://unsplash.com/@hannahbusing?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Hannah Busing</a> on <a href="https://unsplash.com/photos/person-in-red-sweater-holding-babys-hand-Zyx1bK9mqmA?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a></span>
+        </div>
+      </div>
     </div>
-    <!-- Title Portion -->
-    <div class="flex flex-col justify-center">
-      <h3 class="text-xl">See a problem</h3>
-      <!-- Description Portion -->
-      <p class="text-sm">Find something in your comunity which needs change.</p>
+    <div class="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-white sm:h-32"></div>
+  </div>
+
+  <!-- Content section -->
+  <div class="mx-auto -mt-12 max-w-7xl px-6 sm:mt-0 lg:px-8 xl:-mt-8">
+    <div class="mx-auto max-w-2xl lg:mx-0 lg:max-w-none">
+      <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Our mission</h2>
+      <div class="mt-6 flex flex-col gap-x-8 gap-y-20 lg:flex-row">
+        <div class="lg:w-full lg:max-w-2xl lg:flex-auto">
+          <p class="text-xl leading-8 text-gray-600">
+            Project Change The World (ProjectCTW) is on a mission to cultivate a culture of compassion, collaboration, and community resilience. Our vision is to create a dynamic digital platform that serves as the beating heart of positive transformation within neighborhoods.
+          </p>
+          <div class="mt-10 max-w-xl text-base leading-7 text-gray-700">
+            <p>
+              We believe in the inherent power of individuals to drive change, and our mission is to provide them with the tools and space to inspire, support, and actively engage in projects that elevate the well-being of their local communities. By harnessing the collective wisdom and diverse talents of community members, we aim to create a ripple effect of positive change that extends far beyond the digital realm.
+            </p>
+            <p class="mt-10">
+              Through fostering an environment that encourages collaboration, open communication, and collective action, we strive to be a catalyst for lasting change. We invite you to join us on this transformative journey, where every idea, every vote, and every action contributes to building a stronger, more connected, and resilient community. Together, we can turn aspirations into reality and shape a future where every community member thrives.
+            </p>
+          </div>
+        </div>
+        {% comment %} <div class="lg:flex lg:flex-auto lg:justify-center">
+          <dl class="w-64 space-y-8 xl:w-80">
+            <div class="flex flex-col-reverse gap-y-4">
+              <dt class="text-base leading-7 text-gray-600">Transactions every 24 hours</dt>
+              <dd class="text-5xl font-semibold tracking-tight text-gray-900">44 million</dd>
+            </div>
+            <div class="flex flex-col-reverse gap-y-4">
+              <dt class="text-base leading-7 text-gray-600">Assets under holding</dt>
+              <dd class="text-5xl font-semibold tracking-tight text-gray-900">$119 trillion</dd>
+            </div>
+            <div class="flex flex-col-reverse gap-y-4">
+              <dt class="text-base leading-7 text-gray-600">New users annually</dt>
+              <dd class="text-5xl font-semibold tracking-tight text-gray-900">46,000</dd>
+            </div>
+          </dl>
+        </div> {% endcomment %}
+      </div>
     </div>
   </div>
-  <!-- A card for each step of the process-->
-  <div
-    class="flex flex-row justify-center space-x-4 w-96 rounded-lg p-4 border-2 border-gray-400 shadow-lg"
-  >
-    <!-- Image Portion -->
-    <div class="flex items-center content-center basis-3">
-      <i class="fa-solid fa-clipboard-list text-4xl text-gray-400"></i>
-    </div>
-    <!-- Title Portion -->
-    <div class="flex flex-col justify-center">
-      <h3 class="text-xl">Pitch a plan</h3>
-      <!-- Description Portion -->
-      <p class="text-sm">
-        Propose a plan to redemy the problem. If others like your idea, they can
-        volunteer to support!
-      </p>
-    </div>
+
+  <!-- Image section -->
+  <div class="mt-32 sm:mt-40 xl:mx-auto xl:max-w-7xl xl:px-8">
+    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2832&q=80" alt="" class="aspect-[5/2] w-full object-cover xl:rounded-3xl">
   </div>
-  <!-- A card for each step of the process-->
-  <div
-    class="flex flex-row justify-center space-x-4 w-96 rounded-lg p-4 border-2 border-gray-400 shadow-lg"
-  >
-    <!-- Image Portion -->
-    <div class="flex items-center content-center basis-3">
-      <i class="fa-solid fa-people-group text-4xl text-gray-400"></i>
-    </div>
-    <!-- Title Portion -->
-    <div class="flex flex-col justify-center">
-      <h3 class="text-xl">Fix it together</h3>
-      <!-- Description Portion -->
-      <p class="text-sm">
-        Work with other community members to make positive change within your
-        community.
-      </p>
-    </div>
-  </div>
-</section>
+</main>
 {% endblock content %}
+
+  
