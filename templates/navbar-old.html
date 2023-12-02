@@ -28,7 +28,7 @@
                         <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'createEvent' %}">Propose Event</a>
                     </li>
                     <li class="">
-                        <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'profile' request.user.id %}">Profile</a>
+                        <a class="block text-center py-3.5 px-4 hover:text-third" href="{% url 'account_profile' request.user.username %}">Profile</a>
                     </li>
                     <li class="">
                         <a class="block text-center py-3.5 pl-4 hover:text-third" href="{% url 'logout' %}">Logout</a>
@@ -56,7 +56,7 @@
                 <a class="block text-center py-2 px-4" href="{% url 'proposals' %}">Event Proposals</a>
                 {% if request.user.is_authenticated %}
                     <a class="block text-center py-2 px-4" href="{% url 'createEvent' %}">Propose Event</a>
-                    <a class="block text-center py-2 px-4" href="{% url 'profile' request.user.id %}">Profile</a>
+                    <a class="block text-center py-2 px-4" href="{% url 'account_profile' request.user.username %}">Profile</a>
                     <a class="block text-center py-2 px-4" href="{% url 'logout' %}">Logout</a>
                 {% else %}
                     <a class="block text-center py-2 px-4" href="{% url 'login' %}">Login</a>

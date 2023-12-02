@@ -1,52 +1,36 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.decorators import login_required
-from .forms import CustomUserCreationForm
-from .models import User
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import DetailView
+from django.views.generic.edit import UpdateView
+
+from django.urls import reverse
+
+from django.contrib.auth import get_user_model
+
+from .forms import CustomUserChangeForm
 
 
-def loginUser(request):
-    page = "login"
-
-    if request.method == "POST":
-        email = request.POST['email']
-        password = request.POST['password']
-
-        user = authenticate(request, email=email, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect('home')
-
-    context = {"page": page}
-    return render(request, 'userProfile/login_register.html', context)
+class UserProfileView(LoginRequiredMixin, DetailView):
+    model = get_user_model()
+    template_name = "userProfile/user_profile.html"
+    login_url = "account_login"
+    slug_field = "username"
+    
+user_profile = UserProfileView.as_view()
 
 
-def registerUser(request):
-    page = "register"
-    form = CustomUserCreationForm()
-
-    if request.method == "POST":
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.save()
-
-            login(request, user)
-            return redirect("home")
-
-    context = {"form": form, "page": page}
-    return render(request, "userProfile/login_register.html", context)
-
-
-def logoutUser(request):
-    logout(request)
-    return redirect("login")
-
-
-def userProfile(request, pk):
-    profile = get_object_or_404(User, id=pk)
-
-    context = {"profile": profile}
-    return render(request, "userProfile/user_profile.html", context)
+class AccountProfileView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = get_user_model()
+    template_name = "userProfile/user_profile.html"
+    login_url = "account_login"
+    slug_field = "username"
+    form_class = CustomUserChangeForm
+    # success_url = 
+    
+    def get_absolute_url(self):
+        return reverse("userProfile/user_profile.html", kwargs={"username":self.username})
+    
+    def test_func(self) -> bool | None:
+        obj = self.get_object()
+        return obj.id == self.request.user.id
+    
+account_profile = AccountProfileView.as_view()

@@ -59,7 +59,7 @@
               {% with request.resolver_match.url_name as url_name %}  
               <!-- Active: "bg-gray-100", Not Active: "" -->
                 <a href="{% url 'createEvent' %}" class="block px-4 py-2 text-sm text-gray-700 {% if url_name == 'createEvent' %}bg-gray-100{% endif %}" role="menuitem" tabindex="-1" id="user-menu-item-0">Create Event</a>  
-                <a href="{% url 'profile' user.pk %}" class="block px-4 py-2 text-sm text-gray-700 {% if url_name == 'profile' %}bg-gray-100{% endif %}" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
+                <a href="{% url 'account_profile' user.username %}" class="block px-4 py-2 text-sm text-gray-700 {% if url_name == 'account_profile' %}bg-gray-100{% endif %}" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
                 <a href="{% url 'account_logout' %}" class="block px-4 py-2 text-sm text-gray-700 {% if url_name == 'account_logout' %}bg-gray-100{% endif %}" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</a>
               {% endwith %}
               </div>
@@ -138,7 +138,7 @@
             </button>
           </div>
           <div class="mt-3 space-y-1">
-            <a href="{% url 'profile' user.pk %}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800">Your Profile</a>
+            <a href="{% url 'account_profile' user.username %}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800">Your Profile</a>
             <a href="#" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800">Settings</a>
             <a href="{% url 'account_logout' %}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800">Sign out</a>
           </div>

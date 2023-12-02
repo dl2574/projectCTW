@@ -190,6 +190,6 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
-# ACCOUNT_FORMS = {"login": "accounts.forms.CustomLoginForm", 
-#                  "signup": "accounts.forms.CustomSignupForm",
-#                  }
+ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm", 
+                 "signup": "userProfile.forms.CustomSignupForm",
+                 }
