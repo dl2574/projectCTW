@@ -8,13 +8,13 @@
         {% for event  in events %}
             <div class="p-4 border rounded-lg">
                 <h4 class="text-lg font-semibold">{{event.name}}</h4>
-                <p>Proposed by: <a href="{% url 'profile' event.created_by.id %}">{{event.created_by.username}}</a></p>
+                <p>Proposed by: <a href="{% url 'user_profile' event.created_by.username %}">{{event.created_by.username}}</a></p>
                 <p>Location: {{event.location}}</p>
                 <p>{{event.description}}</p>
                 {% if request.user.is_authenticated %}
                     <button class="border py-1 px-2" hx-post="{% url 'upvote' event.id %}">{{event.number_of_upvotes}} Up Votes</button>
                 {% else %}
-                    <button class="border py-1 px-2" onclick="window.location.href='{% url "login" %} ';">{{event.number_of_upvotes}} Up Votes</button>
+                    <button class="border py-1 px-2" onclick="window.location.href='{% url "account_login" %} ';">{{event.number_of_upvotes}} Up Votes</button>
                 {% endif %}
             </div>
         {% endfor %}
