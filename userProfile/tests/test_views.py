@@ -1,8 +1,8 @@
-from django.test import SimpleTestCase
+from django.test import TestCase
 from django.urls import reverse
 
 
-class RegisterpageTests(SimpleTestCase):
+class RegisterpageTests(TestCase):
     def test_url_exists_at_correct_location(self):
         response = self.client.get("/accounts/signup/")
         self.assertEqual(response.status_code, 200)
@@ -21,7 +21,7 @@ class RegisterpageTests(SimpleTestCase):
         self.assertNotContains(response, "Sign in")
 
 
-class LoginpageTests(SimpleTestCase):
+class LoginpageTests(TestCase):
     def test_url_exists_at_correct_location(self):
         response = self.client.get("/accounts/login/")
         self.assertEqual(response.status_code, 200)
