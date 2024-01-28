@@ -16,7 +16,7 @@
   <body class="h-full" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% include "partials/navbar.html" %}
     {% if messages %}
-      <div class="absolute top-8 right-0 z-50 flex items-end px-4 py-6 sm:items-start sm:p-6">
+      <div class="absolute top-14 right-0 z-50 flex items-end px-4 py-6 sm:items-start sm:p-6">
         <ul class="flex flex-col items-center space-y-4 sm:items-end">
           {% for message in messages %}
             {% include 'partials/notification.html' with tag=message.tags message=message %}

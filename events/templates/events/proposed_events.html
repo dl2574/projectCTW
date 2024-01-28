@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %} Events {% endblock title%}
 {% block content %}
 
-<div class="pt-14">
+<div class="pt-16">
     <header>
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">Proposed Events</h1>
@@ -13,7 +14,7 @@
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <ul role="list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {% for event  in events %}
-                <div class="p-4 border rounded-lg">
+                {% comment %} <div class="p-4 border rounded-lg">
                     <h4 class="text-lg font-semibold">{{event.name}}</h4>
                     <p>Proposed by: <a href="{% url 'user_profile' event.created_by.username %}">{{event.created_by.username}}</a></p>
                     <p>Location: {{event.location}}</p>
@@ -23,16 +24,16 @@
                     {% else %}
                         <button class="border py-1 px-2" onclick="window.location.href='{% url "account_login" %} ';">{{event.number_of_upvotes}} Up Votes</button>
                     {% endif %}
-                </div>
+                </div> {% endcomment %}
             
             
                 <li class="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow">
                   <div class="flex flex-1 flex-col p-8">
                     <img class="mx-auto h-32 w-32 flex-shrink-0 rounded-full" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60" alt="">
-                    <h3 class="mt-6 text-sm font-medium text-gray-900">{{ event.name }}</h3>
+                    <h3 class="mt-6 text-sm font-medium text-gray-900 text-left">{{ event.name }}</h3>
                     <dl class="mt-1 flex flex-grow flex-col justify-between">
-                      <dt class="sr-only">Title</dt>
-                      <dd class="text-sm text-gray-500">{{ event.description|slice:":100" }}</dd>
+                      <dt class="sr-only">Description</dt>
+                      <dd class="text-sm text-gray-500 text-left">{{ event.description|slice:":100" }}</dd>
                       <dt class="sr-only">Role</dt>
                       <dd class="mt-3">
                         <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Admin</span>
@@ -42,12 +43,9 @@
                   <div>
                     <div class="-mt-px flex divide-x divide-gray-200">
                       <div class="flex w-0 flex-1">
-                        <a href="mailto:janecooper@example.com" class="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900">
-                          <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
-                            <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
-                          </svg>
-                          Email
+                        <a {% if request.user.is_authenticated %} hx-post="{% url 'upvote' event.id %}" {% else %} onclick="window.location.href='{% url "account_login" %} ';" {% endif %}class="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900">
+                          <i class="{% if event in user_upvoted_events %}fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up"></i> <!-- Does not work yet -->
+                          {{event.number_of_upvotes}} Up Vote{{event.number_of_upvotes|pluralize}}
                         </a>
                       </div>
                       <div class="-ml-px flex w-0 flex-1">

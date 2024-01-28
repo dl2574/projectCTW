@@ -16,6 +16,9 @@ class Event(models.Model):
 
     def number_of_upvotes(self):
         return self.upvotes.count()
+    
+    def user_upvoted(self, user):
+        return self.upvotes.filter(id=user.id).exists()
 
     def __str__(self):
         return self.name

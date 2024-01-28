@@ -7,7 +7,15 @@ from django.contrib.auth.decorators import login_required
 
 def proposedEvents(request):
     events = Event.objects.all()
+    
     context = {"events": events}
+    
+    if request.user.is_authenticated:
+        user = request.user
+        user_upvoted_events = user.event_set.all()
+        context.update({"user_upvoted_evets": user_upvoted_events})
+        
+   
     return render(request, 'events/proposed_events.html', context)
 
 
@@ -49,11 +57,16 @@ def editEvent(request, pk):
 def upvoteEvent(request, pk):
     user = request.user
     event = get_object_or_404(Event, id=pk)
+    thumb = "fa-regular"
 
     if event.upvotes.filter(id=user.id).exists():
         event.upvotes.remove(user)
     else:
         event.upvotes.add(user)
+        thumb = "fa-solid"
 
-    responseString = f"{event.number_of_upvotes()} Up Votes"
+    num_of_votes = event.number_of_upvotes()
+    vote_text = "Vote" if num_of_votes == 1 else "Votes"
+    
+    responseString = f"<html><i class='{thumb} fa-thumbs-up'></i> {num_of_votes} Up {vote_text}<html>"
     return HttpResponse(responseString)
