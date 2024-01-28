@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load event_tags %}
 
 {% block title %} Events {% endblock title%}
 {% block content %}
@@ -13,7 +14,7 @@
     <main>
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <ul role="list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {% for event  in events %}
+            {% for event in events %}
                 {% comment %} <div class="p-4 border rounded-lg">
                     <h4 class="text-lg font-semibold">{{event.name}}</h4>
                     <p>Proposed by: <a href="{% url 'user_profile' event.created_by.username %}">{{event.created_by.username}}</a></p>
@@ -44,7 +45,7 @@
                     <div class="-mt-px flex divide-x divide-gray-200">
                       <div class="flex w-0 flex-1">
                         <a {% if request.user.is_authenticated %} hx-post="{% url 'upvote' event.id %}" {% else %} onclick="window.location.href='{% url "account_login" %} ';" {% endif %}class="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900">
-                          <i class="{% if event in user_upvoted_events %}fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up"></i> <!-- Does not work yet -->
+                          <i class="{% if event|upvoted:request.user %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up"></i>
                           {{event.number_of_upvotes}} Up Vote{{event.number_of_upvotes|pluralize}}
                         </a>
                       </div>

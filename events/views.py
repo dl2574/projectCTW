@@ -6,14 +6,14 @@ from django.contrib.auth.decorators import login_required
 
 
 def proposedEvents(request):
+    user = request.user
     events = Event.objects.all()
     
     context = {"events": events}
     
-    if request.user.is_authenticated:
-        user = request.user
+    if user.is_authenticated:
         user_upvoted_events = user.event_set.all()
-        context.update({"user_upvoted_evets": user_upvoted_events})
+        context.update({"user_upvoted_events": user_upvoted_events})
         
    
     return render(request, 'events/proposed_events.html', context)
