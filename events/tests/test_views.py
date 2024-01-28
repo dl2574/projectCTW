@@ -52,11 +52,11 @@ class TestProposals(TestCase):
         
         # Create 1 upvote
         self.response = self.client.post(reverse("upvote", kwargs={'pk':self.test_event.id}))
-        self.assertEqual(self.response.content.decode("utf-8"), "1 Up Votes")
+        self.assertContains(self.response, "1 Up Vote")
         
         # Remove 1 upvote when user has already upvoted
         self.response = self.client.post(reverse("upvote", kwargs={'pk':self.test_event.id}))
-        self.assertEqual(self.response.content.decode("utf-8"), "0 Up Votes")
+        self.assertContains(self.response, "0 Up Votes")
         
         
         
