@@ -1,5 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.views.generic import DetailView
+
 from .forms import EventForm
 from .models import Event
 from django.contrib.auth.decorators import login_required
@@ -51,6 +55,13 @@ def editEvent(request, pk):
 
     context = {"form": form}
     return render(request, "events/create_event.html", context)
+
+class EventDetailView(LoginRequiredMixin, DetailView):
+    model = Event
+    template_name = "events/event_detail.html"
+    login_url = "login"
+    
+detailView = EventDetailView.as_view()
 
 
 @login_required()

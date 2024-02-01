@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Event Details - {{ event.name }} {% endblock title%}
+
+{% block content %}
+<div class="pt-16">
+    <main>
+        <h1>{{ event.name }}</h1>
+        <p>{{ event.description }}</p>
+        {% if request.user == event.created_by %}<a href="{% url 'editEvent' event.id %}">Edit</a>{% endif %}
+    </main>
+</div>
+{% endblock content %}
