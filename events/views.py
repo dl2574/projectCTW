@@ -9,6 +9,8 @@ from .models import Event
 from django.contrib.auth.decorators import login_required
 
 
+
+
 def proposedEvents(request):
     user = request.user
     events = Event.objects.all()
@@ -23,7 +25,7 @@ def proposedEvents(request):
     return render(request, 'events/proposed_events.html', context)
 
 
-@login_required(login_url="login")
+@login_required(login_url="account_login")
 def createEvent(request):
     form = EventForm()
 
@@ -39,7 +41,7 @@ def createEvent(request):
     return render(request, "events/create_event.html", context)
 
 
-@login_required(login_url="login")
+@login_required(login_url="account_login")
 def editEvent(request, pk):
     event = Event.objects.get(id=pk)
     if request.user != event.created_by:
@@ -59,12 +61,12 @@ def editEvent(request, pk):
 class EventDetailView(LoginRequiredMixin, DetailView):
     model = Event
     template_name = "events/event_detail.html"
-    login_url = "login"
+    login_url = "account_login"
     
 detailView = EventDetailView.as_view()
 
 
-@login_required()
+@login_required(login_url="account_login")
 def upvoteEvent(request, pk):
     user = request.user
     event = get_object_or_404(Event, id=pk)
