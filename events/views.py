@@ -58,10 +58,10 @@ def editEvent(request, pk):
     context = {"form": form}
     return render(request, "events/create_event.html", context)
 
-class EventDetailView(LoginRequiredMixin, DetailView):
+class EventDetailView(DetailView):
     model = Event
     template_name = "events/event_detail.html"
-    login_url = "account_login"
+
     
 detailView = EventDetailView.as_view()
 
