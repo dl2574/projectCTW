@@ -1,10 +1,21 @@
 from django.db import models
 from django.db.models.deletion import SET_NULL, CASCADE
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from userProfile.models import User
 import uuid
 
 
 class Event(models.Model):
+    class StatusCode(models.TextChoices):
+        PROPOSAL = "PR", _("Proposal")
+        PLANNING = "PL", _("Planning")
+        SCHEDULED = "SC", _("Scheduled")
+        COMPLETED = "CO", _("Completed")
+        ARCHIVED = "AR", _("Archived")
+        DENIED = "DN", _("Denied")
+        REMOVED = "RM", _("Removed")
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -13,12 +24,16 @@ class Event(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     upvotes = models.ManyToManyField(User, related_name="up_votes")
+    status = models.CharField(max_length=2, choices=StatusCode, default=StatusCode.PROPOSAL)
 
     def number_of_upvotes(self):
         return self.upvotes.count()
     
     def user_upvoted(self, user):
         return self.upvotes.filter(id=user.id).exists()
+    
+    def get_absolute_url(self):
+        return reverse("eventDetail", kwargs={"pk": self.pk})
 
     def __str__(self):
         return self.name

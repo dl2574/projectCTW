@@ -28,10 +28,12 @@
                       </dd> {% endcomment %}
                       
                     </dl>
+                    <div class="flex w-full text-sm justify-between items-center">
+                      <div class="flex items-center">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
-                        class="w-8 mr-4 icon-map"
+                        class="w-8 icon-map"
                       >
                         <path
                           class="primary"
@@ -42,7 +44,10 @@
                           d="M9 21V5.88l5.55-2.77A1 1 0 0 1 15 3v15.1L9.45 20.9A1 1 0 0 1 9 21z"
                         />
                       </svg>
-                      <span>{{event.location}}</span>
+                      <span class="inline">{{event.location|capfirst }}</span>
+                      </div>
+                      <span>{{ event.status }}</span>
+                    </div>
                   </div>
                   <div>
                     <div class="-mt-px flex divide-x divide-gray-200">

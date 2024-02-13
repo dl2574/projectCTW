@@ -14,3 +14,7 @@ def upvoted(event, user):
     return event.user_upvoted(user)
 
 # register.filter("upvoted", upvoted)
+
+@register.simple_tag
+def event_status(status):
+    pass

@@ -789,10 +789,6 @@ video {
   margin-top: 0.25rem;
 }
 
-.mr-4 {
-  margin-right: 1rem;
-}
-
 .-mt-px {
   margin-top: -1px;
 }
@@ -1820,7 +1816,7 @@ video {
 /* Icon colors */
 
 .primary {
-  fill: #111111
+  fill: #4e4e4e
 }
 
 .secondary {
