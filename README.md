@@ -3,7 +3,7 @@ Working towards building better communities together.
 
 ## Table of Contents
 - [Description](#description)
-- [Current Lines of Effort](#<current lines of effort>)
+- [Current Lines of Effort](<#current lines of effort>)
 
 
 ## Description
