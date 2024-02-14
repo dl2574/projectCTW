@@ -3,7 +3,7 @@ Working towards building better communities together.
 
 ## Table of Contents
 - [Description](#description)
-- [Current Lines of Effort](#current lines of effort)
+- [Current Lines of Effort](#current_lines_of_effort)
 
 
 ## Description
@@ -23,11 +23,11 @@ Sample project ideas:
 - Playground repair
 
 ## Current Lines of Effort
--[ ] Event Flow
+- Event Flow
     - Event creation
     - Event details
     - Status progression
--[ ] User Profiles
+- User Profiles
     - Events created, up voted, and participated in
     - Level progression system
     - Resume printing
