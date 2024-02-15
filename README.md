@@ -3,9 +3,10 @@ Working towards building better communities together.
 
 ## Table of Contents
 - [Description](#description)
+- [Current Lines of Effort](#current-lines-of-effort)
 
 
-### Description
+## Description
 The purpose of PrijectCTW is to provide a platform where community 
 members can come together and improve their circumstances around 
 them. Members of the playform can propose project ideas which
@@ -20,3 +21,13 @@ Sample project ideas:
 - Community park cleanup
 - Plant a community garden
 - Playground repair
+
+## Current Lines of Effort
+- Event Flow
+    - Event creation
+    - Event details
+    - Status progression
+- User Profiles
+    - Events created, up voted, and participated in
+    - Level progression system
+    - Resume printing
