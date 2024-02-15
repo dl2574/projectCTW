@@ -1,4 +1,5 @@
 from django import template
+from ..models import Event
 
 
 
@@ -17,4 +18,17 @@ def upvoted(event, user):
 
 @register.simple_tag
 def event_status(status):
-    pass
+    color = "yellow"
+    if status == "PL":
+        color = "purple"
+    elif status == "SC":
+        color = "blue"
+    elif status == "CO":
+        color = "green"
+    elif status == "AR":
+        color = "gray"
+    elif status == "DN":
+        color = "red"
+    elif status == "RM":
+        color = "red"
+    return f"text-{color}-400"

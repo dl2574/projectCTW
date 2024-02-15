@@ -23,7 +23,7 @@ class Event(models.Model):
     created_by = models.ForeignKey(User, on_delete=SET_NULL, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
-    upvotes = models.ManyToManyField(User, related_name="up_votes")
+    upvotes = models.ManyToManyField(User, related_name="up_votes", null=True)
     status = models.CharField(max_length=2, choices=StatusCode.choices, default=StatusCode.PROPOSAL)
 
     def number_of_upvotes(self):

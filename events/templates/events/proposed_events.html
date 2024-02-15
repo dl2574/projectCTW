@@ -28,8 +28,8 @@
                       </dd> {% endcomment %}
                       
                     </dl>
-                    <div class="flex w-full text-sm justify-between items-center">
-                      <div class="flex items-center">
+                    <div class="flex w-full text-sm justify-between items-center mt-3">
+                      <div class="flex items-center space-x-1">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -46,7 +46,7 @@
                       </svg>
                       <span class="inline">{{event.location|capfirst }}</span>
                       </div>
-                      <span>{{ event.status }}</span>
+                      <span class="{% event_status event.status%}">{{ event.get_status_display }}</span>
                     </div>
                   </div>
                   <div>
@@ -67,7 +67,6 @@
                   </div>
                 </li>
                 {% endfor %}
-                <!-- More people... -->
               </ul>
         </div>
     </main>
