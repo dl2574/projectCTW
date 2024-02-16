@@ -18,7 +18,7 @@
                 <li class="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow">
                   <div class="flex flex-1 flex-col p-8">
                     {% comment %} <img class="mx-auto h-32 w-32 flex-shrink-0 rounded-full" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60" alt=""> {% endcomment %}
-                    <h3 class="mt-6 text-sm font-medium text-gray-900 text-left">{{ event.name }}</h3>
+                    <h3 class="text-sm font-medium text-gray-900 text-left">{{ event.name }}</h3>
                     <dl class="mt-1 flex flex-grow flex-col justify-between">
                       <dt class="sr-only">Description</dt>
                       <dd class="text-sm text-gray-500 text-left">{{ event.description|slice:":100" }}</dd>
@@ -28,8 +28,8 @@
                       </dd> {% endcomment %}
                       
                     </dl>
-                    <div class="flex w-full text-sm justify-between items-center">
-                      <div class="flex items-center">
+                    <div class="flex w-full text-sm justify-between items-center mt-3">
+                      <div class="flex items-center space-x-1">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -46,7 +46,7 @@
                       </svg>
                       <span class="inline">{{event.location|capfirst }}</span>
                       </div>
-                      <span>{{ event.status }}</span>
+                      <span class="{% event_status_color event.status%} px-3 py-1 rounded-xl border-2">{{ event.get_status_display }}</span>
                     </div>
                   </div>
                   <div>
@@ -59,15 +59,13 @@
                       </div>
                       <div class="-ml-px flex w-0 flex-1">
                         <a href="{% url 'eventDetail' event.id %}" class="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900">
-                          <i class="fa-solid fa-list"></i>
-                          Details
+                          <i class="fa-solid fa-list"></i>Details
                         </a>
                       </div>
                     </div>
                   </div>
                 </li>
                 {% endfor %}
-                <!-- More people... -->
               </ul>
         </div>
     </main>
