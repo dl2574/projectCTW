@@ -5,10 +5,17 @@
 
 {% block content %}
 <div class="pt-16">
+    <header class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{ event.name }}</h1>
+    </header>
     <main>
-        <h1>{{ event.name }}</h1>
-        <p>{{ event.description }}</p>
-        {% if request.user == event.created_by %}<a href="{% url 'editEvent' event.id %}">Edit</a>{% endif %}
+        <div class="mx-auto max-w-7xl pt-8 sm:px-6 lg:px-8">
+            <p>{{ event.description }}</p>
+            <p>{{ event.created_by.username }}</p>
+            <p>{{ event.created_by.get_full_name }}</p>
+            <p>{{ event.number_of_upvotes }}</p>
+            {% if request.user == event.created_by %}<a href="{% url 'editEvent' event.id %}">Edit</a>{% endif %}
+        </div>
     </main>
 </div>
 {% endblock content %}
