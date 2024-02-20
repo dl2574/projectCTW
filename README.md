@@ -31,3 +31,6 @@ Sample project ideas:
     - Events created, up voted, and participated in
     - Level progression system
     - Resume printing
+- Site Pages
+    - Home
+    - About
