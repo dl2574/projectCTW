@@ -20,14 +20,14 @@ user_profile = UserProfileView.as_view()
 
 class AccountProfileView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = get_user_model()
-    template_name = "userProfile/user_profile.html"
+    template_name = "userProfile/user_account.html"
     login_url = "account_login"
     slug_field = "username"
     form_class = CustomUserChangeForm
     # success_url = 
     
-    def get_absolute_url(self):
-        return reverse("userProfile/user_profile.html", kwargs={"username":self.username})
+    # def get_absolute_url(self):
+    #     return reverse("userProfile/user_profile.html", kwargs={"username":self.username})
     
     def test_func(self) -> bool | None:
         obj = self.get_object()

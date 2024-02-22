@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.urls import reverse
 from django.contrib.auth.models import AbstractUser
 
 
@@ -18,3 +19,7 @@ class User(AbstractUser):
     
     def get_short_name(self):
         return f"{self.first_name} {self.last_name[0]}"
+    
+    def get_absolute_url(self):
+        return reverse("account_profile", kwargs={"slug": self.username})
+    

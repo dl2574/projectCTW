@@ -9,7 +9,11 @@
     </header>
     <main>
         <div class="mx-auto max-w-7xl pt-8 sm:px-6 lg:px-8">
-            <p>{{ user.bio }}</p>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Update">
+            </form>
         </div>
     </main>
 </div>
