@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from .forms import CustomUserChangeForm
 
 
-class UserProfileView(LoginRequiredMixin, DetailView):
+class UserProfileView(DetailView):
     model = get_user_model()
     template_name = "userProfile/user_profile.html"
     login_url = "account_login"

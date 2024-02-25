@@ -11,7 +11,7 @@
     <main>
         <div class="mx-auto max-w-7xl pt-8 sm:px-6 lg:px-8">
             <p>{{ event.description }}</p>
-            <p>{{ event.created_by.username }}</p>
+            <a href={% url 'user_profile' event.created_by.username %}>{{ event.created_by.username }}</a>
             <p>{{ event.created_by.get_full_name }}</p>
             <p>{{ event.number_of_upvotes }}</p>
             {% if request.user == event.created_by %}<a href="{% url 'editEvent' event.id %}">Edit</a>{% endif %}
