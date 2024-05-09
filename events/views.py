@@ -72,7 +72,7 @@ def upvoteEvent(request, pk):
     event = get_object_or_404(Event, id=pk)
     thumb = "fa-regular"
 
-    if event.upvotes.filter(id=user.id).exists():
+    if event.user_upvoted(user):
         event.upvotes.remove(user)
     else:
         event.upvotes.add(user)

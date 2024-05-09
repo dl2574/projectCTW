@@ -12,10 +12,11 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     bio = models.TextField(blank=True)
     birthdate = models.DateField(blank=True, null=True)
-    # experience = 
+    # experience =  # A tagging system for capturing various skills someone might have
     # phone number = 
     # following = models.ForeignKey("User", on_delete=SET_NULL, null=True)
     # followers = 
+    # level =  # Capturing what "level" someone is for access and assistance across the site
     
 
     USERNAME_FIELD = 'email'

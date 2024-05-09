@@ -24,10 +24,17 @@ class Event(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     upvotes = models.ManyToManyField(User, related_name="up_votes")
+    required_num_upvotes = models.PositiveIntegerField(default=3)
     status = models.CharField(max_length=2, choices=StatusCode.choices, default=StatusCode.PROPOSAL)
 
     def number_of_upvotes(self):
         return self.upvotes.count()
+    
+    def set_required_num_upvotes(self, num:int):
+        if num > 0:
+            self.required_num_upvotes = num
+            return True
+        return False
     
     def user_upvoted(self, user):
         return self.upvotes.filter(id=user.id).exists()
