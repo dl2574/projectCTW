@@ -15,6 +15,9 @@ class Notification(models.Model):
     def mark_read(self):
         self.read = True
         
+    class Meta:
+        abstract = True
+        
     
 class EventStatusChange(Notification):
     source_event = models.ForeignKey(Event, on_delete=models.CASCADE)
