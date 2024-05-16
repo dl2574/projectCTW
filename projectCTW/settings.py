@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "base.apps.BaseConfig",
     "events.apps.EventsConfig",
     "userProfile.apps.UserprofileConfig",
+    "notifications.apps.NotificationsConfig",
 ]
 
 MIDDLEWARE = [
