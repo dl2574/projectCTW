@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 
 from .forms import EventForm
 from .models import Event
@@ -10,19 +10,12 @@ from django.contrib.auth.decorators import login_required
 
 
 
-
-def proposedEvents(request):
-    user = request.user
-    events = Event.objects.all()
+class ProposedEvents(ListView):
+    model = Event
+    template_name = "events/proposed_events.html"
+    context_object_name = "events"
     
-    context = {"events": events}
-    
-    if user.is_authenticated:
-        user_upvoted_events = user.event_set.all()
-        context.update({"user_upvoted_events": user_upvoted_events})
-        
-   
-    return render(request, 'events/proposed_events.html', context)
+proposedEvents = ProposedEvents.as_view()
 
 
 @login_required(login_url="account_login")
