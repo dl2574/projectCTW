@@ -67,3 +67,10 @@ class ProposedDate(models.Model):
 
     def number_of_votes(self):
         return self.votes.count()
+    
+
+class Comment(models.Model):
+    comment = models.TextField()
+    event = models.ForeignKey(Event, on_delete=CASCADE)
+    created_by = models.ForeignKey(User, on_delete=CASCADE)
+    created_on = models.DateTimeField(auto_now_add=True)

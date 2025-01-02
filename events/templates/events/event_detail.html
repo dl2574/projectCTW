@@ -1,21 +1,38 @@
 {% extends "base.html" %}
 {% load static %}
+{% load event_tags %}
 
 {% block title %}Event Details - {{ event.name }} {% endblock title%}
 
 {% block content %}
 <div class="pt-20">
-    <header class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{ event.name }}</h1>
-    </header>
+    <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto flex justify-between">
+            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{ event.name }}</h1>
+            <span class="{% event_status_color event.status%} px-3 py-1 rounded-xl border-2">{{ event.get_status_display }}</span>
+        </div>
+        <div class="mx-auto flex justify-between">
+            <div>
+                <p>Proposed By: <a href={% url 'user_profile' event.created_by.username %}>{{ event.created_by.username }}</a></p>
+                {% if request.user == event.created_by %}<a href="{% url 'editEvent' event.id %}">Edit</a>{% endif %}
+            </div>
+            <div class="flex w-24">
+                <a {% if request.user.is_authenticated %} hx-post="{% url 'upvote' event.id %}" {% else %} onclick="window.location.href='{% url "account_login" %} ';" {% endif %}class="cursor-pointer relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900">
+                  <i class="{% if event|upvoted:request.user %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up"></i>
+                  {{event.number_of_upvotes}} Up Vote{{event.number_of_upvotes|pluralize}}
+                </a>
+            </div>
+        </div>
+    </section>
     <main>
-        <div class="mx-auto max-w-7xl pt-8 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 border">
             <p>{{ event.description }}</p>
-            <a href={% url 'user_profile' event.created_by.username %}>{{ event.created_by.username }}</a>
+            
             <p>{{ event.created_by.get_full_name }}</p>
-            <p>{{ event.number_of_upvotes }}</p>
-            {% if request.user == event.created_by %}<a href="{% url 'editEvent' event.id %}">Edit</a>{% endif %}
         </div>
     </main>
+    <section>
+        <!-- Comments -->
+    </section>
 </div>
 {% endblock content %}

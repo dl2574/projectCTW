@@ -971,6 +971,14 @@ video {
   width: 100%;
 }
 
+.w-3 {
+  width: 0.75rem;
+}
+
+.w-24 {
+  width: 6rem;
+}
+
 .max-w-2xl {
   max-width: 42rem;
 }
@@ -1069,6 +1077,10 @@ video {
 
 .flex-col-reverse {
   flex-direction: column-reverse;
+}
+
+.content-between {
+  align-content: space-between;
 }
 
 .items-end {
