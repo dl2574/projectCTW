@@ -30,8 +30,8 @@ def createEvent(request):
             event.save()
             return redirect("proposals")
 
-    context = {"form": form}
-    return render(request, "events/create_event.html", context)
+    context = {"form": form, "method": "create"}
+    return render(request, "events/event_form.html", context)
 
 
 @login_required(login_url="account_login")
@@ -51,8 +51,8 @@ def editEvent(request, pk):
     else:
         form = EventForm(instance=event)
 
-    context = {"form": form}
-    return render(request, "events/create_event.html", context)
+    context = {"form": form, "method": "edit", "pk": pk}
+    return render(request, "events/event_form.html", context)
 
 
 class EventDetailView(DetailView):

@@ -6,9 +6,9 @@
     <div class="pt-20">
         <section class="container flex flex-col items-center mx-auto p-8">
             <div class="flex flex-col space-y-2 border p-12 rounded-lg shadow-lg">
-                <h3 class="text-3xl font-bold mb-3">Create Event</h3>
+                <h3 class="text-3xl font-bold mb-3">{% if method == "create" %}Create Event{% else %}Edit Event{% endif %}</h3>
                 <div>
-                    <form method="POST" action="{% url 'createEvent' %}">
+                    <form method="POST" action="{% if method == "create" %}{% url 'createEvent' %}{% else %}{% url 'editEvent' pk %}{% endif %}">
                         {% csrf_token %}
                         {{form|crispy}}
                         <button class="border rounded-lg py-3 px-5" type="submit">Submit</button>
