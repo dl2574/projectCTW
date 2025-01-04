@@ -41,7 +41,7 @@
             {% for comment in comments %}
                 <div class="border px-5 py-2">
                     <p class="">{{comment.comment}}</p>
-                    <p class="">{{comment.created_by.usernmae}}</p>
+                    <p class="">{{comment.created_by.username}}</p>
                 </div>
             {% endfor %}
             <form method="POST" action="{% url 'createComment' event.id %}" class="border">
