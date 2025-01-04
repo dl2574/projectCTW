@@ -95,10 +95,10 @@ def createComment(request, pk):
     event = get_object_or_404(Event, id=pk)
 
     # Get post information
-    userComment = request.comment
+    userComment = request.POST["comment"]
     
     # Create comment for the ID'd event
-    newCommentObject = Comment.objects.create(comment=userComment, event=event, createdBy=user)
+    newCommentObject = Comment.objects.create(comment=userComment, event=event, created_by=user)
     newCommentObject.save()
 
     return redirect(event)

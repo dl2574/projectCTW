@@ -7,4 +7,5 @@ urlpatterns = [
     path("detail/<uuid:pk>/", views.detailView, name="eventDetail"),
     path("edit/<uuid:pk>/", views.editEvent, name="editEvent"),
     path("upvote/<str:pk>/", views.upvoteEvent, name="upvote"),
+    path("createComment<str:pk>/", views.createComment, name="createComment"),
 ]
