@@ -38,9 +38,15 @@
         </section>
         <section>
             <h2>Comments</h2>
+            {% for comment in comments %}
+                <div class="border px-5 py-2">
+                    <p class="">{{comment.comment}}</p>
+                    <p class="">{{comment.created_by.usernmae}}</p>
+                </div>
+            {% endfor %}
             <form method="POST" action="#" class="border">
                 {% csrf_token %}
-                {{ form|crispy }}
+                {{ commentForm|crispy }}
                 <button type="submit">Post</button>
             </form>
         </section>
