@@ -37,16 +37,19 @@ def createEvent(request):
 @login_required(login_url="account_login")
 def editEvent(request, pk):
     event = get_object_or_404(Event, id=pk)
-    if request.user != event.created_by:
-        return redirect(event)
 
-    form = EventForm(instance=event)
+    # Check if the logged-in user is the creator of the event
+    if request.user != event.created_by:
+        return redirect(event) # Redirect to the event detail page (or some other page)
 
     if request.method == "POST":
-        form = EventForm(request.POST)
+        form = EventForm(request.POST, instance=event)
         if form.is_valid():
-            form.save()
-            return redirect()
+            form.save() # Update the event object in the database
+            # Redirect to the event's detail page after saving
+            return redirect("eventDetail", pk=event.id)
+    else:
+        form = EventForm(instance=event)
 
     context = {"form": form}
     return render(request, "events/create_event.html", context)
@@ -80,6 +83,17 @@ def upvoteEvent(request, pk):
 
 
 @login_required(login_url="account_login")
-def createComment(request):
-    form = CommentForm()
+def createComment(request, pk):
+    # Get the current user and the event they commented on.
+    user = request.user
+    event = get_object_or_404(Event, id=pk)
+
+    # Get post information
+    userComment = request.comment
+    
+    # Create comment for the ID'd event
+    newCommentObject = Comment.objects.create(comment=userComment, event=event, createdBy=user)
+    newCommentObject.save()
+
+    return redirect(event)
 
