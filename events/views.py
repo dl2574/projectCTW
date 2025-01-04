@@ -59,6 +59,11 @@ class EventDetailView(DetailView):
     model = Event
     template_name = "events/event_detail.html"
 
+    def get_context_data(self, **kwargs):
+        context =  super().get_context_data(**kwargs)
+        context["comments"] = Event.comment_set.all()
+        return context
+
     
 detailView = EventDetailView.as_view()
 
