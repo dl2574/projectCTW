@@ -60,21 +60,23 @@ def detailView(request, pk):
     event = get_object_or_404(Event, id=pk)
     event_comments = event.comment_set.all()
 
+    if request.method == "POST":
+        if request.user.is_authenticated:
+            user = request.user
+
+            # Get comment from post data
+            userComment = request.POST["comment"]
+            
+            # Create comment for the ID'd event
+            newCommentObject = Comment.objects.create(comment=userComment, event=event, created_by=user)
+            newCommentObject.save()
+
+            return redirect(event)
+        else:
+            return redirect("account_login")
+
     context = {"comments": event_comments, "commentForm": CommentForm, "event": event}
     return render(request, "events/event_detail.html", context)
-
-# class EventDetailView(DetailView):
-#     model = Event
-#     template_name = "events/event_detail.html"
-
-#     def get_context_data(self, **kwargs):
-#         context =  super().get_context_data(**kwargs)
-#         context["comments"] = self.object.comment_set.all()
-#         context["commentForm"] = CommentForm
-#         return context
-
-    
-# detailView = EventDetailView.as_view()
 
 
 @login_required(login_url="account_login")
@@ -95,19 +97,4 @@ def upvoteEvent(request, pk):
     responseString = f"<html><i class='{thumb} fa-thumbs-up'></i> {num_of_votes} Up {vote_text}<html>"
     return HttpResponse(responseString)
 
-
-@login_required(login_url="account_login")
-def createComment(request, pk):
-    # Get the current user and the event they commented on.
-    user = request.user
-    event = get_object_or_404(Event, id=pk)
-
-    # Get post information
-    userComment = request.POST["comment"]
-    
-    # Create comment for the ID'd event
-    newCommentObject = Comment.objects.create(comment=userComment, event=event, created_by=user)
-    newCommentObject.save()
-
-    return redirect(event)
 

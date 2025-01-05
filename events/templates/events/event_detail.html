@@ -44,7 +44,7 @@
                     <p class=""><a href="{% url 'user_profile' comment.created_by.username %}">{{comment.created_by.username}}</a></p>
                 </div>
             {% endfor %}
-            <form method="POST" action="{% url 'createComment' event.id %}" class="border">
+            <form method="POST" class="border">
                 {% csrf_token %}
                 {{ commentForm|crispy }}
                 <button type="submit">Post</button>
