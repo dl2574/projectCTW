@@ -85,13 +85,21 @@ def upvoteEvent(request, pk):
     event = get_object_or_404(Event, id=pk)
     thumb = "fa-regular"
 
+    # Check if the user has upvoted this event already
     if event.user_upvoted(user):
+        # If already upvoted, remove upvote
         event.upvotes.remove(user)
     else:
+        # Add upvote
         event.upvotes.add(user)
         thumb = "fa-solid"
 
     num_of_votes = event.number_of_upvotes()
+
+    # Check if this the vote count is above the required number of upvotes. If so, change status to planning.
+    if num_of_votes > event.required_num_upvotes:
+        event.status = Event.StatusCode.PLANNING
+
     vote_text = "Vote" if num_of_votes == 1 else "Votes"
     
     responseString = f"<html><i class='{thumb} fa-thumbs-up'></i> {num_of_votes} Up {vote_text}<html>"
