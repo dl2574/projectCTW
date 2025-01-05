@@ -55,18 +55,26 @@ def editEvent(request, pk):
     return render(request, "events/event_form.html", context)
 
 
-class EventDetailView(DetailView):
-    model = Event
-    template_name = "events/event_detail.html"
 
-    def get_context_data(self, **kwargs):
-        context =  super().get_context_data(**kwargs)
-        context["comments"] = self.object.comment_set.all()
-        context["commentForm"] = CommentForm
-        return context
+def detailView(request, pk):
+    event = get_object_or_404(Event, id=pk)
+    event_comments = event.comment_set.all()
+
+    context = {"comments": event_comments, "commentForm": CommentForm, "event": event}
+    return render(request, "events/event_detail.html", context)
+
+# class EventDetailView(DetailView):
+#     model = Event
+#     template_name = "events/event_detail.html"
+
+#     def get_context_data(self, **kwargs):
+#         context =  super().get_context_data(**kwargs)
+#         context["comments"] = self.object.comment_set.all()
+#         context["commentForm"] = CommentForm
+#         return context
 
     
-detailView = EventDetailView.as_view()
+# detailView = EventDetailView.as_view()
 
 
 @login_required(login_url="account_login")
