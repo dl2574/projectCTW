@@ -7,50 +7,55 @@
 
 {% block content %}
 <div class="pt-20">
-    <main>
-        <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="mx-auto flex justify-between">
-                <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{ event.name }}</h1>
-                <span class="{% event_status_color event.status%} px-3 py-1 rounded-xl border-2">{{ event.get_status_display }}</span>
+    
+    <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto flex justify-between">
+            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{ event.name }}</h1>
+            <span class="{% event_status_color event.status%} px-3 py-1 rounded-xl border-2">{{ event.get_status_display }}</span>
+        </div>
+        <div class="mx-auto flex justify-between">
+            <div>
+                <p>Proposed By: <a href={% url 'user_profile' event.created_by.username %}>{{ event.created_by.username }}</a></p>
+                {% if request.user == event.created_by %}<a href="{% url 'editEvent' event.id %}">Edit</a>{% endif %}
             </div>
-            <div class="mx-auto flex justify-between">
-                <div>
-                    <p>Proposed By: <a href={% url 'user_profile' event.created_by.username %}>{{ event.created_by.username }}</a></p>
-                    {% if request.user == event.created_by %}<a href="{% url 'editEvent' event.id %}">Edit</a>{% endif %}
-                </div>
-                <div class="flex border">
-                    <a {% if request.user.is_authenticated %} hx-post="{% url 'upvote' event.id %}" {% else %} onclick="window.location.href='{% url "account_login" %} ';" {% endif %}class="cursor-pointer relative -mr-px inline-flex flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent text-sm font-semibold text-gray-900">
-                    <i class="{% if event|upvoted:request.user %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up"></i>
-                    {{event.number_of_upvotes}} Up Vote{{event.number_of_upvotes|pluralize}}
-                    </a>
-                </div>
+            <div class="flex border">
+                <a {% if request.user.is_authenticated %} 
+                    hx-post="{% url 'upvote' event.id %}" 
+                    {% else %} 
+                    onclick="window.location.href='{% url "account_login" %} ';" 
+                    {% endif %}
+                    class="cursor-pointer relative -mr-px inline-flex flex-1 items-center justify-center gap-x-3 
+                        rounded-bl-lg border border-transparent text-sm font-semibold text-gray-900">
+                <i class="{% if event|upvoted:request.user %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up"></i>
+                {{event.number_of_upvotes}} Up Vote{{event.number_of_upvotes|pluralize}}
+                </a>
             </div>
-        </section>
-        <section>
-            <h2>Event Details:</h2>
-            <p>{{event.location}}</p>
-            <!-- Link to required materials list -->
-            <!-- Section for proposed dates -->
-        </section>
-        <section class="mx-auto max-w-7xl sm:px-6 lg:px-8 border">
-            <h2>Event Description:</h2>
-            <p>{{ event.description }}</p>
-        </section>
-        <section>
-            <h2>Comments</h2>
-            {% for comment in comments %}
-                <div class="border px-5 py-2">
-                    <p class="">{{comment.comment}}</p>
-                    <p class=""><a href="{% url 'user_profile' comment.created_by.username %}">{{comment.created_by.username}}</a></p>
-                </div>
-            {% endfor %}
-            <form method="POST" class="border">
-                {% csrf_token %}
-                {{ commentForm|crispy }}
-                <button type="submit">Post</button>
-            </form>
-        </section>
-    </main>
+        </div>
+    </section>
+    <section>
+        <h2>Event Details:</h2>
+        <p>{{event.location}}</p>
+        <!-- Link to required materials list -->
+        <!-- Section for proposed dates -->
+    </section>
+    <section class="mx-auto max-w-7xl sm:px-6 lg:px-8 border">
+        <h2>Event Description:</h2>
+        <p>{{ event.description }}</p>
+    </section>
+    <section>
+        <h2>Comments</h2>
+        {% for comment in comments %}
+            <div class="border px-5 py-2">
+                <p class="">{{comment.comment}}</p>
+                <p class=""><a href="{% url 'user_profile' comment.created_by.username %}">{{comment.created_by.username}}</a></p>
+            </div>
+        {% endfor %}
+        <form method="POST" class="border">
+            {% csrf_token %}
+            {{ commentForm|crispy }}
+            <button type="submit">Post</button>
+        </form>
+    </section>
 
 </div>
 {% endblock content %}
