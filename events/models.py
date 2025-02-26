@@ -16,7 +16,7 @@ class Event(models.Model):
         DENIED = "DN", _("Denied")
         REMOVED = "RM", _("Removed")
     
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, db_index=True)
     name = models.CharField(max_length=100)
     description = models.TextField()
     location = models.CharField(max_length=100)
@@ -47,7 +47,7 @@ class Event(models.Model):
 
 
 class Plan(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, db_index=True)
     event = models.OneToOneField(Event, on_delete=CASCADE)
     volunteers = models.ManyToManyField(User, related_name="volunteers")
     created_on = models.DateTimeField(auto_now_add=True)

@@ -8,8 +8,8 @@ from django.db.models.deletion import SET_NULL
 from datetime import date
 
 class User(AbstractUser):
-    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    email = models.EmailField(unique=True)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, db_index=True)
+    email = models.EmailField(unique=True, db_index=True)
     bio = models.TextField(blank=True)
     birthdate = models.DateField(blank=True, null=True)
     # experience =  # A tagging system for capturing various skills someone might have
