@@ -1,6 +1,6 @@
 /* css/input.css */
-@import "tailwindcss/preflight";
-
+@tailwind base;
+@tailwind components;
 @tailwind utilities;
 
 
