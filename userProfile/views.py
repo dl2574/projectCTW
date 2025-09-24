@@ -29,8 +29,5 @@ class AccountProfileView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     # def get_absolute_url(self):
     #     return reverse("userProfile/user_profile.html", kwargs={"username":self.username})
     
-    def test_func(self) -> bool | None:
-        obj = self.get_object()
-        return obj.id == self.request.user.id
     
 account_profile = AccountProfileView.as_view()
