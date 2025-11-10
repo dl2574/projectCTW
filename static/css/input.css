@@ -12,3 +12,85 @@
 .secondary {
     fill: #999999
 }
+
+/* 1️⃣ Pull in Tailwind’s core layers */
+@tailwind base;
+@tailwind components;
+
+
+/* 2️⃣ Define your design tokens */
+@theme {
+  /* Colours – you can give them any name you like */
+  --color-primary:   #6366f1;   /* indigo‑600 */
+  --color-success:   #10b981;   /* emerald‑500 */
+  --color-warning:   #f59e0b;   /* amber‑500 */
+  --color-muted:     #e5e7eb;   /* gray‑200 */
+  --color-dark-bg:   #111827;   /* gray‑900 */
+  --color-light-bg:  #f9fafb;   /* gray‑50 */
+
+  /* Text colours */
+  --text-primary:    #6366f1;
+  --text-body:       #1f2937;   /* gray‑800 */
+  --text-muted:      #6b7280;   /* gray‑500 */
+  --text-inverse:    #e5e7eb;   /* gray‑200 */
+
+  /* Font families */
+  --font-sans:       "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Border radius */
+  --radius-sm:       .375rem;   /* 6px */
+  --radius-md:       .5rem;     /* 8px */
+  --radius-full:     9999px;
+
+  /* Shadows (you can copy Tailwind’s defaults) */
+  --shadow-sm:       0 1px 2px 0 rgba(0,0,0,.05);
+  --shadow-md:       0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06);
+}
+
+/* 3️⃣ Turn the tokens into real utility classes */
+@layer utilities {
+  /* Background colours */
+  .bg-primary   { background-color: var(--color-primary); }
+  .bg-success   { background-color: var(--color-success); }
+  .bg-warning   { background-color: var(--color-warning); }
+  .bg-muted     { background-color: var(--color-muted); }
+  .bg-dark      { background-color: var(--color-dark-bg); }
+  .bg-light     { background-color: var(--color-light-bg); }
+
+  /* Text colours */
+  .text-primary { color: var(--text-primary); }
+  .text-body    { color: var(--text-body); }
+  .text-muted   { color: var(--text-muted); }
+  .text-inverse { color: var(--text-inverse); }
+
+  /* Borders & radii */
+  .rounded-sm   { border-radius: var(--radius-sm); }
+  .rounded-md   { border-radius: var(--radius-md); }
+  .rounded-full { border-radius: var(--radius-full); }
+
+  /* Shadows */
+  .shadow-sm    { box-shadow: var(--shadow-sm); }
+  .shadow-md    { box-shadow: var(--shadow-md); }
+
+  /* Dark‑mode helpers – Tailwind already adds the `dark:` variant,
+     we just need the underlying class definitions */
+  .dark\:bg-dark   { background-color: var(--color-dark-bg); }
+  .dark\:text-inverse { color: var(--text-inverse); }
+}
+
+/* 4️⃣ Optional base styles (typography, link defaults, etc.) */
+@layer base {
+  html { font-family: var(--font-sans); }
+  body { @apply bg-light text-body; }
+
+  a {
+    @apply text-primary underline hover:text-primary/80;
+  }
+
+  /* Example of a “button” component that re‑uses the tokens */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-md transition-colors;
+  }
+  .btn-primary { @apply btn bg-primary text-inverse hover:bg-primary/90; }
+  .btn-success { @apply btn bg-success text-inverse hover:bg-success/90; }
+}
