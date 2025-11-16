@@ -122,3 +122,6 @@ secrets.py
 Dockerfile
 .dockerignore
 docker-compose.yml
+
+# Claude
+.claude/
