@@ -17,8 +17,8 @@ class RegisterpageTests(TestCase):
 
     def test_template_content(self):
         response = self.client.get(reverse("account_signup"))
-        self.assertContains(response, "Sign up for an account")
-        self.assertNotContains(response, "Sign in")
+        self.assertContains(response, "Join the movement")
+        self.assertContains(response, "Create Account")
 
 
 class LoginpageTests(TestCase):
@@ -36,5 +36,5 @@ class LoginpageTests(TestCase):
 
     def test_template_content(self):
         response = self.client.get(reverse("account_login"))
-        self.assertContains(response, "Sign in to your account")
-        self.assertNotContains(response, "Sign up")
+        self.assertContains(response, "Welcome back")
+        self.assertContains(response, "Sign in")

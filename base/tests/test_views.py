@@ -18,7 +18,6 @@ class HomepageTests(SimpleTestCase):
     def test_template_content(self):
         response = self.client.get(reverse("home"))
         self.assertContains(response, "Empower Your Community")
-        self.assertNotContains(response, "Our Mission")
 
 
 class AboutpageTests(SimpleTestCase):

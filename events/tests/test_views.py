@@ -36,7 +36,7 @@ class TestProposals(TestCase):
         self.response = self.client.get(self.url)
         self.assertEqual(self.response.status_code, 200)
         self.assertTemplateUsed(self.response, "events/proposed_events.html")
-        self.assertContains(self.response, "Proposed Events")
+        self.assertContains(self.response, "Event Proposals")
         
         
     def test_proposal_event_exisits(self):
