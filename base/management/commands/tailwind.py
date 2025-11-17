@@ -28,6 +28,6 @@ class Command(BaseCommand):
     
         if options["deploy"]:
             subprocess.call(["tailwindcss", "-o", output_path, "--minify"])
-            management.call_command("collectstatic", "--no-input")
+            management.call_command("collectstatic", "--no-input", "--ignore=input.css")
     
     
