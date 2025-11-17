@@ -1,23 +1,32 @@
 {% extends 'base.html' %} {% load static %} {% block content %}
 <!-- Title / Hero Section -->
 <main class="isolate">
-  <div class="relative isolate -z-10 overflow-hidden bg-gradient-to-b from-indigo-100/20 pt-14">
-    <div class="absolute inset-y-0 right-1/2 -z-10 -mr-96 w-[200%] origin-top-right skew-x-[-30deg] bg-white shadow-xl shadow-indigo-600/10 ring-1 ring-indigo-50 sm:-mr-80 lg:-mr-96" aria-hidden="true"></div>
-    <div class="mx-auto max-w-7xl px-6 py-32 sm:py-40 lg:px-8">
+  <div class="relative isolate -z-10 overflow-hidden bg-gradient-to-b from-teal-50 via-white to-white pt-16">
+    <div class="absolute inset-y-0 right-1/2 -z-10 -mr-96 w-[200%] origin-top-right skew-x-[-30deg] bg-white shadow-xl shadow-teal-600/10 ring-1 ring-teal-50 sm:-mr-80 lg:-mr-96" aria-hidden="true"></div>
+    <div class="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8 lg:py-40">
       <div class="mx-auto max-w-2xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:gap-x-16 lg:gap-y-6 xl:grid-cols-1 xl:grid-rows-1 xl:gap-x-8">
-        <h1 class="max-w-2xl text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl lg:col-span-2 xl:col-auto">Empower Your Community, Ignite Change</h1>
+        <h1 class="max-w-2xl text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:col-span-2 xl:col-auto">
+          <span class="text-gradient">Empower Your Community,</span> Ignite Change
+        </h1>
         <div class="mt-6 max-w-xl lg:mt-0 xl:col-end-1 xl:row-start-1">
-          <p class="text-lg leading-8 text-gray-600">
+          <p class="text-lg leading-8 text-slate-600">
             Embrace the spirit of collaboration at Project Change The World. Discover, support, and lead projects that turn local dreams into a collective force for positive change.
           </p>
-          <div class="mt-10 flex items-center gap-x-6">
-            <a href="{% url 'account_signup' %}" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign Up!</a>
-            <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Learn more <span aria-hidden="true">→</span></a>
+          <div class="mt-10 flex flex-wrap items-center gap-4">
+            <a href="{% url 'account_signup' %}" class="btn-primary text-base px-6 py-3">
+              Get Started
+              <svg class="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </a>
+            <a href="{% url 'about' %}" class="btn-outline text-base px-6 py-3">
+              Learn more
+            </a>
           </div>
         </div>
         <div class="mt-10 sm:mt-16 lg:mt-0 lg:max-w-none xl:row-span-2 xl:row-end-2 xl:mt-36">
-          <img src="{% static 'images/teamwork.jpg' %}" alt="Hands of a team coming together" class="mt-10 aspect-[6/5] w-full max-w-lg rounded-2xl object-cover ">
-          <span>Photo by <a href="https://unsplash.com/@hannahbusing?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Hannah Busing</a> on <a href="https://unsplash.com/photos/person-in-red-sweater-holding-babys-hand-Zyx1bK9mqmA?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a></span>
+          <img src="{% static 'images/teamwork.jpg' %}" alt="Hands of a team coming together" class="mt-10 aspect-[6/5] w-full max-w-lg rounded-2xl object-cover shadow-xl ring-1 ring-slate-900/10">
+          <p class="mt-3 text-xs text-slate-500">Photo by <a href="https://unsplash.com/@hannahbusing?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" class="text-teal-600 hover:text-teal-700 transition-colors">Hannah Busing</a> on <a href="https://unsplash.com/photos/person-in-red-sweater-holding-babys-hand-Zyx1bK9mqmA?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" class="text-teal-600 hover:text-teal-700 transition-colors">Unsplash</a></p>
         </div>
       </div>
     </div>
@@ -27,44 +36,46 @@
   <!-- Content section -->
   <div class="mx-auto -mt-12 max-w-7xl px-6 sm:mt-0 lg:px-8 xl:-mt-8">
     <div class="mx-auto max-w-2xl lg:mx-0 lg:max-w-none">
-      <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Our mission</h2>
-      <div class="mt-6 flex flex-col gap-x-8 gap-y-20 lg:flex-row">
+      <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Our Mission</h2>
+      <div class="mt-8 flex flex-col gap-x-8 gap-y-20 lg:flex-row">
         <div class="lg:w-full lg:max-w-2xl lg:flex-auto">
-          <p class="text-xl leading-8 text-gray-600">
+          <p class="text-xl leading-8 text-slate-600">
             Project Change The World (ProjectCTW) is on a mission to cultivate a culture of compassion, collaboration, and community resilience. Our vision is to create a dynamic digital platform that serves as the beating heart of positive transformation within neighborhoods.
           </p>
-          <div class="mt-10 max-w-xl text-base leading-7 text-gray-700">
-            <p>
-              We believe in the inherent power of individuals to drive change, and our mission is to provide them with the tools and space to inspire, support, and actively engage in projects that elevate the well-being of their local communities. By harnessing the collective wisdom and diverse talents of community members, we aim to create a ripple effect of positive change that extends far beyond the digital realm.
-            </p>
-            <p class="mt-10">
-              Through fostering an environment that encourages collaboration, open communication, and collective action, we strive to be a catalyst for lasting change. We invite you to join us on this transformative journey, where every idea, every vote, and every action contributes to building a stronger, more connected, and resilient community. Together, we can turn aspirations into reality and shape a future where every community member thrives.
-            </p>
+          <div class="mt-10 max-w-xl space-y-8 text-base leading-7 text-slate-700">
+            <div class="relative pl-9">
+              <div class="absolute left-0 top-0 flex h-6 w-6 items-center justify-center">
+                <div class="h-1.5 w-1.5 rounded-full bg-teal-600 ring-2 ring-teal-600/30"></div>
+              </div>
+              <p>
+                We believe in the inherent power of individuals to drive change, and our mission is to provide them with the tools and space to inspire, support, and actively engage in projects that elevate the well-being of their local communities.
+              </p>
+            </div>
+            <div class="relative pl-9">
+              <div class="absolute left-0 top-0 flex h-6 w-6 items-center justify-center">
+                <div class="h-1.5 w-1.5 rounded-full bg-emerald-600 ring-2 ring-emerald-600/30"></div>
+              </div>
+              <p>
+                By harnessing the collective wisdom and diverse talents of community members, we aim to create a ripple effect of positive change that extends far beyond the digital realm.
+              </p>
+            </div>
+            <div class="relative pl-9">
+              <div class="absolute left-0 top-0 flex h-6 w-6 items-center justify-center">
+                <div class="h-1.5 w-1.5 rounded-full bg-amber-500 ring-2 ring-amber-500/30"></div>
+              </div>
+              <p>
+                Through fostering an environment that encourages collaboration, open communication, and collective action, we strive to be a catalyst for lasting change. We invite you to join us on this transformative journey, where every idea, every vote, and every action contributes to building a stronger, more connected, and resilient community.
+              </p>
+            </div>
           </div>
         </div>
-        {% comment %} <div class="lg:flex lg:flex-auto lg:justify-center">
-          <dl class="w-64 space-y-8 xl:w-80">
-            <div class="flex flex-col-reverse gap-y-4">
-              <dt class="text-base leading-7 text-gray-600">Transactions every 24 hours</dt>
-              <dd class="text-5xl font-semibold tracking-tight text-gray-900">44 million</dd>
-            </div>
-            <div class="flex flex-col-reverse gap-y-4">
-              <dt class="text-base leading-7 text-gray-600">Assets under holding</dt>
-              <dd class="text-5xl font-semibold tracking-tight text-gray-900">$119 trillion</dd>
-            </div>
-            <div class="flex flex-col-reverse gap-y-4">
-              <dt class="text-base leading-7 text-gray-600">New users annually</dt>
-              <dd class="text-5xl font-semibold tracking-tight text-gray-900">46,000</dd>
-            </div>
-          </dl>
-        </div> {% endcomment %}
       </div>
     </div>
   </div>
 
   <!-- Image section -->
   <div class="mt-32 sm:mt-40 xl:mx-auto xl:max-w-7xl xl:px-8">
-    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2832&q=80" alt="" class="aspect-[5/2] w-full object-cover xl:rounded-3xl">
+    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2832&q=80" alt="Community collaboration" class="aspect-[5/2] w-full object-cover shadow-xl ring-1 ring-slate-900/10 xl:rounded-3xl">
   </div>
 </main>
 {% endblock content %}

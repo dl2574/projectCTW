@@ -1,43 +1,52 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Lotout{% endblock title %}
+{% block title %}Logout{% endblock title %}
 
 {% block content %}
-    <!--
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
--->
-<!--
-  This example requires updating your template:
+<div class="flex min-h-full flex-col justify-center py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 via-white to-white">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+      <img class="mx-auto h-12 w-auto" src="{% static 'images/logo.png' %}" alt="Project CTW">
+      <h2 class="mt-8 text-center text-3xl font-bold leading-9 tracking-tight text-slate-900">Sign out</h2>
+      <p class="mt-2 text-center text-sm text-slate-600">
+        Are you sure you want to sign out?
+      </p>
+    </div>
 
-  ```
-  <html class="h-full bg-gray-50">
-  <body class="h-full">
-  ```
--->
-<div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">  
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
-      <div class="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
+      <div class="card mx-4 px-6 py-8 sm:px-12">
         <form class="space-y-6" method="POST">
             {% csrf_token %}
 
-            <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Are you sure you want to logout?</h2>
-  
-            <div>
-                <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Logout</button>
+            <div class="rounded-lg bg-amber-50 border border-amber-200 p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-amber-800">
+                    You will be signed out of your account and redirected to the home page.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <a href="{% url 'home' %}" class="btn-outline w-full justify-center py-3">
+                <i class="fa-solid fa-arrow-left mr-2"></i>
+                Cancel
+              </a>
+              <button type="submit" class="btn-primary w-full justify-center py-3 bg-red-600 hover:bg-red-700 focus-visible:outline-red-600">
+                <i class="fa-solid fa-right-from-bracket mr-2"></i>
+                Sign out
+              </button>
             </div>
         </form>
       </div>
+
+      <p class="mt-6 text-center text-sm text-slate-600">
+        <a href="{% url 'home' %}" class="font-semibold text-teal-600 transition-colors duration-150 hover:text-teal-700">Return to home</a>
+      </p>
     </div>
 </div>
 {% endblock content %}

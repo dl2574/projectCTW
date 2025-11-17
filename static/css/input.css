@@ -1,39 +1,223 @@
 /* css/input.css */
 @import "tailwindcss";
-@source@source "../../.venv/lib/python3.13/site-packages/crispy_tailwind/templates/tailwind/"
+@source "../../.venv/lib/python3.13/site-packages/crispy_tailwind/templates/tailwind/";
 
 
 /* 2️⃣ Define your design tokens */
 @theme {
-  /* Colours – you can give them any name you like */
-  --color-primary:   #6366f1;   /* indigo‑600 */
-  --color-success:   #10b981;   /* emerald‑500 */
-  --color-warning:   #f59e0b;   /* amber‑500 */
-  --color-muted:     #e5e7eb;   /* gray‑200 */
-  --color-dark-bg:   #111827;   /* gray‑900 */
-  --color-light-bg:  #f9fafb;   /* gray‑50 */
+  /* Brand Colors - Community & Positive Change */
+  --color-primary:      #0d9488;   /* teal-600 - trust, community */
+  --color-primary-dark: #0f766e;   /* teal-700 */
+  --color-primary-light:#5eead4;   /* teal-300 */
+
+  --color-secondary:    #059669;   /* emerald-600 - growth */
+  --color-secondary-dark:#047857;  /* emerald-700 */
+  --color-secondary-light:#6ee7b7; /* emerald-300 */
+
+  --color-accent:       #f59e0b;   /* amber-500 - energy, action */
+  --color-accent-dark:  #d97706;   /* amber-600 */
+  --color-accent-light: #fcd34d;   /* amber-300 */
+
+  --color-success:      #10b981;   /* emerald-500 */
+  --color-warning:      #f59e0b;   /* amber-500 */
+  --color-danger:       #ef4444;   /* red-500 */
+  --color-info:         #3b82f6;   /* blue-500 */
+
+  /* Neutral colors with warm tints */
+  --color-muted:        #e5e7eb;   /* gray-200 */
+  --color-dark-bg:      #0f172a;   /* slate-900 */
+  --color-light-bg:     #f8fafc;   /* slate-50 */
+  --color-card-bg:      #ffffff;   /* white */
 
   /* Text colours */
-  --text-primary:    #6366f1;
-  --text-body:       #1f2937;   /* gray‑800 */
-  --text-muted:      #6b7280;   /* gray‑500 */
-  --text-inverse:    #e5e7eb;   /* gray‑200 */
+  --text-primary:       #0d9488;   /* teal-600 */
+  --text-heading:       #0f172a;   /* slate-900 */
+  --text-body:          #334155;   /* slate-700 */
+  --text-muted:         #64748b;   /* slate-500 */
+  --text-inverse:       #f8fafc;   /* slate-50 */
 
   /* Font families */
-  --font-sans:       "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans:          "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display:       "Inter", ui-sans-serif, system-ui, sans-serif;
 
   /* Border radius */
-  --radius-sm:       .375rem;   /* 6px */
-  --radius-md:       .5rem;     /* 8px */
-  --radius-full:     9999px;
+  --radius-sm:          .375rem;   /* 6px */
+  --radius-md:          .5rem;     /* 8px */
+  --radius-lg:          .75rem;    /* 12px */
+  --radius-xl:          1rem;      /* 16px */
+  --radius-2xl:         1.5rem;    /* 24px */
+  --radius-full:        9999px;
 
-  /* Shadows (you can copy Tailwind’s defaults) */
-  --shadow-sm:       0 1px 2px 0 rgba(0,0,0,.05);
-  --shadow-md:       0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06);
+  /* Shadows - enhanced for depth */
+  --shadow-xs:          0 1px 2px 0 rgba(0,0,0,.05);
+  --shadow-sm:          0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px -1px rgba(0,0,0,.1);
+  --shadow-md:          0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+  --shadow-lg:          0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+  --shadow-xl:          0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1);
+
+  /* Transitions */
+  --transition-base:    150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast:    100ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:    300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 4️⃣ Optional base styles (typography, link defaults, etc.) */
-@layer base {
-  html { font-family: var(--font-sans); }
+/* 4️⃣ Base styles */
+html {
+  font-family: var(--font-sans);
+}
 
+body {
+  color: #334155;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: #0f172a;
+}
+
+/* Smooth scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* 5️⃣ Custom component classes */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background-color: #0d9488;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover {
+  background-color: #0f766e;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 2px;
+}
+
+.btn-primary:active {
+  transform: scale(0.95);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background-color: #059669;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-secondary:hover {
+  background-color: #047857;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 2px solid #0d9488;
+  background-color: transparent;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: #0d9488;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-outline:hover {
+  background-color: #f0fdfa;
+}
+
+.btn-outline:active {
+  transform: scale(0.95);
+}
+
+.card {
+  border-radius: 0.75rem;
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+}
+
+.card-bordered {
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background-color: white;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-bordered:hover {
+  border-color: #99f6e4;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background-color: #d1fae5;
+  color: #047857;
+  box-shadow: inset 0 0 0 1px rgba(4, 120, 87, 0.2);
+}
+
+.badge-warning {
+  background-color: #fef3c7;
+  color: #d97706;
+  box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.2);
+}
+
+.badge-info {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  box-shadow: inset 0 0 0 1px rgba(29, 78, 216, 0.2);
+}
+
+.badge-primary {
+  background-color: #ccfbf1;
+  color: #0f766e;
+  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.2);
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #0d9488, #059669);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
