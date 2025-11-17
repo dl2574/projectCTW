@@ -1,5 +1,6 @@
 /* css/input.css */
-@import "tailwindcss/preflight";
+@import "tailwindcss";
+@source@source "../../.venv/lib/python3.13/site-packages/crispy_tailwind/templates/tailwind/"
 
 
 /* 2️⃣ Define your design tokens */
@@ -34,10 +35,5 @@
 /* 4️⃣ Optional base styles (typography, link defaults, etc.) */
 @layer base {
   html { font-family: var(--font-sans); }
-  body { @apply bg-light-bg text-body; }
-
-  a {
-    @apply text-primary underline hover:text-primary/80;
-  }
 
 }
