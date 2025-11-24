@@ -123,5 +123,3 @@ Dockerfile
 .dockerignore
 docker-compose.yml
 
-# Claude
-.claude/
