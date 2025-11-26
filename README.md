@@ -2,8 +2,8 @@
 
 **Empowering communities to propose, plan, and execute volunteer projects together.**
 
-[![License](https://img.shields.io/badge/license-TBD-blue.svg)](LICENSE)
-[![Django](https://img.shields.io/badge/Django-5.0.6-green.svg)](https://www.djangoproject.com/)
+[![License](https://img.shields.io/badge/license-APGL%203.0-blue.svg)](LICENSE)
+[![Django](https://img.shields.io/badge/Django-5.2.8-green.svg)](https://www.djangoproject.com/)
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 
 ---
