@@ -30,8 +30,14 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'web-production-48e8.up.railway.app',
-                 'https://web-production-48e8.up.railway.app/', 'www.projectctw.com']
+if DEBUG:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+else:
+    ALLOWED_HOSTS = [
+        'web-production-48e8.up.railway.app',
+        'www.projectctw.com',
+        'projectctw.com',
+    ]
 
 
 # Application definition
@@ -175,8 +181,15 @@ CSRF_COOKIE_SECURE = True
 
 CSRF_TRUSTED_ORIGINS = ["https://www.projectctw.com", "https://projectctw.com"]
 
-# if DEBUG == False:
-#     SECURE_SSL_REDIRECT = True
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+
+X_FRAME_OPTIONS = 'DENY'
 
 #Django-allauth config
 LOGIN_REDIRECT_URL = "home"
@@ -186,10 +199,9 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 )
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
+# New django-allauth configuration format (replaces deprecated settings)
+ACCOUNT_LOGIN_METHODS = {'email'}  # Login via email only
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']  # Email and single password (* = required)
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm", 
                  "signup": "userProfile.forms.CustomSignupForm",
