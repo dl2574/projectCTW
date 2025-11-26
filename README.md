@@ -84,7 +84,7 @@ See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the co
 ## Tech Stack
 
 ### Backend
-- **Django 5.0.6** - Web framework
+- **Django 5.2.8** - Web framework
 - **PostgreSQL** - Production database
 - **SQLite** - Development database
 - **django-allauth** - Authentication
