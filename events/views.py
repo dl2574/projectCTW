@@ -62,16 +62,21 @@ def detailView(request, pk):
 
     if request.method == "POST":
         if request.user.is_authenticated:
-            user = request.user
-
-            # Get comment from post data
-            userComment = request.POST["comment"]
-            
-            # Create comment for the ID'd event
-            newCommentObject = Comment.objects.create(comment=userComment, event=event, created_by=user)
-            newCommentObject.save()
-
-            return redirect(event)
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.event = event
+                comment.created_by = request.user
+                comment.save()
+                return redirect(event)
+            else:
+                event_comments = event.comment_set.all()
+                context = {
+                    "comments": event_comments,
+                    "commentForm": form,
+                    "event": event
+                }
+                return render(request, "events/event_detail.html", context)
         else:
             return redirect("account_login")
 
@@ -99,6 +104,7 @@ def upvoteEvent(request, pk):
     # Check if this the vote count is above the required number of upvotes. If so, change status to planning.
     if num_of_votes > event.required_num_upvotes:
         event.status = Event.StatusCode.PLANNING
+        event.save()
 
     vote_text = "Vote" if num_of_votes == 1 else "Votes"
     

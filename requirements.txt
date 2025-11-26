@@ -1,7 +1,7 @@
 asgiref==3.8.1
 crispy-tailwind==1.0.3
 dj-database-url==2.2.0
-Django==5.0.6
+Django==5.2.8
 django-allauth==0.63.2
 django-browser-reload==1.17.0
 django-crispy-forms==2.3
