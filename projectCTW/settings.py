@@ -175,13 +175,15 @@ TAILWIND_OUTPUT_FILE = os.path.join(STATICFILES_DIRS[0], "css", "main.css")
 
 AUTH_USER_MODEL = 'userProfile.User'
 
-SESSION_COOKIE_SECURE = True
-
-CSRF_COOKIE_SECURE = True
-
-CSRF_TRUSTED_ORIGINS = ["https://www.projectctw.com", "https://projectctw.com"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://www.projectctw.com",
+    "https://projectctw.com",
+    "https://web-production-48e8.up.railway.app"
+]
 
 if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
