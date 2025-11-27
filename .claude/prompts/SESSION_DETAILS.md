@@ -1,4 +1,204 @@
-# Session Details - 2025-11-26
+# Session Details - 2025-11-26 (Evening)
+
+## Session Summary
+This session focused on transitioning to a mentorship model for development, planning the Event Planning Features implementation, and establishing the Fat Models, Thin Views design pattern for the project.
+
+---
+
+## Work Completed
+
+### 1. Development Approach Change
+**New Methodology**: David will write code, Claude will mentor and review
+
+**Role Transition**:
+- ✅ Claude shifts from writing code to mentoring/guiding
+- ✅ David implements features to learn by doing
+- ✅ Claude provides roadmaps, checklists, and guiding questions
+- ✅ Claude reviews code like senior developer reviewing junior's work
+- ✅ Focus on helping David understand *why* certain approaches work better
+
+### 2. IDE Transition Noted
+**Environment Change**:
+- David switched from VS Code to Neovim (LazyVim config)
+- Still learning Neovim - may ask for IDE-specific help
+- Claude ready to assist with Neovim/LazyVim questions
+
+### 3. Repository Made Public
+**Milestone**: ProjectCTW repository is now public on GitHub
+- All open source documentation from previous session is live
+- Project ready for community discovery and contributions
+- Next steps: Share on civic tech communities, Django forums, etc.
+
+### 4. Event Planning Features - Comprehensive Planning
+**Files Created**:
+- `.claude/prompts/EVENT_PLANNING_ROADMAP.md` - Detailed 10-phase implementation guide
+- `.claude/prompts/FAT_MODELS_GUIDE.md` - Design pattern guide with specific examples
+
+**EVENT_PLANNING_ROADMAP.md Contents**:
+- **Overview**: Complete planning workflow (PROPOSAL → PLANNING → SCHEDULED)
+- **Database Models**:
+  - ✅ Existing: Event, Plan, ProposedDate, Comment
+  - 🔨 New to create: SupplyItem, SupplyCommitment, AttendanceCommitment
+  - 🔄 Potential modifications: Event (selected_date field), Plan (min/max volunteers)
+- **10 Implementation Phases**:
+  1. Database Setup (create models, migrations, test in shell)
+  2. Auto-Create Plan on Status Change (PROPOSAL → PLANNING transition)
+  3. Planning Interface - Date Voting (propose, vote, confirm winning date)
+  4. Planning Interface - Supply List (add items, commit to bringing supplies)
+  5. Planning Interface - Attendance Commitments (Yes/Maybe/No status)
+  6. Status Transition (PLANNING → SCHEDULED when date confirmed)
+  7. Permissions & Access Control (who can participate in planning)
+  8. Event Detail Page Integration (conditional UI based on status)
+  9. Notifications (notify upvoters when status changes)
+  10. Testing Strategy (model tests, view tests, integration tests)
+- **Design Questions**: Key decisions David needs to make about business rules
+- **Success Criteria**: Clear checklist of what "done" looks like
+- **Potential Pitfalls**: Common issues to watch out for
+
+**FAT_MODELS_GUIDE.md Contents**:
+- **Design Pattern**: Fat Models, Thin Views methodology explained
+- **Philosophy**: Business logic in models, views for orchestration only
+- **Anti-Pattern vs Good Pattern**: Side-by-side comparison with code examples
+- **Complete Model Method Examples**:
+  - Event: permission checks, state transitions, calculations, notifications
+  - ProposedDate: voting logic, validation, creation with business rules
+  - SupplyItem: fulfillment tracking, quantity calculations
+  - SupplyCommitment: automatic quantity updates on save/delete
+  - AttendanceCommitment: status management
+- **Thin View Examples**: All views simplified to ~10-15 lines
+- **Custom Manager Example**: Efficient query patterns
+- **Code Review Checklist**: What Claude will check during reviews
+- **Decision Guide**: "Should this go in model or view?"
+
+### 5. Design Pattern Agreement
+**Fat Models, Thin Views Commitment**:
+- ✅ Business logic belongs in models
+- ✅ Views should orchestrate, not implement logic
+- ✅ Model methods return `(success: bool, error: str or None)` tuples
+- ✅ All business logic should be testable without HTTP
+- ✅ Claude will enforce this pattern during code reviews
+
+**Benefits**:
+- Easier testing (test business logic without HTTP)
+- Reusability (use methods in shell, management commands, other views)
+- Maintainability (logic in one place, not scattered)
+- Readability (views tell the story clearly)
+- DRY (Don't Repeat Yourself)
+
+---
+
+## Key Decisions Made
+
+### Event Planning Architecture
+1. **Upvote Threshold**: Event creator sets `required_num_upvotes` when creating proposal
+2. **Planning Interface**: Same event details page, planning features show when status == PLANNING
+3. **Date Voting**: Users vote for multiple acceptable dates, creator confirms winning date
+4. **Supply System**: Open contribution, quantity tracking, users commit to bringing items
+5. **Attendance**: Three-tier system (Yes/Maybe/No), separate from upvotes
+6. **Transitions**:
+   - Auto PROPOSAL → PLANNING when threshold reached
+   - Manual PLANNING → SCHEDULED when creator confirms date
+
+### Development Methodology
+1. **Learning by Doing**: David implements features himself
+2. **Mentorship Model**: Claude guides, reviews, explains
+3. **Fat Models Pattern**: Business logic in models, thin views for orchestration
+4. **Test-Driven**: Write tests for all new functionality with explanations
+
+---
+
+## Files Created This Session
+
+1. `.claude/prompts/EVENT_PLANNING_ROADMAP.md` - 10-phase implementation guide
+2. `.claude/prompts/FAT_MODELS_GUIDE.md` - Design pattern with code examples
+
+**Status**: Not yet staged or committed (to be staged at session end)
+
+---
+
+## Next Session Tasks
+
+### Immediate Priority: Event Planning Features Implementation
+
+**Phase 1 - Database Setup** (David will implement):
+- [ ] Create SupplyItem model with business logic methods
+- [ ] Create SupplyCommitment model with auto-update on save/delete
+- [ ] Create AttendanceCommitment model with status management
+- [ ] Decide: Event.selected_date field vs ProposedDate.is_selected
+- [ ] Decide: Plan.volunteers relationship to AttendanceCommitment
+- [ ] Create migrations and apply
+- [ ] Test models in Django shell
+- [ ] Register new models in admin.py
+
+**After Phase 1**:
+- David will submit code for review
+- Claude will review following Fat Models, Thin Views principles
+- Together write tests for the new models
+- Proceed to Phase 2 (Auto-Create Plan on Status Change)
+
+**Development Workflow**:
+1. David implements a phase following roadmap
+2. David submits code with: "I implemented Phase X, here's what I changed"
+3. Claude reviews code, suggests improvements with explanations
+4. Together write tests for new functionality
+5. Move to next phase
+
+---
+
+## Important Notes for Future Sessions
+
+### Development Approach
+- **David writes code** - learning by doing
+- **Claude mentors** - guides, reviews, explains design decisions
+- **Fat Models, Thin Views** - enforce this pattern consistently
+- **Test as you go** - write tests for each phase
+
+### Technical Context
+- Repository is now public on GitHub
+- All security hardening from previous session is complete
+- Django 5.2.8, Python 3.x, Tailwind 4.x (standalone CLI)
+- Current test coverage: 22 tests, targeting 80%+
+
+### IDE Context
+- David using Neovim with LazyVim config
+- Still learning Neovim - may need IDE help
+- Can assist with file navigation, search/replace, Git operations, etc.
+
+### Phase 1 MVP Focus
+Event Planning Features is first priority:
+- Date proposal and voting system
+- Supply list with commitment tracking
+- Attendance commitment system (Yes/Maybe/No)
+- Proper state transitions (PROPOSAL → PLANNING → SCHEDULED)
+
+### Code Review Focus
+When David submits code, check:
+- Is business logic in models, not views?
+- Are views thin and focused on orchestration?
+- Do model methods return useful tuples?
+- Are permission checks in model methods?
+- Can the logic be tested without HTTP?
+- Are there proper docstrings?
+- Edge cases handled?
+
+---
+
+## Session Context (Unchanged)
+
+- David building ProjectCTW as learning experience
+- Focus on security best practices
+- Write tests for all new functionality (explain as you write)
+- Help with code comments and documentation
+- Explain design decisions (David learning design principles)
+- Ask clarifying questions when intent unclear
+- Goal: Launch Colorado Springs pilot, expand globally
+- Future: Open source (NOW PUBLIC!) + non-profit organization
+
+---
+
+---
+
+# Session Details - 2025-11-26 (Afternoon)
 
 ## Session Summary
 This session focused on completing open source preparation tasks, conducting a comprehensive security audit, implementing critical security improvements, and preparing the project for public release.
