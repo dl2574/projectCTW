@@ -1,0 +1,5 @@
+@import url("./plugins-in-sibling.1c0afd713db1.css");
+
+@plugin './plugin-in-root.ts';
+@plugin '../plugin-in-root.ts';
+@plugin 'plugin-in-root';

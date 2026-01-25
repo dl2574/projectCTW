@@ -1,0 +1,26 @@
+{
+  "name": "v3-playground",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "upgrade": "node scripts/upgrade.mjs"
+  },
+  "dependencies": {
+    "next": "15.4.7",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.8",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.33.0",
+    "eslint-config-next": "^15.4.7",
+    "typescript": "^5.5.4"
+  }
+}
