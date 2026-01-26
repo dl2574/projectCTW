@@ -1,3 +1,69 @@
+# Session Details - 2026-01-25 (Evening)
+
+## Session Summary
+This session focused on fixing broken authentication links and getting login/signup working with django-allauth.
+
+---
+
+## Work Completed
+
+### 1. Created Tech Stack Reference
+**File Created**: `.claude/prompts/TECH_STACK.md`
+- Django 6.0 features (template partials, tasks framework, CSP support)
+- htmx core patterns and Django integration
+- Alpine.js directives and magic properties
+- Tailwind CSS 4.x breaking changes and new syntax
+- Integration patterns showing when to use each technology
+
+### 2. Fixed Broken Authentication URLs
+**File**: `userProfile/templates/userProfile/login_register.html`
+- Fixed `{% url 'register' %}` → `{% url 'account_signup' %}`
+- Fixed `{% url 'login' %}` → `{% url 'account_login' %}`
+- Note: This template may be deprecated in favor of django-allauth templates
+
+### 3. Fixed Login/Signup Templates
+**Files Modified**:
+- `templates/account/login.html` - Added error display (non-field errors + field errors)
+- `templates/account/signup.html` - Added comprehensive error display showing all form errors
+
+### 4. Fixed Django-Allauth Settings
+**File**: `projectCTW/settings.py`
+- Fixed `ACCOUNT_LOGOUT_REDIRECT` → `ACCOUNT_LOGOUT_REDIRECT_URL`
+- Added `ACCOUNT_USERNAME_REQUIRED = False` (auto-generate username from email)
+- Added `ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False` (single password field)
+
+### 5. Fixed Email Backend for Development
+**File**: `projectCTW/settings.py`
+- Added conditional email backend:
+  - Development: `console.EmailBackend` (prints to terminal)
+  - Production: `smtp.EmailBackend` (needs configuration)
+
+---
+
+## Current Status
+
+### Authentication
+- ✅ Login working
+- ✅ Signup working (in development with console email backend)
+- ⚠️ Production email not configured (SendGrid account exists but needs verification)
+
+### Next Session Tasks
+1. **Configure production email** - Test SendGrid account or set up alternative (Resend recommended)
+2. **Continue Phase 1 MVP** - Event Planning Features implementation
+
+---
+
+## Files Modified This Session
+1. `.claude/prompts/TECH_STACK.md` - Created (tech stack reference)
+2. `userProfile/templates/userProfile/login_register.html` - Fixed URL references
+3. `templates/account/login.html` - Added error display
+4. `templates/account/signup.html` - Added error display
+5. `projectCTW/settings.py` - Fixed allauth settings, added email backend
+
+---
+
+---
+
 # Session Details - 2025-11-26 (Evening)
 
 ## Session Summary

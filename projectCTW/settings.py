@@ -196,7 +196,7 @@ X_FRAME_OPTIONS = 'DENY'
 
 #Django-allauth config
 LOGIN_REDIRECT_URL = "home"
-ACCOUNT_LOGOUT_REDIRECT = "home"
+ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 SITE_ID = 1
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
@@ -206,17 +206,24 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_LOGIN_METHODS = {'email'}  # Login via email only
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']  # Email and single password (* = required)
 ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False  # Don't require username (we use email)
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False  # Single password field, no confirmation
 ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm", 
                  "signup": "userProfile.forms.CustomSignupForm",
                  }
 
 
-# # Email Config
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# EMAIL_HOST = env.str("EMAIL_HOST")
-# EMAIL_HOST_PASSWORD = env.str("EMAIL_API_KEY")
-# EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
-# EMAIL_USE_TLS = True
-# EMAIL_PORT = env.int("EMAIL_PORT")
-# EMAIL_SUBJECT_PREFIX = ''
-# DEFAULT_FROM_EMAIL = env.str("FROM_EMAIL")
+# Email Config
+if DEBUG:
+    # Development: print emails to console
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    # Production: use SMTP (configure these in .env)
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    # EMAIL_HOST = env.str("EMAIL_HOST")
+    # EMAIL_HOST_PASSWORD = env.str("EMAIL_API_KEY")
+    # EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
+    # EMAIL_USE_TLS = True
+    # EMAIL_PORT = env.int("EMAIL_PORT")
+    # EMAIL_SUBJECT_PREFIX = ''
+    # DEFAULT_FROM_EMAIL = env.str("FROM_EMAIL")
