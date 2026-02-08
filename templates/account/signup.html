@@ -17,11 +17,30 @@
       <div class="card mx-4 px-6 py-8 sm:px-12">
         <form class="space-y-6" method="POST">
             {% csrf_token %}
+
+          {% if form.errors %}
+          <div class="rounded-md bg-red-50 p-4 mb-4">
+            <div class="text-sm text-red-700">
+              <p class="font-semibold mb-2">Please fix the following errors:</p>
+              <ul class="list-disc list-inside">
+              {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                  <li><strong>{{ field }}:</strong> {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endif %}
+
           <div>
             <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold leading-6 text-slate-900">Email address</label>
             <div class="mt-2">
               {{ form.email }}
             </div>
+            {% if form.email.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+            {% endif %}
           </div>
 
           <div>
@@ -29,6 +48,9 @@
             <div class="mt-2">
               {{ form.password1 }}
             </div>
+            {% if form.password1.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+            {% endif %}
           </div>
 
           <div>

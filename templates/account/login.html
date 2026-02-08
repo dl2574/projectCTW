@@ -17,11 +17,27 @@
       <div class="card mx-4 px-6 py-8 sm:px-12">
         <form class="space-y-6" method="POST">
             {% csrf_token %}
+
+          {% if form.non_field_errors %}
+          <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+              <div class="text-sm text-red-700">
+                {% for error in form.non_field_errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
           <div>
             <label for="{{ form.login.id_for_label }}" class="block text-sm font-semibold leading-6 text-slate-900">Email address</label>
             <div class="mt-2">
               {{ form.login }}
             </div>
+            {% if form.login.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.login.errors.0 }}</p>
+            {% endif %}
           </div>
 
           <div>
@@ -29,6 +45,9 @@
             <div class="mt-2">
               {{ form.password }}
             </div>
+            {% if form.password.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+            {% endif %}
           </div>
 
           <div class="flex items-center justify-between">

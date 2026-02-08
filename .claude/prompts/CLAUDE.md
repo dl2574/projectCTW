@@ -9,7 +9,7 @@ I am very weak at general design principles. As you are making design decisions 
 
 ## General Tech Stack
 We will be building this application with the following core technologies:
-- Django 5.x
+- Django 6.x
 - Tailwind 4.x
 - Alpine JS
 - HTMX
