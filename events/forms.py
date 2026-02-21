@@ -7,6 +7,7 @@ class EventForm(ModelForm):
         model = Event
         fields = ['name', 'description', 'location']
 
+
 class CommentForm(ModelForm):
     class Meta():
         model = Comment

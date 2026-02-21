@@ -655,6 +655,91 @@ def eventDetailView(request, pk):
 
 ---
 
+## Query Optimization: The Fat Models Tradeoff
+
+### The Tension
+
+Fat model methods that query the database can conflict with Django's `select_related` and `prefetch_related` optimizations. Understanding this tradeoff helps you make good decisions.
+
+### The Problem
+
+```python
+# View: prefetch attendance_commitments for efficiency
+plan = Plan.objects.prefetch_related('attendance_commitments').get(pk=id)
+
+# Model method: IGNORES the prefetch and runs a NEW query!
+plan.confirmed_attendees()  # ← Fresh query to User table
+```
+
+The model method doesn't know about or use the prefetched data.
+
+### When This Matters
+
+- **Single object views**: Not a big deal - one extra query is fine
+- **List views with many objects**: Can cause N+1 query problems
+
+### Solutions
+
+#### Option 1: Accept It (Simple Cases)
+
+For single-object detail views, the extra query from a model method is acceptable. Keep the code simple.
+
+#### Option 2: Use Django's `Prefetch` Object (List Views)
+
+Filter during prefetch, bypass model methods entirely:
+
+```python
+from django.db.models import Prefetch
+
+plans = Plan.objects.prefetch_related(
+    Prefetch(
+        'attendance_commitments',
+        queryset=AttendanceCommitment.objects.filter(status='YES').select_related('user'),
+        to_attr='confirmed_commitments'  # Stored as list, not queryset
+    )
+)
+
+# Access directly - no extra queries, no model method needed
+for plan in plans:
+    for ac in plan.confirmed_commitments:
+        print(ac.user.first_name)
+```
+
+#### Option 3: Filter in Template (After Prefetch)
+
+If you prefetch with related user data:
+
+```python
+# View
+plan = Plan.objects.prefetch_related('attendance_commitments__user').get(pk=id)
+```
+
+```html
+<!-- Template: filter the prefetched data -->
+{% for ac in plan.attendance_commitments.all %}
+    {% if ac.status == 'YES' %}
+        {{ ac.user.first_name }}
+    {% endif %}
+{% endfor %}
+```
+
+### Guidelines
+
+| Scenario | Approach |
+|----------|----------|
+| Detail view (single object) | Use model methods - simplicity wins |
+| List view (many objects) | Use `Prefetch` objects in view |
+| Shell / management commands | Use model methods |
+| Performance-critical paths | Profile first, optimize with `Prefetch` |
+
+### Key Insight
+
+**Query optimization belongs in views**, where you know the access pattern. Models define *what* relationships exist; views decide *how* to load them efficiently.
+
+**Don't prematurely optimize.** Build features first, then use Django Debug Toolbar to identify actual N+1 problems. Optimize only where measurements show it's needed.
+
+---
+
 ## Benefits You'll See
 
 1. **Easier Testing**: Test business logic without dealing with HTTP requests

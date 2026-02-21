@@ -1,3 +1,129 @@
+# Session Details - 2026-02-20
+
+## Session Summary
+This session completed Phase 1 (Database Setup) of the Event Planning Features. Created three new models, updated two existing models, and established patterns for auto-updating related data.
+
+---
+
+## Work Completed
+
+### 1. Phase 1: Database Setup - COMPLETE
+
+**New Models Created in `events/models.py`:**
+
+1. **SupplyItem** - Tracks items needed for events
+   - Fields: id (UUID), plan (FK), name, quantity_needed, quantity_committed, category, created_by, created_on
+   - Methods: `is_fulfilled()`, `remaining_needed()`, `update_committed_quantity()`
+
+2. **SupplyCommitment** - Tracks who's bringing what supplies
+   - Fields: id (UUID), supply_item (FK), user (FK), quantity, created_on
+   - Overrides: `save()` and `delete()` auto-update parent SupplyItem's quantity_committed
+   - Constraint: unique_together on [supply_item, user]
+
+3. **AttendanceCommitment** - Tracks attendance status (YES/MAYBE/NO)
+   - Fields: id (UUID), plan (FK), user (FK), status (choices), created_on, updated_on
+   - Constraint: unique_together on [plan, user]
+
+**Models Updated:**
+
+4. **Event** - Added date confirmation fields
+   - New fields: selected_date, date_confirmed_by, date_confirmed_on
+
+5. **Plan** - Removed volunteers M2M, added volunteer limits and helper methods
+   - Removed: volunteers ManyToManyField
+   - New fields: minimum_volunteers (default=1), maximum_volunteers (nullable), planning_notes
+   - New methods: `confirmed_attendees()`, `maybe_attendees()`, `attendance_counts()`
+
+### 2. Design Decisions Made
+
+- **Date storage**: Event.selected_date field (not ProposedDate.is_selected)
+- **Attendance tracking**: Single source of truth via AttendanceCommitment (removed Plan.volunteers)
+- **Volunteer limits**: minimum_volunteers required, maximum_volunteers optional
+
+### 3. Documentation Updated
+
+**File Modified**: `.claude/prompts/FAT_MODELS_GUIDE.md`
+- Added new section: "Query Optimization: The Fat Models Tradeoff"
+- Covers tension between model methods and prefetch_related
+- Solutions: Prefetch objects, filtering in templates, when to use each approach
+- Key insight: Query optimization belongs in views, not models
+
+### 4. Concepts Learned
+
+- **Django related_name**: Can use same name on FKs to different models (different namespaces)
+- **Double underscore traversal**: How `User.objects.filter(attendance_commitments__plan=self)` works
+- **Shell reloading**: Must restart shell or use importlib.reload() after model changes
+- **refresh_from_db()**: Re-reads from database, doesn't call model methods
+- **Import formatting**: Use parentheses for multi-line imports (PEP 8)
+
+---
+
+## Files Modified This Session
+
+1. `events/models.py` - Added 3 new models, updated Event and Plan
+2. `events/admin.py` - Registered new models
+3. `.claude/prompts/FAT_MODELS_GUIDE.md` - Added query optimization section
+4. New migration file created and applied
+
+---
+
+## Next Session: Model Tests + Phase 2
+
+### Priority 1: Write Model Tests
+
+Create tests in `events/tests/test_models.py` for the new functionality:
+
+**SupplyItem Tests:**
+- [ ] `test_is_fulfilled_returns_false_when_under_quantity`
+- [ ] `test_is_fulfilled_returns_true_when_equal_quantity`
+- [ ] `test_is_fulfilled_returns_true_when_over_quantity`
+- [ ] `test_remaining_needed_calculates_correctly`
+- [ ] `test_remaining_needed_returns_zero_when_overfulfilled`
+- [ ] `test_update_committed_quantity_aggregates_commitments`
+
+**SupplyCommitment Tests:**
+- [ ] `test_save_updates_supply_item_quantity`
+- [ ] `test_delete_updates_supply_item_quantity`
+- [ ] `test_unique_together_constraint`
+
+**AttendanceCommitment Tests:**
+- [ ] `test_create_attendance_commitment`
+- [ ] `test_unique_together_constraint`
+- [ ] `test_status_choices_valid`
+
+**Plan Tests:**
+- [ ] `test_confirmed_attendees_returns_yes_users`
+- [ ] `test_confirmed_attendees_excludes_maybe_and_no`
+- [ ] `test_maybe_attendees_returns_maybe_users`
+- [ ] `test_attendance_counts_returns_correct_dict`
+
+**Event Tests:**
+- [ ] `test_selected_date_fields_nullable`
+
+### Priority 2: Phase 2 - Auto-Create Plan on Status Change
+
+After tests pass, implement:
+- Auto-create Plan when Event transitions PROPOSAL → PLANNING
+- Notify upvoters when event moves to planning
+
+### Priority 3: Phase 3 - Planning UI
+
+- Date proposal and voting interface
+- Supply list management
+- Attendance commitment UI
+
+---
+
+## Technical Context
+
+- All migrations applied successfully
+- Models tested manually in Django shell
+- Auto-update pattern working (SupplyCommitment → SupplyItem.quantity_committed)
+
+---
+
+---
+
 # Session Details - 2026-01-25 (Evening)
 
 ## Session Summary
