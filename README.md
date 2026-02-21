@@ -3,7 +3,7 @@
 **Empowering communities to propose, plan, and execute volunteer projects together.**
 
 [![License](https://img.shields.io/badge/license-APGL%203.0-blue.svg)](LICENSE)
-[![Django](https://img.shields.io/badge/Django-5.2.8-green.svg)](https://www.djangoproject.com/)
+[![Django](https://img.shields.io/badge/Django-6.0.2-green.svg)](https://www.djangoproject.com/)
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 
 ---
@@ -84,7 +84,7 @@ See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the co
 ## Tech Stack
 
 ### Backend
-- **Django 5.2.8** - Web framework
+- **Django 6.0.2** - Web framework
 - **PostgreSQL** - Production database
 - **SQLite** - Development database
 - **django-allauth** - Authentication
@@ -198,7 +198,7 @@ Access the application at `http://localhost:8000`
 ```
 projectCTW/
 ├── base/              # Core site functionality (home, about pages)
-├── events/            # Event management (Event, Plan, ProposedDate, Comment models)
+├── events/            # Event management (Event, Plan, ProposedDate, Comment, SupplyItem, SupplyCommitment, AttendanceCommitment)
 ├── userProfile/       # Custom User model and profiles
 ├── notifications/     # Notification system
 ├── projectCTW/        # Django project settings
@@ -321,7 +321,9 @@ See the complete [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) f
 
 ## License
 
-License to be determined. AGPL-3.0 is under consideration to ensure the project remains open source and community-focused.
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)** - see the [LICENSE](LICENSE) file for details.
+
+This license ensures the project remains open source and that any modifications to the codebase used in network services must also be shared with the community.
 
 ---
 
