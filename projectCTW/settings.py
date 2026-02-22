@@ -231,5 +231,4 @@ else:
     EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
     EMAIL_USE_TLS = True
     EMAIL_PORT = env.int("EMAIL_PORT")
-    EMAIL_SUBJECT_PREFIX = ''
     DEFAULT_FROM_EMAIL = env.str("FROM_EMAIL")
