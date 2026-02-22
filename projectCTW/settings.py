@@ -25,7 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env.str("SECRET_KEY")
+# Default secret key is to enable users to run management commands.
+# When setting up this project, ensure to create a .env file and run
+# "python manage.py resetsecret" to generate a new safe key.
+SECRET_KEY = env.str(
+    "SECRET_KEY", default="v4+fj7#z)uc77az8)c24u52(a=q8p9faz(bskhen=w9a=+q60-")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
@@ -48,13 +52,13 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    
-    "whitenoise.runserver_nostatic",
-    
-    "django.contrib.staticfiles",
-    "django.contrib.sites", # needed for all auth
 
-    #3rd Party
+    "whitenoise.runserver_nostatic",
+
+    "django.contrib.staticfiles",
+    "django.contrib.sites",  # needed for all auth
+
+    # 3rd Party
     "allauth",
     "allauth.account",
     # "allauth.socialaccount",
@@ -78,8 +82,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware", # django-allauth
-    "django_browser_reload.middleware.BrowserReloadMiddleware", # django-browser-reload
+    "allauth.account.middleware.AccountMiddleware",  # django-allauth
+    "django_browser_reload.middleware.BrowserReloadMiddleware",  # django-browser-reload
 ]
 
 ROOT_URLCONF = "projectCTW.urls"
@@ -106,7 +110,7 @@ WSGI_APPLICATION = "projectCTW.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {    
+DATABASES = {
     "default": env.dj_db_url("DATABASE_URL", default="sqlite:///db.sqlite3")
 }
 
@@ -194,7 +198,7 @@ if not DEBUG:
 
 X_FRAME_OPTIONS = 'DENY'
 
-#Django-allauth config
+# Django-allauth config
 LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 SITE_ID = 1
@@ -204,11 +208,13 @@ AUTHENTICATION_BACKENDS = (
 )
 # New django-allauth configuration format (replaces deprecated settings)
 ACCOUNT_LOGIN_METHODS = {'email'}  # Login via email only
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']  # Email and single password (* = required)
+# Email and single password (* = required)
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False  # Don't require username (we use email)
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False  # Single password field, no confirmation
-ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm", 
+# Single password field, no confirmation
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm",
                  "signup": "userProfile.forms.CustomSignupForm",
                  }
 

@@ -107,9 +107,10 @@ See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the co
 
 ### Prerequisites
 
-- Python 3.11 or higher
+- Python 3.14 or higher
 - pip (Python package manager)
 - Git
+- Tailwind CLI
 - PostgreSQL (optional, for production-like setup)
 
 ### Installation

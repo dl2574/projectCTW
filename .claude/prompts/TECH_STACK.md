@@ -1,5 +1,17 @@
 # Tech Stack Context
 
+## Version Notes (Updated 2026-02-20)
+
+| Technology | Version | Notes |
+|------------|---------|-------|
+| Python | 3.14.x | Local and CI |
+| Django | 6.0.2 | Requires Python 3.12+ |
+| Tailwind CSS | 4.x | Standalone CLI, NOT npm |
+| Alpine.js | 3.x | Via CDN |
+| htmx | Latest | Via CDN |
+| PostgreSQL | 15 | Production and CI |
+| SQLite | - | Local development |
+
 ## Core Technologies
 - **Django 6.0** - Python web framework
 - **htmx** - HTML-driven AJAX interactions
