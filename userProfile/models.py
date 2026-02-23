@@ -7,8 +7,10 @@ from django.db.models.deletion import SET_NULL
 
 from datetime import date
 
+
 class User(AbstractUser):
-    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, db_index=True)
+    id = models.UUIDField(primary_key=True, editable=False,
+                          default=uuid.uuid4, db_index=True)
     email = models.EmailField(unique=True, db_index=True)
     bio = models.TextField(blank=True)
     birthdate = models.DateField(blank=True, null=True)
@@ -31,20 +33,19 @@ class User(AbstractUser):
     # followers =
     # level =  # Capturing what "level" someone is for access and assistance across the site
 
-
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name'] #Adding fields here also adds them during the createsuperuser command
-    
+    # Adding fields here also adds them during the createsuperuser command
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
-    
+
     def get_short_name(self):
         return f"{self.first_name} {self.last_name[0]}"
-    
+
     def get_absolute_url(self):
         return reverse("account_profile", kwargs={"slug": self.username})
-    
+
     def get_age(self):
         today = date.today()
         return today.year - self.birthdate.year - ((today.month, today.day) < (self.birthdate.month, self.birthdate.day))
-    

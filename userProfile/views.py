@@ -14,7 +14,8 @@ class UserProfileView(DetailView):
     template_name = "userProfile/user_profile.html"
     login_url = "account_login"
     slug_field = "username"
-    
+
+
 user_profile = UserProfileView.as_view()
 
 

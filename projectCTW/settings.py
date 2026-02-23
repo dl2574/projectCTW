@@ -55,7 +55,7 @@ INSTALLED_APPS = [
 
     "whitenoise.runserver_nostatic",
 
-    "django.contrib.staticfiles",
+    "base.apps.CustomStaticFilesConfig",
     "django.contrib.sites",  # needed for all auth
 
     # 3rd Party
