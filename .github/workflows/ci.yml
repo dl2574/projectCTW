@@ -20,6 +20,7 @@ env:
   EMAIL_HOST: ''
   EMAIL_HOST_USER: ''
   FROM_EMAIL: ''
+  RESEND_API_KEY: ''
   EMAIL_PORT: 25
 
 jobs:
