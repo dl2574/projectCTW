@@ -1,3 +1,120 @@
+# Session Details - 2026-02-22
+
+## Session Summary
+This session had two main workstreams: writing model tests for the data models created in the previous session (SupplyItem, SupplyCommitment, AttendanceCommitment, Plan, Event), and beginning the user profile work to support email notification preferences and a transactional email service using Resend via django-anymail.
+
+---
+
+## Work Completed
+
+### 1. Documentation Updated — CLAUDE.md
+**File Modified**: `CLAUDE.md`
+- Added `django-anymail` with Resend to the Tech Stack section
+- Replaced old SMTP environment variables with `RESEND_API_KEY` in the Environment Variables section
+- Removed stale note about email backend being disabled
+
+### 2. Event Model Tests — COMPLETE
+**File Modified**: `events/tests/test_models.py`
+
+Expanded from 1 test to **25 tests** across 5 test classes:
+
+- **`EventModelTests`** (7 tests): event creation, new nullable date confirmation fields, `number_of_upvotes()`, `user_upvoted()` (true + false), `set_required_num_upvotes()` (valid + zero rejection)
+- **`PlanModelTests`** (4 tests): `confirmed_attendees()`, exclusion of non-YES statuses, `maybe_attendees()`, `attendance_counts()` dict
+- **`AttendanceCommitmentModelTests`** (4 tests): all three status choices, `unique_together` constraint
+- **`SupplyItemModelTests`** (6 tests): `is_fulfilled()` (under/at/over), `remaining_needed()` (normal + overfulfilled zero floor), `update_committed_quantity()` aggregation
+- **`SupplyCommitmentModelTests`** (4 tests): save updates parent quantity, multiple commitments sum, delete decrements parent, `unique_together` constraint
+
+**Key testing patterns used:**
+- Unsaved model instances for pure-logic tests (no DB hit): `SupplyItem(quantity_needed=5, quantity_committed=3)`
+- `refresh_from_db()` after DB mutations in shared `setUpTestData` objects
+- `assertRaises(IntegrityError)` for constraint violation tests
+
+### 3. User Email Notification Preferences — COMPLETE
+**Files Modified/Created:**
+
+**`userProfile/models.py`**
+- Added `email_status_updates = BooleanField(default=True)` — for events upvoted or committed to
+- Added `email_event_reminders = BooleanField(default=True)` — for 24h reminders before committed events
+- Opt-out model: both default to True, users can disable
+
+**`userProfile/migrations/0005_add_email_notification_preferences.py`**
+- Migration for the two new fields
+
+**`userProfile/forms.py`**
+- Added `email_status_updates` and `email_event_reminders` to `CustomUserChangeForm`
+- Split widget styling: `CheckboxInput` widgets get checkbox-appropriate Tailwind classes; all other fields keep the text-input ring style
+
+**`userProfile/views.py`** (bug fixes)
+- `AccountProfileView.test_func()` was missing — `UserPassesTestMixin` requires it; without it every request raised `NotImplementedError`. Fixed to check `request.user == self.get_object()`
+- `get_success_url()` was commented out. Fixed to redirect back to the user's own settings page after save.
+
+**`userProfile/services.py`** (new file)
+- `email_event_status_update(event)`: sends status-change emails to all upvoters + committed attendees, deduplicated, filtered by `email_status_updates=True`
+- Uses `django.core.mail.send_mail` (routed through anymail/Resend in production)
+- Guards against events with no Plan yet (`hasattr(event, 'plan')`)
+
+**`userProfile/tests/test_models.py`**
+- Replaced placeholder test with 6 real tests: `get_full_name`, `get_short_name`, default values for both email preference fields, and persistence of opt-out
+
+**`userProfile/tests/test_services.py`** (new file)
+- 6 tests using `@override_settings(EMAIL_BACKEND="...locmem...")` so no real emails are sent
+- Tests: sends to upvoter, sends to committed attendee, skips opted-out users, deduplicates user who both upvoted and committed, subject contains event name, empty outbox when all opted out
+
+---
+
+## Commits Made This Session
+
+1. `8d02c5d` — Add model tests for event planning data models and update CLAUDE.md
+2. `069d125` — Add email notification preferences to User and event status email service
+
+---
+
+## Test Coverage
+
+| App | Tests Before | Tests After |
+|-----|-------------|-------------|
+| events (models) | 1 | 25 |
+| userProfile (models) | 1 | 6 |
+| userProfile (services) | 0 | 6 |
+| **Total suite** | **~22** | **57** |
+
+---
+
+## Next Session: Wire Email Triggers + Profile UI
+
+### Priority 1: Wire `email_event_status_update` to Status Transitions
+
+`userProfile/services.py` is ready but not called anywhere yet. The trigger points are:
+
+- **PROPOSAL → PLANNING**: When upvote count crosses `required_num_upvotes` threshold (currently in the upvote view in `events/views.py`)
+- **PLANNING → SCHEDULED**: When the event creator confirms a date (not yet implemented — Phase 2 from EVENT_PLANNING_ROADMAP)
+
+This is also the moment to implement **Phase 2: Auto-Create Plan on Status Change** (PROPOSAL → PLANNING):
+- Auto-create a `Plan` when an event crosses the upvote threshold
+- Call `email_event_status_update(event)` after saving the new status
+
+### Priority 2: Profile UI Polish
+
+The `user_account.html` template still uses `{{ form.as_p }}` — functional but unstyled. The settings page needs:
+- Two visual sections: "Profile Information" and "Email Notifications"
+- The notification preference fields should show as labeled toggles with their `help_text`
+- The `user_profile.html` (public view) is also bare — show name, bio, events created/attended
+
+### Priority 3: Notification Preferences in Signup Flow
+
+New users sign up with email_status_updates=True by default, which is correct. No action needed at signup. But consider adding a note about email preferences to the welcome/onboarding flow later.
+
+---
+
+## Technical Context
+
+- All 57 tests passing, 0 warnings
+- Migration `0005_add_email_notification_preferences` applied locally
+- `email_event_status_update()` is in `userProfile/services.py` — import it wherever status changes are saved
+- `AccountProfileView` at `/account/settings/<slug>/` is now fully functional (was broken before this session)
+
+---
+
 # Session Details - 2026-02-20
 
 ## Session Summary
