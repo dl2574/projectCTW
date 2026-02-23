@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_tailwind",
     "django_browser_reload",
+    "anymail",
 
     # Local
     "base.apps.BaseConfig",
@@ -220,15 +221,10 @@ ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm",
 
 
 # Email Config
-if DEBUG:
-    # Development: print emails to console
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-else:
-    # Production: use SMTP (configure these in .env)
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-    EMAIL_HOST = env.str("EMAIL_HOST")
-    EMAIL_HOST_PASSWORD = env.str("EMAIL_API_KEY")
-    EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
-    EMAIL_USE_TLS = True
-    EMAIL_PORT = env.int("EMAIL_PORT")
-    DEFAULT_FROM_EMAIL = env.str("FROM_EMAIL")
+EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+
+ANYMAIL = {
+    "RESEND_API_KEY": env.str("RESEND_API_KEY")
+}
+
+DEFAULT_FROM_EMAIL = "info@projectctw.com"
