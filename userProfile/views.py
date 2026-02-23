@@ -24,10 +24,13 @@ class AccountProfileView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     login_url = "account_login"
     slug_field = "username"
     form_class = CustomUserChangeForm
-    # success_url = 
-    
-    # def get_absolute_url(self):
-    #     return reverse("userProfile/user_profile.html", kwargs={"username":self.username})
-    
-    
+
+    def test_func(self):
+        # Users may only edit their own account settings, not anyone else's.
+        return self.request.user == self.get_object()
+
+    def get_success_url(self):
+        return reverse("account_profile", kwargs={"slug": self.object.username})
+
+
 account_profile = AccountProfileView.as_view()

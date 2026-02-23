@@ -12,12 +12,25 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, db_index=True)
     bio = models.TextField(blank=True)
     birthdate = models.DateField(blank=True, null=True)
+
+    # Email notification preferences — opt-out model (True by default)
+    # Covers events the user upvoted OR committed to attend.
+    email_status_updates = models.BooleanField(
+        default=True,
+        help_text="Receive emails when events you upvoted or committed to change status.",
+    )
+    # Covers events the user committed to with an AttendanceCommitment.
+    email_event_reminders = models.BooleanField(
+        default=True,
+        help_text="Receive reminder emails 24 hours before events you committed to attend.",
+    )
+
     # experience =  # A tagging system for capturing various skills someone might have
-    # phone number = 
+    # phone number =
     # following = models.ForeignKey("User", on_delete=SET_NULL, null=True)
-    # followers = 
+    # followers =
     # level =  # Capturing what "level" someone is for access and assistance across the site
-    
+
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name'] #Adding fields here also adds them during the createsuperuser command
