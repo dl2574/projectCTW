@@ -17,6 +17,7 @@ ProjectCTW (Project Change The World) is a Django 5.x web application that enabl
 - **Backend**: Django 5.0.6 with PostgreSQL (production) and SQLite (development)
 - **Frontend**: Tailwind CSS 4.x (standalone CLI), Alpine.js, HTMX
 - **Authentication**: django-allauth (email-based authentication)
+- **Email**: django-anymail with Resend as the transactional email provider
 - **Static Files**: WhiteNoise with compressed manifest storage
 - **Testing**: Django's built-in test framework (unit tests in each app)
 - **Deployment**: Railway (CI/CD via GitHub Actions on main branch)
@@ -241,14 +242,11 @@ Required in `.env` file:
 - `SECRET_KEY`: Django secret key
 - `DEBUG`: Boolean (True for development, False for production)
 - `DATABASE_URL`: PostgreSQL connection string (optional, defaults to SQLite)
-
-Email configuration (currently disabled in settings.py):
-- `EMAIL_HOST`, `EMAIL_HOST_USER`, `EMAIL_API_KEY`, `EMAIL_PORT`, `FROM_EMAIL`
+- `RESEND_API_KEY`: API key for Resend transactional email (via django-anymail)
 
 ## Notes for Future Development
 
 - Media files stored in `static/images/` (MEDIA_ROOT)
 - User model has commented-out fields for future features: experience tagging, phone, following/followers, level system
-- Email backend is currently disabled but configuration exists
 - Frontend uses django-crispy-forms with crispy-tailwind for form rendering
 - django-browser-reload enabled for hot reloading during development
