@@ -21,7 +21,7 @@ This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participatin
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.14+ (required by Django 6.0)
 - PostgreSQL (for production) or SQLite (for development)
 - Tailwind CSS 4.x standalone CLI
 - Git
@@ -51,6 +51,7 @@ This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participatin
    ```
    SECRET_KEY=your-secret-key-here
    DEBUG=True
+   RESEND_API_KEY=         # Optional: required only for sending real emails
    ```
 
 5. **Run migrations**
@@ -299,14 +300,13 @@ See [DEVELOPMENT_ROADMAP.md](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the pro
 
 If you have questions about contributing:
 
-1. Check the [CLAUDE.md](CLAUDE.md) file for technical details
-2. Review existing [Issues and Pull Requests](https://github.com/dl2574/projectCTW)
-3. Open a discussion or issue
-4. Contact the maintainers at info@projectctw.com
+1. Review existing [Issues and Pull Requests](https://github.com/dl2574/projectCTW)
+2. Open a discussion or issue
+3. Contact the maintainers at info@projectctw.com
 
 ## License
 
-By contributing to ProjectCTW, you agree that your contributions will be licensed under the same license as the project (to be determined - AGPL-3.0 recommended).
+By contributing to ProjectCTW, you agree that your contributions will be licensed under the same license as the project: the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See the [LICENSE](LICENSE) file for details.
 
 ---
 

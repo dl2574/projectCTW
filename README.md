@@ -2,9 +2,9 @@
 
 **Empowering communities to propose, plan, and execute volunteer projects together.**
 
-[![License](https://img.shields.io/badge/license-APGL%203.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-AGPL%203.0-blue.svg)](LICENSE)
 [![Django](https://img.shields.io/badge/Django-6.0.2-green.svg)](https://www.djangoproject.com/)
-[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.14+-blue.svg)](https://www.python.org/)
 
 ---
 
@@ -55,10 +55,12 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ Event proposal creation
 - ✅ Event upvoting system
 - ✅ Event detail pages
-- ✅ Basic user profiles
 - ✅ Event status progression (Proposal → Planning → Scheduled → Completed)
-- 🚧 Event planning (date voting, supply lists) - *In Progress*
-- 🚧 User profile enhancements - *In Progress*
+- ✅ Event planning data models (supply items, supply commitments, attendance commitments)
+- ✅ User profiles with email notification preferences
+- ✅ Transactional email service (via Resend/django-anymail)
+- 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
+- 🚧 Automatic status transitions with email notifications - *In Progress*
 
 ### Planned Features
 
@@ -88,6 +90,8 @@ See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the co
 - **PostgreSQL** - Production database
 - **SQLite** - Development database
 - **django-allauth** - Authentication
+- **django-anymail + Resend** - Transactional email
+- **django-crispy-forms** - Form rendering
 - **WhiteNoise** - Static file serving
 - **Gunicorn** - WSGI server (production)
 
@@ -107,10 +111,10 @@ See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the co
 
 ### Prerequisites
 
-- Python 3.14 or higher
+- Python 3.14+ (required by Django 6.0)
 - pip (Python package manager)
 - Git
-- Tailwind CLI
+- Tailwind CSS standalone CLI
 - PostgreSQL (optional, for production-like setup)
 
 ### Installation
@@ -147,7 +151,8 @@ See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the co
    ```env
    SECRET_KEY=your-secret-key-here
    DEBUG=True
-   DATABASE_URL=  # Optional: Leave empty to use SQLite
+   DATABASE_URL=           # Optional: leave empty to use SQLite
+   RESEND_API_KEY=         # Optional: required only for sending real emails
    ```
 
    To generate a secure SECRET_KEY:
@@ -296,8 +301,9 @@ We welcome contributions! ProjectCTW is working towards becoming an open source 
 
 ### Areas Where We Need Help
 
-- Expanding test coverage (especially integration tests)
+- Expanding test coverage (we have 57 tests; target is 80%+ coverage)
 - Frontend improvements and mobile responsiveness
+- Event planning UI (date voting, supply list, attendance)
 - Security review and hardening
 - Documentation improvements
 - Feature development (see roadmap)
