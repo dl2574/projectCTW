@@ -1,3 +1,52 @@
+# Session Details - 2026-02-24 (Session 2)
+
+## Session Summary
+Short session. Fixed a stale-data bug on the event detail page: the sidebar upvote count was not updating when a user clicked the upvote button because only the `event-header` partial was being swapped. Implemented HTMX out-of-band (OOB) swap to update both the header and the sidebar count from a single server response. Added 2 new view tests covering the OOB response.
+
+---
+
+## Work Completed
+
+### 1. `event_detail.html` — sidebar upvote `<dd>` given a stable ID and wrapped in `{% partialdef %}`
+**File Modified**: `events/templates/events/event_detail.html`
+
+- Added `id="sidebar-upvote-count"` to the sidebar `<dd>` element so HTMX can target it by ID.
+- Wrapped the element in `{% partialdef sidebar-upvote-count inline %}` so the view can render it independently as a template partial.
+- `inline` is the correct keyword here because the partial renders exactly once in-place (not inside a loop).
+
+### 2. `views.py` — `upvoteEvent` appends OOB sidebar fragment
+**File Modified**: `events/views.py`
+
+- Imported `render_to_string` from `django.template.loader`.
+- When `HX-Target == 'event-header'`, the view now:
+  1. Renders the primary `event-header` partial as usual.
+  2. Renders the `sidebar-upvote-count` partial separately using `render_to_string`.
+  3. Injects `hx-swap-oob="outerHTML"` onto the root element of the sidebar fragment (via a single targeted string replace).
+  4. Appends the OOB fragment to the primary response body and returns it.
+- HTMX processes the OOB element independently of the primary swap, updating both disconnected DOM regions in one round-trip.
+
+### 3. `test_views.py` — `TestUpvoteDetailPage` (2 new tests)
+**File Modified**: `events/tests/test_views.py`
+
+Two new tests in a new `TestUpvoteDetailPage` class:
+
+- **`test_upvote_from_detail_page_returns_oob_sidebar_fragment`**: POSTs to the upvote URL with `HTTP_HX_TARGET='event-header'`. Asserts the response contains `id="event-header"` (primary swap), `id="sidebar-upvote-count"` and `hx-swap-oob="outerHTML"` (OOB fragment), and that the count shows `1` after one upvote.
+- **`test_upvote_toggle_from_detail_page_decrements_sidebar`**: Upvotes then removes the upvote; asserts the sidebar count drops back to `0`.
+
+**Test count**: events 33 → 35 tests | total 62 → 64 tests (all passing).
+
+---
+
+## Design Decisions
+
+### Why OOB swap instead of a single larger partial?
+The header and sidebar are in completely different DOM regions (header is outside the grid, sidebar is inside `lg:col-span-1`). Wrapping both in one partial would require restructuring the template significantly and would break the clean section separation. OOB swap lets each region stay independent and semantically correct — the server just sends both updates in one response.
+
+### Why `replace(…, 1)` instead of a template attribute?
+The `hx-swap-oob` attribute only needs to appear when the element is returned as an OOB fragment, not when it's rendered normally as part of the full page. Adding it directly in the template would cause HTMX to try to OOB-swap the sidebar on every page load, which is incorrect. The string replace in the view adds the attribute only in the OOB code path.
+
+---
+
 # Session Details - 2026-02-24
 
 ## Session Summary

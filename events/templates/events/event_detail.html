@@ -126,10 +126,12 @@
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-slate-500">Upvotes</dt>
-                            <dd class="mt-1 text-sm text-slate-900 flex items-center gap-2">
+                            {% partialdef sidebar-upvote-count inline %}
+                            <dd id="sidebar-upvote-count" class="mt-1 text-sm text-slate-900 flex items-center gap-2">
                                 <i class="fa-solid fa-thumbs-up text-amber-500"></i>
                                 <span class="font-semibold">{{event.number_of_upvotes}}</span>
                             </dd>
+                            {% endpartialdef %}
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-slate-500">Created</dt>

@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic import DetailView, ListView
@@ -104,5 +105,17 @@ def upvoteEvent(request, pk):
     # Return the appropriate partial based on which element htmx is targeting
     hx_target = request.headers.get('HX-Target', '')
     if hx_target == 'event-header':
-        return render(request, 'events/event_detail.html#event-header', context)
+        primary = render(request, 'events/event_detail.html#event-header', context)
+        # Render the sidebar count as a second fragment and mark it for OOB swap
+        # so HTMX updates both disconnected elements from a single response.
+        oob_html = render_to_string(
+            'events/event_detail.html#sidebar-upvote-count', context, request=request
+        )
+        oob_html = oob_html.replace(
+            'id="sidebar-upvote-count"',
+            'id="sidebar-upvote-count" hx-swap-oob="outerHTML"',
+            1,
+        )
+        primary.content += oob_html.encode()
+        return primary
     return render(request, 'events/proposed_events.html#event-card', context)

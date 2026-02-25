@@ -53,7 +53,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 
 - ✅ User authentication (email-based via django-allauth)
 - ✅ Event proposal creation
-- ✅ Event upvoting system with HTMX live card updates
+- ✅ Event upvoting system with HTMX live updates (card list and detail page sidebar stay in sync via OOB swap)
 - ✅ Event detail pages
 - ✅ Event status progression (Proposal → Planning → Scheduled → Completed)
 - ✅ Automatic PROPOSAL → PLANNING transition when upvote threshold is met
@@ -303,7 +303,7 @@ We welcome contributions! ProjectCTW is working towards becoming an open source 
 
 ### Areas Where We Need Help
 
-- Expanding test coverage (we have 62 tests; target is 80%+ coverage)
+- Expanding test coverage (we have 64 tests; target is 80%+ coverage)
 - Frontend improvements and mobile responsiveness
 - Event planning UI (date voting, supply list, attendance)
 - Security review and hardening
