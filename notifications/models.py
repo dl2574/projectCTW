@@ -7,12 +7,12 @@ User = get_user_model()
 
 class Notification(models.Model):
     message = models.CharField(max_length=150, blank=True)
-    created_on = models.DateTimeField(auto_created=True)
+    created_on = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
 
-
-def mark_read(self):
-    self.read = True
+    def mark_read(self):
+        self.read = True
+        self.save(update_fields=['read'])
 
     class Meta:
         abstract = True

@@ -9,6 +9,7 @@ from ..models import (
     SupplyCommitment,
     SupplyItem,
 )
+from notifications.models import EventStatusChange
 
 User = get_user_model()
 
@@ -16,7 +17,7 @@ User = get_user_model()
 class EventModelTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user(
+        cls.creator = User.objects.create_user(
             username="testuser",
             email="testuser@email.com",
             password="testpass123",
@@ -25,16 +26,16 @@ class EventModelTests(TestCase):
             name="testEvent",
             description="testdescription",
             location="location",
-            created_by=cls.user,
+            created_by=cls.creator,
         )
-        cls.event.upvotes.add(cls.user)
+        cls.event.upvotes.add(cls.creator)
 
     def test_event_creation(self):
         self.assertEqual(self.event.name, "testEvent")
         self.assertEqual(self.event.description, "testdescription")
         self.assertEqual(self.event.location, "location")
-        self.assertEqual(self.event.created_by, self.user)
-        self.assertEqual(self.event.upvotes.get(pk=self.user.pk), self.user)
+        self.assertEqual(self.event.created_by, self.creator)
+        self.assertEqual(self.event.upvotes.get(pk=self.creator.pk), self.creator)
         self.assertEqual(self.event.upvotes.count(), 1)
 
     def test_selected_date_fields_are_nullable(self):
@@ -48,7 +49,7 @@ class EventModelTests(TestCase):
         self.assertEqual(self.event.number_of_upvotes(), 1)
 
     def test_user_upvoted_returns_true_for_upvoter(self):
-        self.assertTrue(self.event.user_upvoted(self.user))
+        self.assertTrue(self.event.user_upvoted(self.creator))
 
     def test_user_upvoted_returns_false_for_non_upvoter(self):
         other = User.objects.create_user(
@@ -70,6 +71,80 @@ class EventModelTests(TestCase):
         result = self.event.set_required_num_upvotes(0)
         self.assertFalse(result)
         self.assertEqual(self.event.required_num_upvotes, original)
+
+
+class EventTransitionTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Users are immutable across tests — created once for the class.
+        cls.creator = User.objects.create_user(
+            username="creator",
+            email="creator@email.com",
+            password="testpass123",
+        )
+        cls.upvoter1 = User.objects.create_user(
+            username="upvoter1",
+            email="upvoter1@email.com",
+            password="testpass123",
+        )
+        cls.upvoter2 = User.objects.create_user(
+            username="upvoter2",
+            email="upvoter2@email.com",
+            password="testpass123",
+        )
+
+    def setUp(self):
+        # The event and its upvotes are mutated by transition_to_planning(), so
+        # we recreate a clean event before each individual test to keep them
+        # fully independent of each other.
+        self.event = Event.objects.create(
+            name="Transition Test Event",
+            description="desc",
+            location="loc",
+            created_by=self.creator,
+            required_num_upvotes=2,
+        )
+        self.event.upvotes.set([self.upvoter1, self.upvoter2])
+
+    def test_transition_changes_status_to_planning(self):
+        success, error = self.event.transition_to_planning()
+        self.assertTrue(success)
+        self.assertIsNone(error)
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.status, Event.StatusCode.PLANNING)
+
+    def test_transition_creates_plan(self):
+        self.event.transition_to_planning()
+        self.assertTrue(hasattr(self.event, "plan"))
+
+    def test_transition_creates_notification_for_each_upvoter(self):
+        # After a successful transition, one EventStatusChange row should exist
+        # for each user who upvoted the event.
+        self.event.transition_to_planning()
+
+        notifications = EventStatusChange.objects.filter(source_event=self.event)
+        self.assertEqual(notifications.count(), 2)
+
+        recipients = set(notifications.values_list("recipient_id", flat=True))
+        self.assertIn(self.upvoter1.id, recipients)
+        self.assertIn(self.upvoter2.id, recipients)
+
+    def test_transition_fails_when_not_in_proposal_status(self):
+        # Manually advance to PLANNING so the guard clause fires.
+        self.event.status = Event.StatusCode.PLANNING
+        self.event.save()
+        success, error = self.event.transition_to_planning()
+        self.assertFalse(success)
+        self.assertIsNotNone(error)
+
+    def test_transition_fails_when_below_upvote_threshold(self):
+        self.event.upvotes.clear()
+        success, error = self.event.transition_to_planning()
+        self.assertFalse(success)
+        self.assertIsNotNone(error)
+        # Status must not have changed as a side effect.
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.status, Event.StatusCode.PROPOSAL)
 
 
 class PlanModelTests(TestCase):
@@ -239,8 +314,10 @@ class SupplyItemModelTests(TestCase):
         )
         # SupplyCommitment.save() calls update_committed_quantity() automatically,
         # so we just verify the final DB value after two commitments.
-        SupplyCommitment.objects.create(supply_item=item, user=self.user, quantity=3)
-        SupplyCommitment.objects.create(supply_item=item, user=user2, quantity=4)
+        SupplyCommitment.objects.create(
+            supply_item=item, user=self.user, quantity=3)
+        SupplyCommitment.objects.create(
+            supply_item=item, user=user2, quantity=4)
 
         item.refresh_from_db()
         self.assertEqual(item.quantity_committed, 7)

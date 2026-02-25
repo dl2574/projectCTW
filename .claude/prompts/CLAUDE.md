@@ -25,8 +25,10 @@ If I have not provided enough context or the intent is not clear, please ask fol
 
 ### Complete Session
 If prompted "complete session", complete the following actions.
-1. Document all work completed in the current coding session into .claude/prompts/SESSION_DETAILS.md which can be passed as context for a future session.
-2. Stage any unsaved changes but do not commit.
+1. Document all work completed in the current coding session into .claude/prompts/SESSION_DETAILS.md which can be passed as context for a future session. Prepend the new session at the top of the file (newest first).
+2. Update .claude/prompts/DEVELOPMENT_ROADMAP.md — mark any completed items with [x] and add new items discovered during the session.
+3. Update README.md — reflect any newly completed features and update the test count.
+4. Stage any unsaved changes but do not commit.
 
 ## Next Steps
 1. Read .claude/prompts/project-summary.md

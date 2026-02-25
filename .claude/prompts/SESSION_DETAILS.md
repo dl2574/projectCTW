@@ -1,3 +1,115 @@
+# Session Details - 2026-02-24
+
+## Session Summary
+This session implemented the PROPOSAL → PLANNING event lifecycle transition end-to-end: model business logic, HTMX partial UI updates, in-app notifications, and a full test suite for the transition. Several pre-existing bugs in the template, models, and tests were identified and fixed along the way.
+
+---
+
+## Work Completed
+
+### 1. Fixed `notifications/models.py` — 3 Pre-existing Bugs
+**File Modified**: `notifications/models.py`
+
+- `mark_read()` was a standalone module-level function, not a method on `Notification`. Fixed — now correctly indented inside the class.
+- `class Meta: abstract = True` was nested inside the `mark_read` function body. Fixed — moved to class level so `Notification` is properly abstract and its fields inline into subclass tables.
+- `created_on = DateTimeField(auto_created=True)` — `auto_created` is not a valid DateTimeField kwarg; the field had no automatic value. Fixed to `auto_now_add=True`.
+
+### 2. `events/models.py` — `transition_to_planning()` and `_notify_planning_started()`
+**File Modified**: `events/models.py`
+
+Two methods added to the `Event` model (fat model pattern):
+
+**`transition_to_planning()`** — returns `(success: bool, error: str | None)`:
+- Guard: event must be in PROPOSAL status
+- Guard: upvote count must meet `required_num_upvotes` threshold
+- Sets status to PLANNING, saves, auto-creates the `Plan`, calls `_notify_planning_started()`
+
+**`_notify_planning_started()`** — private helper:
+- Creates one `EventStatusChange` notification row per upvoter via `bulk_create`
+- Local import of `EventStatusChange` avoids a circular import
+
+**Bugs fixed in the user's initial implementation:**
+- Success path (`self.status = ...`, `self.save()`, etc.) was indented inside the `if number_of_upvotes < threshold:` guard clause — dead unreachable code. Fixed by unindenting to method level.
+- `Event.StatusChange.objects.bulk_create(...)` → `EventStatusChange.objects.bulk_create(...)` (wrong class name caused AttributeError).
+
+### 3. `events/views.py` — `upvoteEvent` View (Already Correct)
+**File**: `events/views.py`
+
+The view was already correctly implemented by the user with:
+- `event.user_upvoted()` / `event.upvotes.add()` / `event.upvotes.remove()` model method usage
+- Status transition only attempted on new upvotes (not removals), only when in PROPOSAL status
+- `HX-Target` header routing: returns `event_detail.html#event-header` for the detail page, `proposed_events.html#event-card` for the proposals list
+
+### 4. `events/templates/events/proposed_events.html` — 3 Bugs Fixed
+**File Modified**: `events/templates/events/proposed_events.html`
+
+- **`{% partialdef event-card inline %}` inside the `{% for %}` loop**: With `inline`, the partial was redefined on every loop iteration. When the view returns the partial via `render(...#event-card)`, Django uses the last-defined version — always the last event, never the one that was upvoted. Fixed: moved `{% partialdef event-card %}` (no `inline`) to before the loop, use `{% partial event-card %}` inside.
+- **Missing `id` on `<li>`**: The upvote button targeted `#event-card-{{ event.id }}` via `hx-target` but the `<li>` had no `id`. HTMX couldn't find the swap target. Fixed: added `id="event-card-{{ event.id }}"`.
+- **Broken `<button>` tag**: Missing closing `>` on the tag and `class` attribute were absent. Fixed: restored full Tailwind classes and proper tag structure.
+
+### 5. `events/templates/events/event_detail.html` — Already Correct
+**File**: `events/templates/events/event_detail.html`
+
+Was already correctly implemented: `{% partialdef event-header inline %}` wrapping `<section id="event-header">`, upvote button with `hx-target="#event-header" hx-swap="outerHTML"`, `created_on` (not `created_at`) used throughout.
+
+### 6. Test Suite Updates — `events/tests/test_models.py`
+**File Modified**: `events/tests/test_models.py`
+
+**`EventModelTests`** — renamed `cls.user` → `cls.creator` throughout (was causing `AttributeError` due to a pre-existing `cls.user1` reference in the original code).
+
+**`EventTransitionTests`** — complete rewrite:
+- Key pattern: `setUpTestData` for immutable users, `setUp` (per-test) to recreate the `Event` and reset upvotes/status — prevents mutation bleed between tests.
+- 5 tests: status changes to PLANNING, Plan is created, notifications created for each upvoter, fails when not in PROPOSAL status, fails when below upvote threshold.
+- `test_transition_creates_notification_for_each_upvoter`: queries `EventStatusChange.objects.filter(source_event=self.event)`, asserts count==2, asserts both upvoter IDs in the recipients set.
+
+**Added import**: `from notifications.models import EventStatusChange`
+
+### 7. Test Suite Updates — `events/tests/test_views.py`
+**File Modified**: `events/tests/test_views.py`
+
+`test_proposal_upvote` — updated assertions to match the new event card partial response:
+- Asserts `event.name` is in response
+- Asserts `id="event-card-{uuid}"` is in response
+- Asserts `<span class="text-xs font-semibold">1</span>` for upvote count after voting
+- Asserts count drops to `0` after toggling
+
+---
+
+## Test Results
+
+```
+Ran 62 tests in ~12s — OK, 0 failures
+```
+
+| App | Tests Before | Tests After |
+|-----|-------------|-------------|
+| events (models) | 25 | 30 (+5 EventTransitionTests) |
+| events (views) | 3 | 3 (assertions updated) |
+| userProfile (models) | 6 | 6 |
+| userProfile (services) | 6 | 6 |
+| notifications | 0 | 0 (tested via events) |
+| **Total suite** | **57** | **62** |
+
+---
+
+## Key Patterns Established This Session
+
+- **Fat Model + `(success, error)` tuple**: `transition_to_planning()` returns `(bool, str | None)` so the view can handle both success and failure without exceptions.
+- **Django 6.0 template partials**: `{% partialdef name %}` defined ONCE before a `{% for %}` loop (no `inline`); `{% partial name %}` renders it per-iteration. `inline` is only for partials used exactly once inline.
+- **HTMX routing via `HX-Target`**: View checks `request.headers.get('HX-Target', '')` to decide which partial to return — clean single view serving both the list page and detail page.
+- **Test isolation with `setUp` vs `setUpTestData`**: Users (immutable) live in `setUpTestData`; Events and M2M state (mutated by each test) recreated in `setUp`.
+- **`bulk_create` for notifications**: Batch-insert all notification rows in a single query instead of one INSERT per user.
+
+---
+
+## Next Session Priorities
+
+1. **Wire `email_event_status_update()` to `transition_to_planning()`** — the email service in `userProfile/services.py` is built and tested but not yet called. Add a call in `_notify_planning_started()` or directly in `transition_to_planning()` after `Plan` creation.
+2. **Profile UI Polish** — `user_account.html` still uses `{{ form.as_p }}`. Style with two sections: "Profile Information" and "Email Notifications" with toggle inputs.
+3. **Event Planning UI** — Begin the planning phase UI: date proposal system (propose/vote on dates), supply list management, attendance commitment form.
+
+---
+
 # Session Details - 2026-02-22
 
 ## Session Summary

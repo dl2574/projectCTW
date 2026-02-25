@@ -46,6 +46,37 @@ class Event(models.Model):
     def user_upvoted(self, user):
         return self.upvotes.filter(id=user.id).exists()
 
+    def transition_to_planning(self):
+        """
+        Transition this event from PROPOSAL to PLANNING.
+        Creates the associated Plan and notifies all upvoters.
+        Returns (success: bool, error: str | None).
+        """
+        if self.status != self.StatusCode.PROPOSAL:
+            return False, "Event must be in PROPOSAL status"
+        if self.number_of_upvotes() < self.required_num_upvotes:
+            return False, f"Need {self.required_num_upvotes} upvotes to begin planning"
+
+        self.status = self.StatusCode.PLANNING
+        self.save()
+
+        Plan.objects.get_or_create(event=self)
+        self._notify_planning_started()
+        return True, None
+
+    def _notify_planning_started(self):
+        """Create in-app notifications for all upvoters."""
+        from notifications.models import EventStatusChange
+        notifications = [
+            EventStatusChange(
+                recipient=user,
+                source_event=self,
+                message=f"'{self.name}' has enough support to move to planning!",
+            )
+            for user in self.upvotes.all()
+        ]
+        EventStatusChange.objects.bulk_create(notifications)
+
     def get_absolute_url(self):
         return reverse("eventDetail", kwargs={"pk": self.pk})
 

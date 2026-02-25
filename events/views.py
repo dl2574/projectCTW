@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.views.generic import DetailView, ListView
 
 from .forms import EventForm, CommentForm
-from .models import Event, Comment
+from .models import Event, Comment, Plan
 from django.contrib.auth.decorators import login_required
 
 
@@ -89,27 +89,20 @@ def detailView(request, pk):
 def upvoteEvent(request, pk):
     user = request.user
     event = get_object_or_404(Event, id=pk)
-    thumb = "fa-regular"
 
-    # Check if the user has upvoted this event already
     if event.user_upvoted(user):
-        # If already upvoted, remove upvote
         event.upvotes.remove(user)
     else:
-        # Add upvote
         event.upvotes.add(user)
-        thumb = "fa-solid"
+        # Only attempt transition on new upvotes (not removals)
+        if event.number_of_upvotes() >= event.required_num_upvotes and event.status == event.StatusCode.PROPOSAL:
+            event.transition_to_planning()
 
-    num_of_votes = event.number_of_upvotes()
+    user_upvoted = event.user_upvoted(user)
+    context = {'event': event, 'user_upvoted': user_upvoted}
 
-    # Check if this the vote count is above the required number of upvotes.
-    # If so, change status to planning.
-    if num_of_votes > event.required_num_upvotes:
-        event.status = Event.StatusCode.PLANNING
-        event.save()
-
-    vote_text = "Vote" if num_of_votes == 1 else "Votes"
-
-    responseString = f"<html><i class='{
-        thumb} fa-thumbs-up'></i> {num_of_votes} Up {vote_text}<html>"
-    return HttpResponse(responseString)
+    # Return the appropriate partial based on which element htmx is targeting
+    hx_target = request.headers.get('HX-Target', '')
+    if hx_target == 'event-header':
+        return render(request, 'events/event_detail.html#event-header', context)
+    return render(request, 'events/proposed_events.html#event-card', context)

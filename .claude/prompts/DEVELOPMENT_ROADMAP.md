@@ -1,6 +1,6 @@
 # ProjectCTW Development Roadmap
 
-**Last Updated**: 2025-11-24
+**Last Updated**: 2026-02-24
 **Vision**: A platform enabling community members to propose, plan, and execute volunteer projects while building a verified volunteer resume.
 
 ---
@@ -30,15 +30,16 @@
 - [ ] Event listing page with basic filtering
 
 ### Upvoting System
-- [ ] Complete upvote/downvote functionality
-- [ ] Visual upvote counter on event cards
-- [ ] Automatic status transition (Proposal → Planning when threshold met)
-- [ ] Notification to upvoters when event moves to planning
-- [ ] Prevent duplicate votes
+- [x] Complete upvote/downvote functionality
+- [x] Visual upvote counter on event cards (HTMX partial updates, no full page reload)
+- [x] Automatic status transition (Proposal → Planning when threshold met)
+- [x] In-app notifications to upvoters when event moves to planning
+- [x] Prevent duplicate votes
+- [ ] Email notifications on status transition (service built in userProfile/services.py, not yet wired to transition)
 - [ ] Show who upvoted (for event creator)
 
 ### Event Planning Features
-- [ ] Plan model integration with events
+- [x] Plan model integration with events (auto-created on PROPOSAL → PLANNING transition)
 - [ ] Date proposal system
   - [ ] Create/submit proposed dates
   - [ ] Vote on proposed dates
@@ -73,12 +74,13 @@
 - [ ] Display attended events (verified)
 
 ### Testing & Quality
-- [ ] Expand test coverage for Event model (target: 90%+)
-- [ ] Add tests for Plan, ProposedDate, Comment models
+- [x] Expand test coverage for Event model (30 model tests, 3 view tests — 62 total across suite)
+- [x] Add tests for Plan, AttendanceCommitment, SupplyItem, SupplyCommitment models
+- [x] Integration tests for status transitions (EventTransitionTests: 5 tests)
 - [ ] View tests for all event workflow pages
 - [ ] Form validation tests
-- [ ] Integration tests for status transitions
 - [ ] Test authentication/permission checks
+- [ ] Add tests for ProposedDate, Comment models
 
 ### Documentation
 - [ ] Add inline code comments for complex logic

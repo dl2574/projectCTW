@@ -49,12 +49,17 @@ class TestProposals(TestCase):
         )
         self.assertTrue(get_user(self.client).is_authenticated)
 
-        # Create 1 upvote
+        # Upvoting returns the updated event card partial — check for the
+        # event name and the upvote count embedded in the card HTML.
         self.response = self.client.post(
             reverse("upvote", kwargs={'pk': self.test_event.id}))
-        self.assertContains(self.response, "1 Up Vote")
+        self.assertEqual(self.response.status_code, 200)
+        self.assertContains(self.response, self.test_event.name)
+        self.assertContains(self.response, f'id="event-card-{self.test_event.id}"')
+        # Upvote count is 1 after voting
+        self.assertContains(self.response, "<span class=\"text-xs font-semibold\">1</span>")
 
-        # Remove 1 upvote when user has already upvoted
+        # Voting again removes the upvote; count drops back to 0
         self.response = self.client.post(
             reverse("upvote", kwargs={'pk': self.test_event.id}))
-        self.assertContains(self.response, "0 Up Votes")
+        self.assertContains(self.response, "<span class=\"text-xs font-semibold\">0</span>")
