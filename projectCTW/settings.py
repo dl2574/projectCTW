@@ -221,10 +221,12 @@ ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm",
 
 
 # Email Config
-EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
 
-ANYMAIL = {
-    "RESEND_API_KEY": env.str("RESEND_API_KEY")
-}
-
+    ANYMAIL = {
+        "RESEND_API_KEY": env.str("RESEND_API_KEY")
+    }
 DEFAULT_FROM_EMAIL = "info@projectctw.com"
