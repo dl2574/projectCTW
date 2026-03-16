@@ -62,7 +62,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ User profiles with email notification preferences
 - ✅ Transactional email service (via Resend/django-anymail)
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
-- 🚧 Email notifications on status transition (service ready, not yet wired) - *In Progress*
+- ✅ Email notifications on status transition (wired to transition_to_planning(); error handling pending)
 
 ### Planned Features
 
@@ -303,7 +303,7 @@ We welcome contributions! ProjectCTW is working towards becoming an open source 
 
 ### Areas Where We Need Help
 
-- Expanding test coverage (we have 64 tests; target is 80%+ coverage)
+- Expanding test coverage (we have 67 tests; target is 80%+ coverage)
 - Frontend improvements and mobile responsiveness
 - Event planning UI (date voting, supply list, attendance)
 - Security review and hardening

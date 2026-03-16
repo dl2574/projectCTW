@@ -1,3 +1,42 @@
+# Session Details - 2026-03-15
+
+## Session Summary
+Short session. Added `@require_POST` to the `upvoteEvent` view (closing a known HTTP method validation gap), wired `email_event_status_update()` into `transition_to_planning()`, and added a new `TestUpvoteProposalPage` test class with 3 tests. Also reorganized Claude configuration: moved `.claude/CLAUDE.md` to the correct location and set up `~/.claude/DEVELOPER_PROFILE.md` with a global `@import`.
+
+---
+
+## Work Completed
+
+### 1. `events/views.py` — `@require_POST` on `upvoteEvent`
+- Added `from django.views.decorators.http import require_POST`
+- Applied `@require_POST` decorator to `upvoteEvent`
+- Closes the flagged OWASP gap: GET requests could previously toggle vote state (state-modifying action on a non-POST method)
+
+### 2. `events/models.py` — Wire email service to `transition_to_planning()`
+- Added `from userProfile.services import email_event_status_update` at top level (no circular import risk — `userProfile` does not import from `events`)
+- Added `email_event_status_update(self)` call after `_notify_planning_started()` inside `transition_to_planning()`
+- Order is intentional: in-app notification fires first, then email — consistent with the idea that the state is settled before external comms go out
+- Note: no error handling yet on the email call — flagged for next session (Django logging setup + try/except for connection vs. bad recipient errors)
+
+### 3. `events/tests/test_views.py` — `TestUpvoteProposalPage` (3 new tests)
+- `test_upvote_requires_authentication` — unauthenticated POST redirects to login (302, `/login` in URL)
+- `test_upvote_from_proposal_page` — authenticated voter POSTs with correct `HX-Target`; asserts 200, upvote count of 1, active button style
+- `test_upvote_removed_if_posted_a_second_time` — double-post removes upvote; asserts count 0, inactive button style, and DB state (`upvotes.count() == 0`)
+
+### 4. Claude configuration reorganization
+- Moved project `CLAUDE.md` from `.claude/prompts/CLAUDE.md` → `.claude/CLAUDE.md` (correct auto-load location)
+- Created `~/.claude/DEVELOPER_PROFILE.md` — persistent developer profile loaded globally via `@import` in `~/.claude/CLAUDE.md`
+
+---
+
+## Next Session
+- Add error handling to `email_event_status_update()` in `userProfile/services.py`
+  - try/except inside the per-user loop
+  - Log failures via Django logging (setup required — never configured before)
+  - Distinguish connection errors (retry candidate) from bad recipient (log and skip)
+
+---
+
 # Session Details - 2026-02-24 (Session 2)
 
 ## Session Summary

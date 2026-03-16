@@ -1,7 +1,7 @@
 # Event Planning Features - Implementation Roadmap
 
 **Target**: Complete the event planning workflow (PROPOSAL → PLANNING → SCHEDULED)
-**Status**: Not Started
+**Status**: In Progress — Models complete (Plan, ProposedDate, AttendanceCommitment, SupplyItem, SupplyCommitment), views and UI pending
 **Owner**: David
 
 ---

@@ -1,6 +1,6 @@
 # ProjectCTW Development Roadmap
 
-**Last Updated**: 2026-02-24 (Session 2)
+**Last Updated**: 2026-03-15
 **Vision**: A platform enabling community members to propose, plan, and execute volunteer projects while building a verified volunteer resume.
 
 ---
@@ -36,7 +36,8 @@
 - [x] In-app notifications to upvoters when event moves to planning
 - [x] Prevent duplicate votes
 - [x] **Bug**: Event detail page sidebar upvote count does not update when user upvotes — fixed with HTMX OOB swap: server appends `sidebar-upvote-count` fragment with `hx-swap-oob="outerHTML"` alongside the primary `event-header` partial
-- [ ] Email notifications on status transition (service built in userProfile/services.py, not yet wired to transition)
+- [x] Email notifications on status transition (service wired to transition_to_planning(); error handling pending)
+- [ ] Email service error handling (logging, try/except per-recipient, connection vs. bad address distinction)
 - [ ] Show who upvoted (for event creator)
 
 ### Event Planning Features
