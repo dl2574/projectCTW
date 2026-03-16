@@ -3,6 +3,7 @@ from django.db.models.deletion import SET_NULL, CASCADE
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from userProfile.models import User
+from userProfile.services import email_event_status_update
 import uuid
 
 
@@ -62,6 +63,7 @@ class Event(models.Model):
 
         Plan.objects.get_or_create(event=self)
         self._notify_planning_started()
+        email_event_status_update(self)
         return True, None
 
     def _notify_planning_started(self):
@@ -71,7 +73,8 @@ class Event(models.Model):
             EventStatusChange(
                 recipient=user,
                 source_event=self,
-                message=f"'{self.name}' has enough support to move to planning!",
+                message=f"'{
+                    self.name}' has enough support to move to planning!",
             )
             for user in self.upvotes.all()
         ]

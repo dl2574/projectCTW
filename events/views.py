@@ -8,6 +8,7 @@ from django.views.generic import DetailView, ListView
 from .forms import EventForm, CommentForm
 from .models import Event, Comment, Plan
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 
 class ProposedEvents(ListView):
@@ -87,6 +88,7 @@ def detailView(request, pk):
 
 
 @login_required(login_url="account_login")
+@require_POST
 def upvoteEvent(request, pk):
     user = request.user
     event = get_object_or_404(Event, id=pk)
@@ -105,7 +107,8 @@ def upvoteEvent(request, pk):
     # Return the appropriate partial based on which element htmx is targeting
     hx_target = request.headers.get('HX-Target', '')
     if hx_target == 'event-header':
-        primary = render(request, 'events/event_detail.html#event-header', context)
+        primary = render(
+            request, 'events/event_detail.html#event-header', context)
         # Render the sidebar count as a second fragment and mark it for OOB swap
         # so HTMX updates both disconnected elements from a single response.
         oob_html = render_to_string(

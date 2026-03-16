@@ -55,14 +55,17 @@ class TestProposals(TestCase):
             reverse("upvote", kwargs={'pk': self.test_event.id}))
         self.assertEqual(self.response.status_code, 200)
         self.assertContains(self.response, self.test_event.name)
-        self.assertContains(self.response, f'id="event-card-{self.test_event.id}"')
+        self.assertContains(
+            self.response, f'id="event-card-{self.test_event.id}"')
         # Upvote count is 1 after voting
-        self.assertContains(self.response, "<span class=\"text-xs font-semibold\">1</span>")
+        self.assertContains(
+            self.response, "<span class=\"text-xs font-semibold\">1</span>")
 
         # Voting again removes the upvote; count drops back to 0
         self.response = self.client.post(
             reverse("upvote", kwargs={'pk': self.test_event.id}))
-        self.assertContains(self.response, "<span class=\"text-xs font-semibold\">0</span>")
+        self.assertContains(
+            self.response, "<span class=\"text-xs font-semibold\">0</span>")
 
 
 class TestUpvoteDetailPage(TestCase):
@@ -122,3 +125,77 @@ class TestUpvoteDetailPage(TestCase):
         # Second click: remove upvote — count should drop back to 0
         response = self.client.post(upvote_url, HTTP_HX_TARGET="event-header")
         self.assertContains(response, '<span class="font-semibold">0</span>')
+
+
+class TestUpvoteProposalPage(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.UserModel = get_user_model()
+        cls.creator = cls.UserModel.objects.create_user(
+            username="creator",
+            email="creator@mail.com",
+            password="testpass123",
+        )
+
+        cls.voter = cls.UserModel.objects.create_user(
+            username="voter",
+            email="voter@mail.com",
+            password="testpass123",
+        )
+
+        cls.test_event = Event.objects.create(
+            name="test_event",
+            description="event for testing",
+            location="online",
+            created_by=cls.creator,
+        )
+
+    def test_upvote_requires_authentication(self):
+        response = self.client.post(
+            reverse("upvote", kwargs={"pk": self.test_event.id})
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/login", response.url)
+
+    def test_upvote_from_proposal_page(self):
+        self.client.login(email=self.voter.email, password="testpass123")
+
+        response = self.client.post(
+            reverse("upvote", kwargs={"pk": self.test_event.id}),
+            HTTP_HX_TARGET=f"event-card-{self.test_event.id}",
+        )
+
+        # Check for response code
+        self.assertEqual(response.status_code, 200)
+
+        # Check response template contains correct number of upvotes (1)
+        self.assertContains(
+            response, '<span class="text-xs font-semibold">1</span>')
+
+        # Check response template contains correct upvote button style
+        self.assertContains(response, 'text-teal-700">Upvote</span>')
+
+    def test_upvote_removed_if_posted_a_second_time(self):
+        self.client.login(email=self.voter.email, password="testpass123")
+
+        post_url = reverse("upvote", kwargs={"pk": self.test_event.id})
+        hx_target = f"event-card-{self.test_event.id}"
+
+        # Add an upvote from the user
+        _ = self.client.post(post_url, HTTP_HX_TARGET=hx_target)
+
+        # Remove that upvote just added
+        response = self.client.post(post_url, HTTP_HX_TARGET=hx_target)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response, '<span class="text-xs font-semibold">0</span>'
+        )
+
+        self.assertContains(
+            response, '<span class="">Upvote</span>'
+        )
+
+        self.assertEqual(self.test_event.upvotes.count(), 0)
