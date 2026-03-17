@@ -37,7 +37,7 @@
 - [x] Prevent duplicate votes
 - [x] **Bug**: Event detail page sidebar upvote count does not update when user upvotes — fixed with HTMX OOB swap: server appends `sidebar-upvote-count` fragment with `hx-swap-oob="outerHTML"` alongside the primary `event-header` partial
 - [x] Email notifications on status transition (service wired to transition_to_planning(); error handling pending)
-- [ ] Email service error handling (logging, try/except per-recipient, connection vs. bad address distinction)
+- [x] Email service error handling (logging, try/except per-recipient: AnymailError, ConnectionError, Exception catch-all)
 - [ ] Show who upvoted (for event creator)
 
 ### Event Planning Features

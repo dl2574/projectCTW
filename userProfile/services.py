@@ -1,6 +1,11 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from anymail.exceptions import AnymailError
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -47,10 +52,20 @@ def email_event_status_update(event):
     )
 
     for user in recipients:
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except AnymailError:
+            logger.error(f"Email Error: Failed to send email to {
+                         user.email}", exc_info=True)
+        except ConnectionError:
+            logger.error(f"Email Error: Failed to connect when sending status email to {
+                         user.email}", exc_info=True)
+        except Exception:
+            logger.error(f"Email Error: Encountered a generic error when attempting to send email to {
+                         user.email}", exc_info=True)

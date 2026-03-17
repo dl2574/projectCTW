@@ -5,6 +5,9 @@ from django.test import TestCase, override_settings
 from events.models import AttendanceCommitment, Event, Plan
 from userProfile.services import email_event_status_update
 
+from unittest.mock import patch
+from anymail.exceptions import AnymailError
+
 User = get_user_model()
 
 
@@ -66,7 +69,8 @@ class EmailEventStatusUpdateTests(TestCase):
             status=AttendanceCommitment.CommitmentStatus.YES,
         )
         email_event_status_update(self.event)
-        upvoter_emails = [msg for msg in mail.outbox if msg.to[0] == self.upvoter.email]
+        upvoter_emails = [
+            msg for msg in mail.outbox if msg.to[0] == self.upvoter.email]
         self.assertEqual(len(upvoter_emails), 1)
 
     def test_subject_contains_event_name(self):
@@ -84,3 +88,40 @@ class EmailEventStatusUpdateTests(TestCase):
         event.upvotes.add(self.opted_out)
         email_event_status_update(event)
         self.assertEqual(len(mail.outbox), 0)
+
+
+class TestEmailErors(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_user = User.objects.create_user(
+            username='test_user',
+            password='testpass123',
+            email='test_user@mail.com',
+            email_status_updates=True,
+        )
+
+        cls.test_event = Event.objects.create(
+            name='test_event',
+            description='event for testing',
+            location='online',
+            created_by=cls.test_user,
+        )
+
+        cls.test_event.upvotes.add(cls.test_user)
+
+    @patch('userProfile.services.send_mail')
+    def test_anymail_exception_is_captured_and_logged(self, mock_send_mail):
+        mock_send_mail.side_effect = AnymailError("API error")
+
+        with self.assertLogs('userProfile.services', level='ERROR') as log:
+            email_event_status_update(self.test_event)
+            self.assertIn("Email Error", log.output[0])
+
+    @patch('userProfile.services.send_mail')
+    def test_connectionerror_exception_is_captured_and_logged(self, mock_send_mail):
+        mock_send_mail.side_effect = ConnectionError("Connection error")
+
+        with self.assertLogs('userProfile.services', level='ERROR') as log:
+            email_event_status_update(self.test_event)
+            self.assertIn("Email Error", log.output[0])

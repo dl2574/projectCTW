@@ -60,9 +60,10 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ In-app notifications to upvoters when event moves to planning
 - ✅ Event planning data models (supply items, supply commitments, attendance commitments)
 - ✅ User profiles with email notification preferences
-- ✅ Transactional email service (via Resend/django-anymail)
+- ✅ Transactional email service (via Resend/django-anymail) with per-recipient error handling and logging
+- ✅ User account settings page with structured fieldsets and responsive two-column layout
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
-- ✅ Email notifications on status transition (wired to transition_to_planning(); error handling pending)
+- ✅ Email notifications on status transition (wired to transition_to_planning())
 
 ### Planned Features
 
@@ -303,7 +304,7 @@ We welcome contributions! ProjectCTW is working towards becoming an open source 
 
 ### Areas Where We Need Help
 
-- Expanding test coverage (we have 67 tests; target is 80%+ coverage)
+- Expanding test coverage (we have 69 tests; target is 80%+ coverage)
 - Frontend improvements and mobile responsiveness
 - Event planning UI (date voting, supply list, attendance)
 - Security review and hardening

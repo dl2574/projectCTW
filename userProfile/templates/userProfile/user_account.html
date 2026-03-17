@@ -9,10 +9,76 @@
     </header>
     <main>
         <div class="mx-auto max-w-7xl pt-8 sm:px-6 lg:px-8">
-            <form method="post">
+            <form method="post" class="space-y-12">
                 {% csrf_token %}
-                {{ form|crispy }}
-                <input class="btn-primary text-base px-6 py-3" type="submit" value="Update">
+                <fieldset class="w-full px-6 py-4 odd:bg-gray-50">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <legend>Personal Information</legend>
+                    </div>
+                    <div class="md:col-span-2 space-y-6">
+                      <div class="">
+                        {{form.first_name.label_tag}}
+                        {{form.first_name}}
+                        {{form.first_name.errors}}
+                      </div>
+                      <div class="">
+                        {{form.last_name.label_tag}}
+                        {{form.last_name}}
+                        {{form.last_name.errors}}
+                      </div>
+                      <div class="">
+                        {{form.bio.label_tag}}
+                        {{form.bio}}
+                        {{form.bio.errors}}
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+                <fieldset class="w-full px-6 py-4 odd:bg-gray-50">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <legend>Account Information</legend>
+                    </div>
+                    <div class="md:col-span-2 space-y-6">
+                      <div class="">
+                        {{form.username.label_tag}}
+                        {{form.username}}
+                        {{form.username.errors}}
+                      </div>
+                      <div class="">
+                        {{form.email.label_tag}}
+                        {{form.email}}
+                        {{form.email.errors}}
+                      </div>
+                      <div class="">
+                        <a class="btn-outline px-6 py-3" href="{% url 'account_change_password' %}">Change Password</a>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+                <fieldset class="w-full px-6 py-4 odd:bg-gray-50">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <legend>Notification Settings</legend>
+                    </div>
+                    <div class="md:col-span-2 space-y-6">
+                      <div class="">
+                        {{form.email_status_updates.label_tag}}
+                        {{form.email_status_updates}}
+                        {{form.email_status_updates.errors}}
+                      </div>
+                      <div class="">
+                        {{form.email_event_reminders.label_tag}}
+                        {{form.email_event_reminders}}
+                        {{form.email_event_reminders.errors}}
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+                <div class="flex justify-end py-6">
+                  <input class="btn-primary text-base px-6 py-3" type="submit" value="Update">
+                </div>
             </form>
         </div>
     </main>
