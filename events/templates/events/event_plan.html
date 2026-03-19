@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% load event_tags %}
+{% load tailwind_filters %}
+
+{% block title %}{{plan.event.name}} Plan{% endblock title%}
+
+{% block content %}
+
+<div class="pt-20 pb-16 bg-slate-50">
+    {% include "events/event_detail.html#event-header" %}
+    {% partialdef event-plan inline %}
+    <div class="lg:col-span-1 lg:row-span-2 space-y-6">
+        <div class="card p-6">
+            <h3 class="text-lg font-semibold text-slate-900 mb-4">Event Planning</h3>
+            <div class="flex flex-col">
+                <div class="">
+                    <h4 class="text-md font-semibold text-slate-900 mb-4">Event Date</h4>
+                    <!-- Section which shows one of two things. Either date voting or the sleected date-->
+                    <!-- Date Voting: 
+                        - Shows top 3 dates and their vote count
+                        - Button to see a popup or another page which shows all a calendar or list of
+                            dates and anotates the all proposed dates
+                        - Method for user to vote for a proposd date or propose a new date 
+                        - Event owner has option to select one of top 3 dates to lock in date of event -->
+                    <!-- Locked in date:
+                        - Voting option closes
+                        - Button goes a way
+                        - Top 3 dates go away
+                        - Display selected date
+                        - Display button for user to commit to event -->
+                </div>
+                <div class="">
+                    <h4 class="text-md font-semibold text-slate-900 mb-4">Required Items</h4>
+                    <!-- Show required items and quantities. Each item as a link to display 
+                        an item description and justification. -->
+                    <!-- Method for user to commit to bringing an item: 
+                        - Shows what users are bringing what items -->
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endpartialdef event-plan %}
+</div>
+{% endblock content %}

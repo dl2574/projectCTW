@@ -86,6 +86,14 @@ def detailView(request, pk):
                "commentForm": CommentForm, "event": event}
     return render(request, "events/event_detail.html", context)
 
+def planView(request, pk):
+    plan = get_object_or_404(Plan, id=pk)
+    event = get_object_or_404(Event, id=plan.event.id)
+    context = {"plan": plan, "event": event,}
+
+    if request.method == "GET":
+        return render(request, "events/event_plan.html", context)
+
 
 @login_required(login_url="account_login")
 @require_POST
@@ -107,18 +115,5 @@ def upvoteEvent(request, pk):
     # Return the appropriate partial based on which element htmx is targeting
     hx_target = request.headers.get('HX-Target', '')
     if hx_target == 'event-header':
-        primary = render(
-            request, 'events/event_detail.html#event-header', context)
-        # Render the sidebar count as a second fragment and mark it for OOB swap
-        # so HTMX updates both disconnected elements from a single response.
-        oob_html = render_to_string(
-            'events/event_detail.html#sidebar-upvote-count', context, request=request
-        )
-        oob_html = oob_html.replace(
-            'id="sidebar-upvote-count"',
-            'id="sidebar-upvote-count" hx-swap-oob="outerHTML"',
-            1,
-        )
-        primary.content += oob_html.encode()
-        return primary
+        return render(request, 'events/event_detail.html#event-header', context)
     return render(request, 'events/proposed_events.html#event-card', context)
