@@ -65,6 +65,48 @@
                     <h2 class="text-xl font-semibold text-slate-900 mb-4">Event Description</h2>
                     <p class="text-slate-700 leading-7 whitespace-pre-line">{{ event.description }}</p>
                 </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 lg:row-span-2 space-y-6">
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold text-slate-900 mb-4">Event Details</h3>
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-slate-500">Status</dt>
+                            <dd class="mt-1">
+                                <span class="{% event_status_color event.status%} badge">{{ event.get_status_display }}</span>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-slate-500">Location</dt>
+                            <dd class="mt-1 text-sm text-slate-900">{{event.location|capfirst}}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-slate-500">Upvotes</dt>
+                            {% partialdef sidebar-upvote-count inline %}
+                            <dd id="sidebar-upvote-count" class="mt-1 text-sm text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-thumbs-up text-amber-500"></i>
+                                <span class="font-semibold">{{event.number_of_upvotes}}</span>
+                            </dd>
+                            {% endpartialdef %}
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-slate-500">Created</dt>
+                            <dd class="mt-1 text-sm text-slate-900">{{ event.created_on|date:"F d, Y" }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Future sections -->
+                <div class="card p-6 bg-teal-50 border-teal-200">
+                    <h3 class="text-lg font-semibold text-teal-900 mb-2">Get Involved</h3>
+                    <p class="text-sm text-teal-700">
+                        Support this event by upvoting and sharing your thoughts in the comments!
+                    </p>
+                </div>
 
                 <!-- Comments Section -->
                 <div class="card p-6">
@@ -106,46 +148,6 @@
                         <p class="text-slate-600 mb-4">Please <a href="{% url 'account_login' %}" class="text-teal-600 hover:text-teal-700 font-semibold">log in</a> to comment</p>
                     </div>
                     {% endif %}
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="lg:col-span-1 space-y-6">
-                <div class="card p-6">
-                    <h3 class="text-lg font-semibold text-slate-900 mb-4">Event Details</h3>
-                    <dl class="space-y-4">
-                        <div>
-                            <dt class="text-sm font-medium text-slate-500">Status</dt>
-                            <dd class="mt-1">
-                                <span class="{% event_status_color event.status%} badge">{{ event.get_status_display }}</span>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-slate-500">Location</dt>
-                            <dd class="mt-1 text-sm text-slate-900">{{event.location|capfirst}}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-slate-500">Upvotes</dt>
-                            {% partialdef sidebar-upvote-count inline %}
-                            <dd id="sidebar-upvote-count" class="mt-1 text-sm text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-thumbs-up text-amber-500"></i>
-                                <span class="font-semibold">{{event.number_of_upvotes}}</span>
-                            </dd>
-                            {% endpartialdef %}
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-slate-500">Created</dt>
-                            <dd class="mt-1 text-sm text-slate-900">{{ event.created_on|date:"F d, Y" }}</dd>
-                        </div>
-                    </dl>
-                </div>
-
-                <!-- Future sections -->
-                <div class="card p-6 bg-teal-50 border-teal-200">
-                    <h3 class="text-lg font-semibold text-teal-900 mb-2">Get Involved</h3>
-                    <p class="text-sm text-teal-700">
-                        Support this event by upvoting and sharing your thoughts in the comments!
-                    </p>
                 </div>
             </div>
         </div>
