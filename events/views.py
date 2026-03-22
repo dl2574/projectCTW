@@ -91,6 +91,9 @@ def planView(request, pk):
     event = get_object_or_404(Event, id=plan.event.id)
     context = {"plan": plan, "event": event,}
 
+    if request.headers.get('HX-Request'):
+        return render(request, "events/event_plan.html#event-plan")
+
     if request.method == "GET":
         return render(request, "events/event_plan.html", context)
 

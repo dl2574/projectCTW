@@ -57,7 +57,7 @@
     {% endpartialdef %}
 
     <!-- Main Content -->
-    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div id="event-container" class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <!-- Event Description -->
             <div class="lg:col-span-2 space-y-6">
@@ -75,7 +75,12 @@
                         <p class="">This event has entered the planning stages!</p>
                         <!-- Show date when finalized, number of commitments, and number of items
                          which still need to be supplied -->
-                        <button class="btn-secondary mt-4">View Plan</button> <!-- Create hx-get request and page change to plan view -->
+                        <button 
+                        hx-get="{% url 'eventPlan' event.plan.id %}"
+                        hx-target="#event-container"
+                        hx-swap="innerHTML"
+                        hx-push-url="true"
+                        class="btn-secondary mt-4">View Plan</button> <!-- Create hx-get request and page change to plan view -->
                     </div>
                 </div>
             {% endif %}
