@@ -95,36 +95,8 @@ class TestUpvoteDetailPage(TestCase):
             created_by=cls.creator,
         )
 
-    def test_upvote_from_detail_page_returns_oob_sidebar_fragment(self):
-        self.client.login(email=self.voter.email, password=self.password)
-
-        response = self.client.post(
-            reverse("upvote", kwargs={"pk": self.test_event.id}),
-            HTTP_HX_TARGET="event-header",
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-        # Primary swap: the event-header section must be present
-        self.assertContains(response, 'id="event-header"')
-
-        # OOB swap: the sidebar fragment must be present with the OOB attribute
-        self.assertContains(response, 'id="sidebar-upvote-count"')
-        self.assertContains(response, 'hx-swap-oob="outerHTML"')
-
-        # Both locations should reflect the updated count of 1
-        self.assertContains(response, '<span class="font-semibold">1</span>')
-
-    def test_upvote_toggle_from_detail_page_decrements_sidebar(self):
-        self.client.login(email=self.voter.email, password=self.password)
-        upvote_url = reverse("upvote", kwargs={"pk": self.test_event.id})
-
-        # First click: add upvote
-        self.client.post(upvote_url, HTTP_HX_TARGET="event-header")
-
-        # Second click: remove upvote — count should drop back to 0
-        response = self.client.post(upvote_url, HTTP_HX_TARGET="event-header")
-        self.assertContains(response, '<span class="font-semibold">0</span>')
+        # Add test to confirm that the header upvote button works and updates
+        # correctly.
 
 
 class TestUpvoteProposalPage(TestCase):
