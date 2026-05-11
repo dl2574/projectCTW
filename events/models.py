@@ -95,6 +95,7 @@ class Plan(models.Model):
     planning_notes = models.TextField(blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
+    open_date_proposals = models.BooleanField(default=False)
 
     def confirmed_attendees(self):
         """Return users with YES commitments"""

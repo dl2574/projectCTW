@@ -86,10 +86,12 @@ def detailView(request, pk):
                "commentForm": CommentForm, "event": event}
     return render(request, "events/event_detail.html", context)
 
+
+@login_required(login_url="account_login")
 def planView(request, pk):
     plan = get_object_or_404(Plan, id=pk)
     event = get_object_or_404(Event, id=plan.event.id)
-    context = {"plan": plan, "event": event,}
+    context = {"plan": plan, "event": event, }
 
     if request.headers.get('HX-Request'):
         return render(request, "events/event_plan.html#event-plan")

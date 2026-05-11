@@ -42,6 +42,9 @@
 
 ### Event Planning Features
 - [x] Plan model integration with events (auto-created on PROPOSAL → PLANNING transition)
+- [x] `open_date_proposals` field added to Plan model (BooleanField, default=False)
+- [x] `@login_required` added to planView
+- [ ] HTMX middleware — `base/middleware.py` intercepts 302 redirects on HX-Request and returns HX-Redirect header for full-page navigation instead of partial swap
 - [ ] Date proposal system
   - [ ] Create/submit proposed dates
   - [ ] Vote on proposed dates

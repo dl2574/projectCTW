@@ -1,7 +1,7 @@
 # Event Planning Features - Implementation Roadmap
 
 **Target**: Complete the event planning workflow (PROPOSAL → PLANNING → SCHEDULED)
-**Status**: In Progress — Models complete (Plan, ProposedDate, AttendanceCommitment, SupplyItem, SupplyCommitment), views and UI pending
+**Status**: In Progress — Models complete (Plan + open_date_proposals, ProposedDate, AttendanceCommitment, SupplyItem, SupplyCommitment), planView has @login_required, HTMX auth redirect middleware pending, UI pending
 **Owner**: David
 
 ---
