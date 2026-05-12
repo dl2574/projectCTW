@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "crispy_tailwind",
     "django_browser_reload",
     "anymail",
+    "hcaptcha",
 
     # Local
     "base.apps.BaseConfig",
@@ -221,6 +222,9 @@ ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm",
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
+# hCaptcha config
+HCAPTCHA_SITEKEY = env.str("HCAPTCHA_SITEKEY")
+HCAPTCHA_SECRET = env.str("HCAPTCHA_SECRET")
 
 # Email Config
 if DEBUG:

@@ -6,6 +6,8 @@ from django.forms import ModelForm
 
 from allauth.account.forms import LoginForm, SignupForm
 
+from hcaptcha.fields import hCaptchaField
+
 CustomUser = get_user_model()
 
 
@@ -63,6 +65,8 @@ class CustomLoginForm(LoginForm):
 
 
 class CustomSignupForm(SignupForm):
+    captcha = hCaptchaField()
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["email"].widget.attrs.update({
