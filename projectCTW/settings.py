@@ -218,6 +218,7 @@ ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
 ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm",
                  "signup": "userProfile.forms.CustomSignupForm",
                  }
+ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
 
