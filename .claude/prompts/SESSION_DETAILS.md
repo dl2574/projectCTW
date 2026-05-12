@@ -2,6 +2,46 @@
 
 ---
 
+## Session: 2026-05-12
+
+### What We Did
+Security incident response — bot account spam on signup endpoint. Implemented two mitigations.
+
+### Problem
+1885 accounts created by bots, hitting Resend free tier limit. Out-of-office replies confirmed real email addresses being spammed. No advertising had been done.
+
+### Fix 1: Email Verification (deployed)
+- Added `ACCOUNT_EMAIL_VERIFICATION = "mandatory"` and `ACCOUNT_EMAIL_REQUIRED = True` to settings.
+- Blocks unverified accounts from logging in. Does not stop emails from being sent on signup.
+- Deployed and verified working.
+
+### Fix 2: hCaptcha on Signup (deployed)
+- Package: `django-hcaptcha` — installs as module `hcaptcha` (not `django_hcaptcha`)
+- Added `hcaptcha` to `INSTALLED_APPS`
+- Added `HCAPTCHA_SITEKEY` and `HCAPTCHA_SECRET` to settings via `environs` env vars
+- Added `hCaptchaField` to `CustomSignupForm` in `userProfile/forms.py`
+- Rendered via `{{ form.captcha }}` in `templates/account/signup.html`
+- No template tags needed — widget renders through the form field directly
+- Keys added to `.env` locally and Railway environment variables
+
+### macOS SSL Certificate Issue (local only)
+When hcaptcha tried to verify the token, got `SSL: CERTIFICATE_VERIFY_FAILED`. Fix:
+```
+/Applications/Python\ 3.12/Install\ Certificates.command
+```
+macOS Python does not use the system certificate store — this installs the required certs.
+**Flagged for deeper discussion**: Why does macOS Python need this? What is the system cert store vs Python's bundled certs? What does this command actually do?
+
+### Still TODO
+- Email deliverability: verification emails going to Gmail junk folder.
+  Likely missing SPF/DKIM/DMARC DNS records for sending domain.
+  **Flagged for deeper discussion**: What are SPF, DKIM, DMARC? How do you configure them? How do they affect deliverability?
+- hCaptcha deep review: went fast due to time pressure. Revisit `CustomSignupForm` inheritance pattern, how allauth form customization works, and what `hCaptchaField` does under the hood.
+- Style the allauth email verification pages (unstyled default templates).
+- HTMX auth redirect middleware (`base/middleware.py`) — still pending from 2026-05-10.
+
+---
+
 ## Session: 2026-05-10
 
 ### What We Did
