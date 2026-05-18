@@ -73,6 +73,10 @@
 ### User Profiles (Basic)
 - [ ] Profile page showing basic user info
 - [ ] Profile photo upload and management
+  - [ ] Add `profile_picture` ImageField to User model with default
+  - [ ] Create default avatar image (Inkscape, 256x256, export PNG)
+  - [ ] Update navbar template to use model field instead of hardcoded URL
+  - [ ] Set up Cloudinary for production image storage
 - [ ] Edit profile functionality (bio, birthdate, contact info)
 - [ ] Display created events
 - [ ] Display upvoted events

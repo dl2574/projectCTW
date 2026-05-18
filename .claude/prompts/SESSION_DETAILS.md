@@ -2,7 +2,58 @@
 
 ---
 
-## Session: 2026-05-12
+## Session: 2026-05-12 – 2026-05-18
+
+### What We Did
+Security incident response + beginning of profile picture work.
+
+### Security Incident (complete)
+- Bot attack created 1885 accounts, hit Resend free tier limit
+- Fix 1: `ACCOUNT_EMAIL_VERIFICATION = "mandatory"` + `ACCOUNT_EMAIL_REQUIRED = True` — deployed
+- Fix 2: hCaptcha on signup via `django-hcaptcha` (installs as `hcaptcha` module) — deployed
+- Deleted all unverified accounts via Django shell
+- DMARC record confirmed in Namecheap (`v=DMARC1; p=quarantine`), SPF/DKIM verified in Resend
+- Email junk folder issue: likely reputation damage from bot attack — recovers passively over time
+- GitHub Actions CI: added `HCAPTCHA_SITEKEY` and `HCAPTCHA_SECRET` to workflow env and GitHub secrets
+
+### macOS SSL Issue (local only, resolved)
+`SSL: CERTIFICATE_VERIFY_FAILED` when hcaptcha tried to verify token locally. Fixed with:
+```
+/Applications/Python\ 3.12/Install\ Certificates.command
+```
+**Flagged for deeper review**: macOS Python cert store vs system cert store.
+
+### Profile Picture Work (in progress)
+- Current state: navbar hardcodes an Unsplash URL on line 34 of `templates/partials/navbar.html`
+- Plan: add `ImageField` to User model, set default, update template to use `request.user.profile_picture.url`
+- `MEDIA_ROOT` was incorrectly pointing to `static/images` — corrected to `BASE_DIR / 'media'`
+- Field to add to User model (not done yet — waiting on default image):
+  ```python
+  profile_picture = models.ImageField(
+      upload_to='profile_pictures/',
+      default='profile_pictures/default.jpg',
+      blank=True,
+  )
+  ```
+- Default image: being created in Inkscape at 256x256px, export as PNG
+- Place finished file at `media/profile_pictures/default.jpg`
+
+### Next Steps (pick up here)
+1. Finish default.jpg in Inkscape, place at `media/profile_pictures/default.jpg`
+2. Add `profile_picture` ImageField to User model in `userProfile/models.py`
+3. Run `makemigrations` + `migrate`
+4. Update navbar template line 34 to use `request.user.profile_picture.url`
+5. Test locally, then deploy
+6. After profile picture: set up Cloudinary for user upload storage (production uploads can't go to local filesystem on Railway)
+
+### Topics Flagged for Deeper Review
+- hCaptcha integration — went fast. Revisit CustomSignupForm inheritance, allauth form customization, hCaptchaField internals.
+- macOS SSL cert issue — why Python needs Install Certificates.command.
+- Email deliverability — SPF, DKIM, DMARC: what they are and how they work.
+
+---
+
+## Session: 2026-05-10
 
 ### What We Did
 Security incident response — bot account spam on signup endpoint. Implemented two mitigations.

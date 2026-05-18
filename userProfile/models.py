@@ -14,6 +14,11 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, db_index=True)
     bio = models.TextField(blank=True)
     birthdate = models.DateField(blank=True, null=True)
+    profile_picture = models.ImageField(
+        upload_to='profile_picture/',
+        default='profile_pictures/default.jpg',
+        blank=True,
+    )
 
     # Email notification preferences — opt-out model (True by default)
     # Covers events the user upvoted OR committed to attend.
