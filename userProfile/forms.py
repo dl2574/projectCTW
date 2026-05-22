@@ -31,7 +31,11 @@ class CustomUserChangeForm(ModelForm):
             "bio",
             "email_status_updates",
             "email_event_reminders",
+            "profile_picture",
         )
+        widgets = {
+            "profile_picture": forms.FileInput,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -41,6 +45,10 @@ class CustomUserChangeForm(ModelForm):
             if isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs.update({
                     "class": "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                })
+            elif isinstance(field.widget, forms.FileInput):
+                field.widget.attrs.update({
+                    "class": "cursor-pointer",
                 })
             else:
                 field.widget.attrs.update({

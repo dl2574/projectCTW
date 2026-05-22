@@ -64,7 +64,7 @@
                       {% else %}
                         onclick="window.location.href='{% url 'account_login' %}';"
                       {% endif %}
-                      class="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-2 rounded-bl-xl py-4 text-sm font-semibold text-slate-700 transition-colors duration-150 hover:bg-teal-50 hover:text-teal-700">
+                      class="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-2 rounded-bl-xl py-4 text-sm font-semibold text-slate-700 cursor-pointer transition-colors duration-150 hover:bg-teal-50 hover:text-teal-700">
                       <i class="{% if event|upvoted:request.user %} fa-solid text-teal-600 {% else %} fa-regular {% endif %} fa-thumbs-up"></i>
                       <span class="{% if event|upvoted:request.user %}text-teal-700{% endif %}">Upvote</span>
                     </button>

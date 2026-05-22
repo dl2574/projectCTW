@@ -2,6 +2,40 @@
 
 ---
 
+## Session: 2026-05-21
+
+### What We Did
+Completed profile picture upload feature. Added alt text to profile images sitewide. Reviewed code quality and identified outstanding gaps.
+
+### Profile Picture Upload (complete)
+- `profile_picture` ImageField already on User model from previous session (migration applied)
+- Added `profile_picture` to `CustomUserChangeForm` fields in `userProfile/forms.py`
+- Added `FileInput` widget override (replaces default `ClearableFileInput`)
+  - **Why**: `ClearableFileInput` shows file path to user (UX/privacy concern) and "clear" behavior would set field to empty without a way to reset to default
+  - **Trade-off accepted**: users can only replace the picture, not clear it back to default
+- Added `enctype="multipart/form-data"` to form tag in `user_account.html` — required for binary file data in POST
+- Added profile picture display to account settings page header (`{% partialdef user_card inline %}`)
+- Updated mobile navbar profile image from hardcoded Unsplash URL to `{{ user.profile_picture.url }}`
+- Added meaningful alt text to all profile picture `<img>` tags: `{{ user.username }}'s profile picture`
+
+### Concepts Covered
+- `enctype="multipart/form-data"` vs `application/x-www-form-urlencoded` — file uploads require multipart encoding
+- Form vs model as the right layer for user input validation — both are server-side, but form errors surface to the user via `form.errors`
+
+### Tabled / Deferred
+- **File size validation** on `profile_picture` in `CustomUserChangeForm` — should be a custom `clean_profile_picture()` method; tabled for later
+- **Tests for profile picture feature** — added to roadmap
+
+### Next Steps (pick up here)
+1. Set up Cloudinary for production image storage (Railway filesystem is ephemeral — uploaded images lost on redeploy)
+2. Add file size validation to `CustomUserChangeForm.clean_profile_picture()`
+3. Write tests for profile picture upload (form validation, view behavior, file saved correctly)
+4. Style allauth email verification pages (unstyled defaults)
+5. HTMX auth redirect middleware — `base/middleware.py`
+6. Build Event Date section UI
+
+---
+
 ## Session: 2026-05-12 – 2026-05-18
 
 ### What We Did

@@ -73,11 +73,14 @@
 ### User Profiles (Basic)
 - [ ] Profile page showing basic user info
 - [ ] Profile photo upload and management
-  - [ ] Add `profile_picture` ImageField to User model with default
-  - [ ] Create default avatar image (Inkscape, 256x256, export PNG)
-  - [ ] Update navbar template to use model field instead of hardcoded URL
+  - [x] Add `profile_picture` ImageField to User model with default
+  - [x] Create default avatar image (Inkscape, 256x256, export PNG)
+  - [x] Update navbar template to use model field instead of hardcoded URL
+  - [x] Profile picture upload via account settings form (`enctype="multipart/form-data"`, `FileInput` widget)
+  - [ ] File size validation on upload (form-level, tabled for later)
   - [ ] Set up Cloudinary for production image storage
 - [ ] Edit profile functionality (bio, birthdate, contact info)
+  - [x] Bio, first name, last name, email, username editable via account settings form
 - [ ] Display created events
 - [ ] Display upvoted events
 - [ ] Display attended events (verified)
@@ -90,6 +93,7 @@
 - [ ] Form validation tests
 - [ ] Test authentication/permission checks
 - [ ] Add tests for ProposedDate, Comment models
+- [ ] Tests for profile picture upload (CustomUserChangeForm, AccountProfileView)
 
 ### Documentation
 - [ ] Add inline code comments for complex logic

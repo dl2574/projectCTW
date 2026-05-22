@@ -5,11 +5,16 @@
 {% block content %}
 <div class="pt-20">
     <header class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{ user.username }}</h1>
+      {% partialdef user_card inline %}
+        <div class="flex items-center gap-6">
+          <img class="w-16 h-16" src="{{ user.profile_picture.url }}" alt="{{ user.username }}'s profile picture">
+          <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{ user.username }}</h1>
+        </div>
+      {% endpartialdef %}
     </header>
     <main>
         <div class="mx-auto max-w-7xl pt-8 sm:px-6 lg:px-8">
-            <form method="post" class="space-y-12">
+            <form method="post" class="space-y-12" enctype="multipart/form-data">
                 {% csrf_token %}
                 <fieldset class="w-full px-6 py-4 odd:bg-gray-50">
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -31,6 +36,11 @@
                         {{form.bio.label_tag}}
                         {{form.bio}}
                         {{form.bio.errors}}
+                      </div>
+                      <div class="">
+                        {{form.profile_picture.label_tag}}
+                        {{form.profile_picture}}
+                        {{form.profile_picture.errors}}
                       </div>
                     </div>
                   </div>
