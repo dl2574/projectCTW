@@ -1,3 +1,12 @@
+---
+title: Event Planning Roadmap
+tags:
+  - projectctw
+  - roadmap
+  - events
+description: Implementation roadmap for the event planning workflow feature
+---
+
 # Event Planning Features - Implementation Roadmap
 
 **Target**: Complete the event planning workflow (PROPOSAL → PLANNING → SCHEDULED)
@@ -139,15 +148,15 @@ planning_notes = models.TextField(blank=True)  # General planning discussion
 
 ## Design Pattern: Fat Models, Thin Views
 
-**IMPORTANT**: This project follows the "Fat Models, Thin Views" methodology.
-
-- ✅ **Business logic goes in models** (validation, permissions, state transitions, calculations)
-- ✅ **Views stay thin** (get data, call model methods, return response)
-- ✅ See `FAT_MODELS_GUIDE.md` for detailed examples specific to this feature
-- ✅ Model methods should return `(success: bool, error: str or None)` tuples
-- ✅ All model methods should be easily testable without HTTP
-
-**Before writing code in a view, ask: "Is this business logic?" → If yes, put it in the model!**
+> [!important] Fat Models, Thin Views — Core Rule
+> This project follows the "Fat Models, Thin Views" methodology.
+> - Business logic goes in models (validation, permissions, state transitions, calculations)
+> - Views stay thin (get data, call model methods, return response)
+> - See `FAT_MODELS_GUIDE.md` for detailed examples specific to this feature
+> - Model methods return `(success: bool, error: str or None)` tuples
+> - All model methods must be testable without HTTP
+>
+> **Before writing code in a view, ask: "Is this business logic?" → If yes, put it in the model!**
 
 ---
 
@@ -839,21 +848,21 @@ Keeps event_detail.html manageable and components reusable.
 
 ## Success Criteria
 
-✅ **You're done when:**
-- [ ] Events automatically transition to PLANNING when upvote threshold reached
-- [ ] Plan is auto-created for planning events
-- [ ] Users can propose and vote on dates
-- [ ] Event creator can confirm winning date → SCHEDULED status
-- [ ] Users can add supply items to the list
-- [ ] Users can commit to bringing supplies
-- [ ] Supply quantities update correctly
-- [ ] Users can set attendance commitment (Yes/Maybe/No)
-- [ ] Event detail page shows appropriate interface based on status
-- [ ] All planning features have permission checks
-- [ ] Upvoters receive notifications when event moves to PLANNING
-- [ ] Test coverage for all new models and views
-- [ ] No obvious bugs in the workflow
-- [ ] Mobile responsive design
+> [!success] You're done when all of these are checked
+> - [ ] Events automatically transition to PLANNING when upvote threshold reached
+> - [ ] Plan is auto-created for planning events
+> - [ ] Users can propose and vote on dates
+> - [ ] Event creator can confirm winning date → SCHEDULED status
+> - [ ] Users can add supply items to the list
+> - [ ] Users can commit to bringing supplies
+> - [ ] Supply quantities update correctly
+> - [ ] Users can set attendance commitment (Yes/Maybe/No)
+> - [ ] Event detail page shows appropriate interface based on status
+> - [ ] All planning features have permission checks
+> - [ ] Upvoters receive notifications when event moves to PLANNING
+> - [ ] Test coverage for all new models and views
+> - [ ] No obvious bugs in the workflow
+> - [ ] Mobile responsive design
 
 ---
 

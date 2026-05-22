@@ -1,3 +1,11 @@
+---
+title: Tech Stack
+tags:
+  - projectctw
+  - reference
+description: Version matrix and usage guidelines for the ProjectCTW tech stack
+---
+
 # Tech Stack Context
 
 ## Version Notes (Updated 2026-02-20)
@@ -38,11 +46,11 @@
 - **Modern Email API** - Uses Python's `email.message.EmailMessage`
 - **Async Pagination** - `AsyncPaginator` and `AsyncPage`
 
-### Breaking Changes from 5.x
-- **Requires Python 3.12+**
-- `DEFAULT_AUTO_FIELD` now defaults to `BigAutoField`
-- Default border/ring colors changed to `currentColor`
-- ORM expressions must return params as tuples
+> [!warning] Breaking Changes from Django 5.x
+> - **Requires Python 3.12+**
+> - `DEFAULT_AUTO_FIELD` now defaults to `BigAutoField`
+> - Default border/ring colors changed to `currentColor`
+> - ORM expressions must return params as tuples
 
 ## htmx Core Patterns
 
@@ -133,15 +141,15 @@ npx @tailwindcss/cli -i input.css -o output.css
 }
 ```
 
-### Major Breaking Changes
-- **Browser Support**: Safari 16.4+, Chrome 111+, Firefox 128+
-- **Renamed utilities**: `shadow` → `shadow-sm`, `ring` → `ring-3`, `rounded` → `rounded-sm`
-- **Removed**: `bg-opacity-*` (use `bg-black/50` instead)
-- **Default colors**: Border/ring now use `currentColor` instead of gray
-- **Important modifier**: Now at end (`hover:bg-red-500!` not `hover:!bg-red-500`)
-- **Variant order**: Left to right (CSS-like) not right to left
-- **Transform transitions**: Must specify `transform,translate,scale,rotate`
-- **No CSS preprocessors** (Sass/Less/Stylus not supported)
+> [!warning] Major Breaking Changes from Tailwind 3.x
+> - **Browser Support**: Safari 16.4+, Chrome 111+, Firefox 128+
+> - **Renamed utilities**: `shadow` → `shadow-sm`, `ring` → `ring-3`, `rounded` → `rounded-sm`
+> - **Removed**: `bg-opacity-*` (use `bg-black/50` instead)
+> - **Default colors**: Border/ring now use `currentColor` instead of gray
+> - **Important modifier**: Now at end (`hover:bg-red-500!` not `hover:!bg-red-500`)
+> - **Variant order**: Left to right (CSS-like) not right to left
+> - **Transform transitions**: Must specify `transform,translate,scale,rotate`
+> - **No CSS preprocessors** (Sass/Less/Stylus not supported)
 
 ### New Features
 - **Container Queries**: `@container`, `@sm:grid-cols-3`, `@max-md:grid-cols-1`

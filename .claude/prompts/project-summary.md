@@ -1,3 +1,11 @@
+---
+title: Project Summary
+tags:
+  - projectctw
+  - reference
+description: High-level overview of the ProjectCTW project for onboarding and context
+---
+
 # ProjectCTW Summary
 ## Summary
 This project directory contains a django project for a volunteer application called projectCTW, which stands for Project Change The World.

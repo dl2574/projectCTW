@@ -1,3 +1,11 @@
+---
+title: Session Details
+tags:
+  - projectctw
+  - sessions
+description: Chronological log of development sessions, newest first
+---
+
 # Session Details
 
 ---
@@ -22,17 +30,17 @@ Completed profile picture upload feature. Added alt text to profile images sitew
 - `enctype="multipart/form-data"` vs `application/x-www-form-urlencoded` — file uploads require multipart encoding
 - Form vs model as the right layer for user input validation — both are server-side, but form errors surface to the user via `form.errors`
 
-### Tabled / Deferred
-- **File size validation** on `profile_picture` in `CustomUserChangeForm` — should be a custom `clean_profile_picture()` method; tabled for later
-- **Tests for profile picture feature** — added to roadmap
+> [!warning] Tabled / Deferred
+> - **File size validation** on `profile_picture` in `CustomUserChangeForm` — should be a custom `clean_profile_picture()` method; tabled for later
+> - **Tests for profile picture feature** — added to roadmap
 
-### Next Steps (pick up here)
-1. Set up Cloudinary for production image storage (Railway filesystem is ephemeral — uploaded images lost on redeploy)
-2. Add file size validation to `CustomUserChangeForm.clean_profile_picture()`
-3. Write tests for profile picture upload (form validation, view behavior, file saved correctly)
-4. Style allauth email verification pages (unstyled defaults)
-5. HTMX auth redirect middleware — `base/middleware.py`
-6. Build Event Date section UI
+> [!todo] Next Steps (pick up here)
+> 1. Set up Cloudinary for production image storage (Railway filesystem is ephemeral — uploaded images lost on redeploy)
+> 2. Add file size validation to `CustomUserChangeForm.clean_profile_picture()`
+> 3. Write tests for profile picture upload (form validation, view behavior, file saved correctly)
+> 4. Style allauth email verification pages (unstyled defaults)
+> 5. HTMX auth redirect middleware — `base/middleware.py`
+> 6. Build Event Date section UI
 
 ---
 

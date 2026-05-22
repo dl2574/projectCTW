@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.core.exceptions import ValidationError
 
 from django import forms
 from django.forms import ModelForm
@@ -54,6 +55,19 @@ class CustomUserChangeForm(ModelForm):
                 field.widget.attrs.update({
                     "class": "block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 })
+
+    def clean_profile_picture(self):
+        file = self.cleaned_data.get("profile_picture")
+
+        if file:
+            # Define file size limit in bytes
+            limit = 2 * 1024 * 1024
+
+            if file.size > limit:
+                raise ValidationError(f"File size must be under {
+                                      limit / (1025*1024):.2f} MB.")
+
+        return file
 
 
 class CustomLoginForm(LoginForm):

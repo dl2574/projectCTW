@@ -1,3 +1,11 @@
+---
+title: Fat Models, Thin Views Guide
+tags:
+  - projectctw
+  - architecture
+description: Implementation guide for the Fat Models, Thin Views pattern used in ProjectCTW
+---
+
 # Fat Models, Thin Views - Implementation Guide
 
 **Philosophy**: Business logic belongs in models, views should orchestrate
@@ -732,11 +740,10 @@ plan = Plan.objects.prefetch_related('attendance_commitments__user').get(pk=id)
 | Shell / management commands | Use model methods |
 | Performance-critical paths | Profile first, optimize with `Prefetch` |
 
-### Key Insight
-
-**Query optimization belongs in views**, where you know the access pattern. Models define *what* relationships exist; views decide *how* to load them efficiently.
-
-**Don't prematurely optimize.** Build features first, then use Django Debug Toolbar to identify actual N+1 problems. Optimize only where measurements show it's needed.
+> [!tip] Key Insight
+> **Query optimization belongs in views**, where you know the access pattern. Models define *what* relationships exist; views decide *how* to load them efficiently.
+>
+> **Don't prematurely optimize.** Build features first, then use Django Debug Toolbar to identify actual N+1 problems. Optimize only where measurements show it's needed.
 
 ---
 
@@ -766,10 +773,8 @@ When you show me code, I'll check:
 
 ## Questions to Ask Yourself
 
-Before writing code in a view, ask:
-1. **"Is this business logic?"** → Put it in the model
-2. **"Will I need this elsewhere?"** → Put it in the model
-3. **"Does this involve HTTP?"** → Keep it in the view
-4. **"Is this just glue code?"** → Fine for view
-
-**Good luck! This pattern will make your code much cleaner and more professional.**
+> [!tip] Before writing any view code, ask:
+> 1. **"Is this business logic?"** → Put it in the model
+> 2. **"Will I need this elsewhere?"** → Put it in the model
+> 3. **"Does this involve HTTP?"** → Keep it in the view
+> 4. **"Is this just glue code?"** → Fine for view

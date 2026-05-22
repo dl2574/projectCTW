@@ -1,3 +1,11 @@
+---
+title: Development Roadmap
+tags:
+  - projectctw
+  - roadmap
+description: Full phase-by-phase development roadmap for ProjectCTW
+---
+
 # ProjectCTW Development Roadmap
 
 **Last Updated**: 2026-03-15
