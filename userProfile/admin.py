@@ -11,4 +11,9 @@ class CustomUserAdmin(UserAdmin):
         "is_staff",
     ]
 
+    fieldsets = UserAdmin.fieldsets + (
+        ("Custom Fields", {'fields': ['profile_picture',]}),
+    )
+
+
 admin.site.register(User, CustomUserAdmin)

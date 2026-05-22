@@ -15,8 +15,8 @@ class User(AbstractUser):
     bio = models.TextField(blank=True)
     birthdate = models.DateField(blank=True, null=True)
     profile_picture = models.ImageField(
-        upload_to='profile_picture/',
-        default='profile_pictures/default.jpg',
+        upload_to='profile_pictures/',
+        default='profile_pictures/DefaultUserProfile.png',
         blank=True,
     )
 
