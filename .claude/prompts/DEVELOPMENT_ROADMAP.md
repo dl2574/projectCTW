@@ -85,8 +85,9 @@ description: Full phase-by-phase development roadmap for ProjectCTW
   - [x] Create default avatar image (Inkscape, 256x256, export PNG)
   - [x] Update navbar template to use model field instead of hardcoded URL
   - [x] Profile picture upload via account settings form (`enctype="multipart/form-data"`, `FileInput` widget)
-  - [ ] File size validation on upload (form-level, tabled for later)
-  - [ ] Set up Cloudinary for production image storage
+  - [x] File size validation on upload (`clean_profile_picture()` in `CustomUserChangeForm`, 2MB limit)
+  - [x] Set up Cloudinary for production image storage (`django-cloudinary-storage`, `CLOUDINARY_URL` env var)
+  - [x] Default avatar served from `static/images/` via template `{% if user.profile_picture %}` fallback (not model default)
 - [ ] Edit profile functionality (bio, birthdate, contact info)
   - [x] Bio, first name, last name, email, username editable via account settings form
 - [ ] Display created events

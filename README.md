@@ -62,7 +62,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ User profiles with email notification preferences
 - ✅ Transactional email service (via Resend/django-anymail) with per-recipient error handling and logging
 - ✅ User account settings page with structured fieldsets and responsive two-column layout
-- ✅ Profile picture upload and display (navbar + account settings page)
+- ✅ Profile picture upload and display (navbar + account settings page), stored on Cloudinary
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
 - ✅ Email notifications on status transition (wired to transition_to_planning())
 
@@ -73,7 +73,7 @@ See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the co
 **Phase 1 Priorities:**
 - Event check-in system with QR codes and geofencing
 - Complete event planning workflow
-- Profile photo management (Cloudinary integration for production storage)
+- Tests for profile picture upload and account settings view
 - Comprehensive test coverage
 
 **Future Phases:**

@@ -10,6 +10,53 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-05-23
+
+### What We Did
+Completed Cloudinary integration for production image storage. Reviewed and confirmed file size validation. Fixed default profile picture to use static fallback instead of model default.
+
+### File Size Validation Review (complete)
+- Reviewed `clean_profile_picture()` in `userProfile/forms.py` — logic was correct
+- Found and fixed typo: `1025 * 1024` → `1024 * 1024` in error message f-string
+  - Validation limit itself was correct; only the displayed MB value was wrong
+- Covered: byte → MB math (powers of 2), why 1024 not 1000, appropriate limit (2MB) for profile pictures
+
+### Cloudinary Integration (complete)
+- Installed `cloudinary` and `django-cloudinary-storage`, added both to `requirements.txt`
+- Added `cloudinary` and `cloudinary_storage` to `INSTALLED_APPS` in `settings.py`
+- Updated `STORAGES['default']` backend to `cloudinary_storage.storage.MediaCloudinaryStorage`
+- Added `CLOUDINARY_URL` to `.env`, GitHub Secrets (Actions), and Railway env vars
+- `django-cloudinary-storage` reads `CLOUDINARY_URL` from environment automatically — no explicit `CLOUDINARY_STORAGE` dict needed
+- Fixed two bugs introduced during implementation: mismatched quotes in backend string, incorrect `CLOUDINARY_STORAGE = env.str(...)` line
+- Tested locally: uploaded photo appears in Cloudinary dashboard and serves via Cloudinary URL
+
+### Default Profile Picture — Static Fallback (complete)
+- Problem: model `default=` pointed to a media path, which Cloudinary doesn't have
+- Fix: removed `default=` from `ImageField`, moved default image to `static/images/`, updated templates to use `{% if user.profile_picture %}` with `{% static %}` fallback
+- Updated 3 template locations: navbar.html (desktop button, mobile section), user_account.html header
+- Created and applied migration `0007_alter_user_profile_picture.py`
+- **Why static not media**: static assets never change, no API calls, survives Cloudinary outages, version controlled in repo
+
+### Concepts Covered
+- `commit=False` is a form-layer concept (prevents DB write from `form.save()`); at the model layer, use `super().save()` to trigger the write after manipulation
+- Django storage backend abstraction — swapping backends leaves models/views unchanged
+- Why Railway's ephemeral filesystem makes local storage unusable for uploads
+- Static files vs. media files — default images belong in static, not media
+
+### Flagged for Later (Docket)
+- Login page brute force protection: rate limiting and/or hCaptcha on signin page
+- Profile picture preview on upload (Alpine.js + FileReader API, client-side)
+- Image compression (Cloudinary can handle transforms on delivery — may not need server-side)
+
+> [!todo] Next Steps (pick up here)
+> 1. Write tests for profile picture upload (form validation, view behavior, AccountProfileView)
+> 2. Style allauth email verification pages (unstyled defaults)
+> 3. HTMX auth redirect middleware — `base/middleware.py`
+> 4. Build Event Date section UI
+> 5. Login page brute force protection (rate limiting / captcha) — docketed
+
+---
+
 ## Session: 2026-05-21
 
 ### What We Did
