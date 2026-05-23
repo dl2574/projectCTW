@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     "django_browser_reload",
     "anymail",
     "hcaptcha",
+    "cloudinary",
+    "cloudinary_storage",
 
     # Local
     "base.apps.BaseConfig",
@@ -155,7 +157,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",

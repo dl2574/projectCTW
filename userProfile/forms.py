@@ -65,7 +65,7 @@ class CustomUserChangeForm(ModelForm):
 
             if file.size > limit:
                 raise ValidationError(f"File size must be under {
-                                      limit / (1025*1024):.2f} MB.")
+                                      limit / (1024*1024):.2f} MB.")
 
         return file
 
