@@ -102,7 +102,8 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Form validation tests
 - [ ] Test authentication/permission checks
 - [ ] Add tests for ProposedDate, Comment models
-- [ ] Tests for profile picture upload (CustomUserChangeForm, AccountProfileView)
+- [x] Tests for profile picture upload — form validation (size limit, image type) in `UserChangeFormTests`
+- [ ] Tests for profile picture upload — view behavior (AccountProfileView)
 
 ### Documentation
 - [ ] Add inline code comments for complex logic

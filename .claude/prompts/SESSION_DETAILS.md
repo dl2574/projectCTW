@@ -10,6 +10,33 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-05-24
+
+### What We Did
+Wired `collectstatic` into Railway pre-deploy command. Deleted stale Procfile. Completed profile picture form validation tests. Practiced commit message writing.
+
+### collectstatic in Railway (complete)
+- Pre-deploy command updated to: `python manage.py collectstatic --noinput && python manage.py migrate`
+- Root cause of previous 500: `CompressedManifestStaticFilesStorage` raises `ValueError` if `{% static %}` references a file not in its manifest
+- Procfile deleted — was stale, Railway uses dashboard config, GitHub Actions uses `.github/` workflows
+
+### Profile Picture Form Tests (complete)
+- `userProfile/tests/test_forms.py` — `UserChangeFormTests` class added (3 tests, 70 total passing)
+- `SimpleUploadedFile` is in `django.core.files.uploadedfile` (not `django.test`)
+- `make_image_file(self, size=None)` helper: `PIL.Image.new` → `BytesIO` → `img.save(buffer, "JPEG")` → `buffer.getvalue()` + optional null-byte padding → `SimpleUploadedFile`
+- Padding valid JPEG bytes with `b"\x00" * N` works — Pillow stops at end-of-image marker, ignores trailing bytes
+- `ModelForm.is_valid()` calls `validate_unique()` which hits the DB — `SimpleTestCase` forbids this; must use `TestCase`
+- `MAX_PROFILE_PICTURE_SIZE = 2 * 1024 * 1024` extracted to class-level constant on `CustomUserChangeForm`
+- Files must be passed as second argument to `ModelForm(data, files)` — not in `data`
+
+### Commit Message Practice
+- Imperative mood, present tense: "Add" not "Added"
+- Subject line under 72 chars, blank line, then body
+- Body explains WHY not WHAT
+- Use heredoc for multiline `git commit -m` — cover heredoc in detail next session
+
+---
+
 ## Session: 2026-05-23
 
 ### What We Did
@@ -49,17 +76,12 @@ Completed Cloudinary integration for production image storage. Reviewed and conf
 - Image compression (Cloudinary can handle transforms on delivery — may not need server-side)
 
 > [!todo] Next Steps (pick up here)
-> 1. Finish `UserChangeFormTests` in `userProfile/tests/test_forms.py` — skeleton is written, bodies are empty
->    - Remove `setUpTestData` (dead code on `SimpleTestCase` — that method belongs to Django's `TestCase` only)
->    - Implement `make_image_file(self, size=None)` — uses `PIL.Image.new`, `BytesIO`, `img.save(buffer, format="JPEG")`, `buffer.getvalue()`, returns `SimpleUploadedFile`
->    - `test_profile_picture_oversized` — file over 2MB, assert form error on `profile_picture` field
->    - `test_profile_picture_correct_size` — file under 2MB, assert form is valid
->    - `test_profile_picture_not_image` — `SimpleUploadedFile` with non-image bytes, assert form error
-> 2. Style allauth email verification pages (unstyled defaults)
-> 3. HTMX auth redirect middleware — `base/middleware.py`
-> 4. Build Event Date section UI
-> 5. Login page brute force protection (rate limiting / captcha) — docketed
-> 6. Site logging and alerting (Sentry + Railway log drains) — docketed
+> 1. Style allauth email verification pages (unstyled defaults)
+> 2. HTMX auth redirect middleware — `base/middleware.py`
+> 3. Build Event Date section UI
+> 4. Login page brute force protection (rate limiting / captcha) — docketed
+> 5. Site logging and alerting (Sentry + Railway log drains) — docketed
+> 6. Cover heredoc — what it is, when to use it, git commit formatting
 
 ---
 
