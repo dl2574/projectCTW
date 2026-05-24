@@ -1,6 +1,9 @@
-from django.test import TestCase
-from ..forms import CustomUserCreationForm
+from django.test import TestCase, SimpleTestCase, SimpleUploadedFile
+from ..forms import CustomUserCreationForm, CustomUserChangeForm
 from ..models import User
+
+from io import BytesIO
+from PIL import Image
 
 
 class UserFormTests(TestCase):
@@ -32,3 +35,17 @@ class UserFormTests(TestCase):
         form = CustomUserCreationForm(data)
         self.assertFormError(form=form, field="username",
                              errors="A user with that username already exists.")
+
+
+class UserChangeFormTests(SimpleTestCase):
+    def make_image_file(self, size=None):
+        pass
+
+    def test_profile_picture_oversized(self):
+        pass
+
+    def test_profile_picture_correct_size(self):
+        pass
+
+    def test_profile_picture_not_image(self):
+        pass

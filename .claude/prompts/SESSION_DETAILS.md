@@ -49,12 +49,17 @@ Completed Cloudinary integration for production image storage. Reviewed and conf
 - Image compression (Cloudinary can handle transforms on delivery — may not need server-side)
 
 > [!todo] Next Steps (pick up here)
-> 1. Add `collectstatic` to Railway build process — it's not running automatically, causing 500 errors when new static files are added. Find where Railway build is configured (Procfile, Dockerfile, railway.toml, or nixpacks.toml) and add it.
-> 2. Write tests for profile picture upload (form validation, view behavior, AccountProfileView)
-> 3. Style allauth email verification pages (unstyled defaults)
-> 4. HTMX auth redirect middleware — `base/middleware.py`
-> 5. Build Event Date section UI
-> 6. Login page brute force protection (rate limiting / captcha) — docketed
+> 1. Finish `UserChangeFormTests` in `userProfile/tests/test_forms.py` — skeleton is written, bodies are empty
+>    - Remove `setUpTestData` (dead code on `SimpleTestCase` — that method belongs to Django's `TestCase` only)
+>    - Implement `make_image_file(self, size=None)` — uses `PIL.Image.new`, `BytesIO`, `img.save(buffer, format="JPEG")`, `buffer.getvalue()`, returns `SimpleUploadedFile`
+>    - `test_profile_picture_oversized` — file over 2MB, assert form error on `profile_picture` field
+>    - `test_profile_picture_correct_size` — file under 2MB, assert form is valid
+>    - `test_profile_picture_not_image` — `SimpleUploadedFile` with non-image bytes, assert form error
+> 2. Style allauth email verification pages (unstyled defaults)
+> 3. HTMX auth redirect middleware — `base/middleware.py`
+> 4. Build Event Date section UI
+> 5. Login page brute force protection (rate limiting / captcha) — docketed
+> 6. Site logging and alerting (Sentry + Railway log drains) — docketed
 
 ---
 
