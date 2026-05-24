@@ -22,6 +22,8 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class CustomUserChangeForm(ModelForm):
+    MAX_PROFILE_PICTURE_SIZE = 2 * 1024 * 1024
+
     class Meta:
         model = CustomUser
         fields = (
@@ -60,12 +62,9 @@ class CustomUserChangeForm(ModelForm):
         file = self.cleaned_data.get("profile_picture")
 
         if file:
-            # Define file size limit in bytes
-            limit = 2 * 1024 * 1024
-
-            if file.size > limit:
+            if file.size > self.MAX_PROFILE_PICTURE_SIZE:
                 raise ValidationError(f"File size must be under {
-                                      limit / (1024*1024):.2f} MB.")
+                                      self.MAX_PROFILE_PICTURE_SIZE / (1024 * 1024):.2f} MB.")
 
         return file
 

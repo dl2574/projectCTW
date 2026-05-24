@@ -1,4 +1,5 @@
-from django.test import TestCase, SimpleTestCase, SimpleUploadedFile
+from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
 from ..forms import CustomUserCreationForm, CustomUserChangeForm
 from ..models import User
 
@@ -37,15 +38,37 @@ class UserFormTests(TestCase):
                              errors="A user with that username already exists.")
 
 
-class UserChangeFormTests(SimpleTestCase):
+class UserChangeFormTests(TestCase):
     def make_image_file(self, size=None):
-        pass
+        image_content = Image.new('RGB', (100, 100))
+        buffer = BytesIO()
+        image_content.save(buffer, format="JPEG")
+
+        if size == "large":
+            return SimpleUploadedFile("test_photo.jpg", buffer.getvalue() + (b"\00" * (1024 * 1024 * 2 + 1)), content_type="image/jpeg")
+        else:
+            return SimpleUploadedFile("test_photo.jpg", buffer.getvalue(), content_type="image/jpeg")
 
     def test_profile_picture_oversized(self):
-        pass
+        image = self.make_image_file("large")
+        form = CustomUserChangeForm({}, {"profile_picture": image})
+        self.assertFormError(form=form, field="profile_picture",
+                             errors=f"File size must be under {
+                                 CustomUserChangeForm.MAX_PROFILE_PICTURE_SIZE / (1024 * 1024):.2f} MB.")
 
     def test_profile_picture_correct_size(self):
-        pass
+        image = self.make_image_file()
+        form = CustomUserChangeForm({
+            "email": "testuser@mail.com",
+            "username": "testuser",
+            "first_name": "test",
+            "last_name": "user",
+        }, {"profile_picture": image})
+        self.assertTrue(form.is_valid())
 
     def test_profile_picture_not_image(self):
-        pass
+        image = SimpleUploadedFile(
+            "bad_photo.jpg", b"randomness", content_type="image/jpeg")
+        form = CustomUserChangeForm({}, {"profile_picture": image})
+        self.assertFormError(form=form, field="profile_picture",
+                             errors="Upload a valid image. The file you uploaded was either not an image or a corrupted image.")
