@@ -63,6 +63,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ Transactional email service (via Resend/django-anymail) with per-recipient error handling and logging
 - ✅ User account settings page with structured fieldsets and responsive two-column layout
 - ✅ Profile picture upload and display (navbar + account settings page), stored on Cloudinary
+- ✅ Styled email verification flow (confirmation, verification sent pages)
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
 - ✅ Email notifications on status transition (wired to transition_to_planning())
 
@@ -286,7 +287,7 @@ Production URL: [www.projectctw.com](https://www.projectctw.com)
 2. Create pull requests to merge into `main`
 3. GitHub Actions runs the test suite
 4. If tests pass, Railway automatically deploys to production
-5. Database migrations run automatically via `Procfile`
+5. Database migrations run automatically via Railway pre-deploy command
 
 ---
 

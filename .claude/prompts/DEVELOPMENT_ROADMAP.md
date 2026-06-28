@@ -78,6 +78,13 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Mark event as completed
 - [ ] Event completion summary page
 
+### Auth UX
+- [x] Style allauth email confirmation page (`account/email_confirm.html`)
+- [x] Style allauth verification sent page (`account/verification_sent.html`)
+- [x] `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True` — auto-login after confirmation
+- [ ] Style allauth email management page (`account/email.html`)
+- [ ] HTMX auth redirect middleware — `base/middleware.py`
+
 ### User Profiles (Basic)
 - [ ] Profile page showing basic user info
 - [ ] Profile photo upload and management

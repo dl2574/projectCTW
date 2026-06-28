@@ -10,6 +10,31 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-06-28
+
+### What We Did
+Styled allauth email verification templates. Diagnosed quoted-printable encoding in console email output. Added auto-login on email confirmation. Reviewed `account/email.html` for next session.
+
+### Email Confirm & Verification Sent Templates (complete)
+- `templates/account/email_confirm.html` — extended `base.html`, styled with Tailwind, shows email address and confirm button, handles expired/invalid key branch with link back to email management
+- `templates/account/verification_sent.html` — extended `base.html`, styled with Tailwind
+- `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True` added to settings — user is auto-logged in after clicking confirmation link (safe: they just proved email ownership)
+
+### Quoted-Printable Encoding (debug)
+- Console email backend renders emails in quoted-printable format — long lines wrap with `=` at line end
+- "confirm-emai=l" in console output was NOT a typo — `=` is a soft line-break marker; joining lines gives the correct URL
+- No code change needed
+
+### account/email.html — Reviewed, Not Yet Styled
+- Lists all email addresses as radio buttons with Verified/Unverified/Primary badges
+- Three form actions on selected radio: Make Primary, Re-send Verification, Remove
+- Add Email section (conditional on `can_add_email`)
+- JS confirm dialog on Remove button
+- All three actions POST to `accounts/email/` — allauth routes by button `name` attribute
+- More complex than the other two templates; style next session
+
+---
+
 ## Session: 2026-05-24
 
 ### What We Did

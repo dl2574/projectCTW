@@ -223,6 +223,7 @@ ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm",
                  }
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
 # hCaptcha config
 HCAPTCHA_SITEKEY = env.str("HCAPTCHA_SITEKEY")
