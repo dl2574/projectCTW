@@ -8,7 +8,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 
 # ProjectCTW Development Roadmap
 
-**Last Updated**: 2026-03-15
+**Last Updated**: 2026-07-03
 **Vision**: A platform enabling community members to propose, plan, and execute volunteer projects while building a verified volunteer resume.
 
 ---
@@ -53,15 +53,27 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] `open_date_proposals` field added to Plan model (BooleanField, default=False)
 - [x] `@login_required` added to planView
 - [ ] HTMX middleware — `base/middleware.py` intercepts 302 redirects on HX-Request and returns HX-Redirect header for full-page navigation instead of partial swap
+- [ ] Plan page structure — separate page from event detail, tab menu (Details, Plan, Supplies, Dates)
+  - [ ] Detail page remains generic (the proposal); Plan page is the planning space
+  - [ ] Access control model TBD — options: gated entry (committed users/admins/sponsors only) vs. read-all/write-if-committed
+- [ ] Objective model (design complete, not yet built)
+  - [ ] `Objective` model: id (UUID), plan (FK), name, type (BINARY|QUANTITY), target (nullable), completed (nullable), status
+  - [ ] Admin marks objectives complete/incomplete at the event
+  - [ ] Quantity objectives (e.g., "Repair 5 windows"): track target vs. completed count
+  - [ ] Binary objectives (e.g., "Set up check-in station"): complete/incomplete only
+  - [ ] Incomplete objectives at event end trigger: plan another date OR close event as-is
+  - [ ] Move `SupplyItem.plan` FK → `SupplyItem.objective` FK
+  - [ ] Objectives feed volunteer resumes — all completed objectives credited to all attendees (no per-person tracking)
 - [ ] Date proposal system
   - [ ] Create/submit proposed dates
   - [ ] Vote on proposed dates
   - [ ] Select winning date (most votes)
   - [ ] Lock in final event date
 - [ ] Supply list functionality
-  - [ ] Add/edit/remove supply items
+  - [ ] Add/edit/remove supply items (linked to objectives, not plan directly)
   - [ ] Mark items as needed/fulfilled
   - [ ] Track who's bringing what
+  - [ ] Sponsors can see supplies tied to specific objectives (for sponsor legibility)
 - [ ] Volunteer commitment system
   - [ ] Users can commit to attending
   - [ ] Show committed volunteer count
@@ -82,7 +94,8 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] Style allauth email confirmation page (`account/email_confirm.html`)
 - [x] Style allauth verification sent page (`account/verification_sent.html`)
 - [x] `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True` — auto-login after confirmation
-- [ ] Style allauth email management page (`account/email.html`)
+- [~] Style allauth email management page (`account/email.html`) — nearly complete, two polish items remain (button text wrapping, Add form spacing)
+- [ ] Tests for `account/email.html` conditional button logic — verify correct buttons shown/hidden based on `email.primary` and `email.verified` state
 - [ ] HTMX auth redirect middleware — `base/middleware.py`
 
 ### User Profiles (Basic)
@@ -191,6 +204,8 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Volunteer resume generation
   - [ ] PDF export of volunteer history
   - [ ] Include verified attendance
+  - [ ] Resume entry model: "Attended [Event], which completed [list of Objectives]"
+  - [ ] All completed objectives credited to all attendees — no per-person objective tracking
   - [ ] Show skills/categories participated in
   - [ ] Total hours and impact metrics
 - [ ] Shareable profile link
@@ -594,6 +609,15 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Add features from Phase 2 and beyond
 - [ ] Build case studies and success stories
 - [ ] Plan for national/global expansion
+
+---
+
+## Public Roadmap Page (Docketed)
+**Timing**: After plan feature is complete
+**Goal**: A public-facing page on the site showing completed features and what's coming next — visible progress for non-technical visitors (potential donors, investors, community members) without requiring a GitHub account.
+- Show completed features, in-progress work, and upcoming priorities
+- Signals active development and builds trust
+- Lays groundwork for a future donate button or investor conversations
 
 ---
 

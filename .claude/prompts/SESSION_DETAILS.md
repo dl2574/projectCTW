@@ -10,6 +10,99 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-07-05
+
+### What We Did
+Built `templates/account/email.html` — nearly complete, two polish items remaining for next session.
+
+### Design Decision: Per-Row Layout (complete)
+- Rejected allauth's radio + bottom buttons pattern in favor of per-row forms
+- Rationale: users will have 1-2 emails max; per-row is clearer, removes radio selection step
+- Each email row has its own `<form>` posting to `{% url 'account_email' %}` with a hidden `name="email"` input
+- allauth routes by button `name` attribute: `action_primary`, `action_send`, `action_remove`
+
+### email.html Structure (complete)
+- Extends `base.html`, matches `user_account.html` fieldset/grid layout
+- Loops `{% for email in emailaddresses %}` (not `emailaddress_radios` — simpler, same objects)
+- Row layout: email text | badges | form buttons (flex, items-center, gap-12)
+- Badges: `.badge.badge-primary` (Primary), `.badge.badge-warning` (Unverified) — both can appear simultaneously (allauth allows unverified primary)
+- Conditional buttons per row:
+  - `action_send` (Resend Verification): `{% if not email.verified %}`
+  - `action_primary` (Make Primary): `{% if not email.primary %}`
+  - `action_remove` (Delete): `{% if not email.primary %}` — user must set a new primary before deleting
+- JS IIFE confirm dialog on Delete (copied pattern from allauth default, stripped i18n)
+- `{% if can_add_email %}` section: Add Email form using `add_email_form` context variable
+  - `add_email_form.email` rendered via `{{ add_email_form.email }}` (Django widget, styled via CSS selector)
+  - Field errors via `add_email_form.email.errors.0`, non-field errors via `add_email_form.non_field_errors`
+  - Submit button `name="action_add"`
+- Back button: plain `<a href="{% url 'account_profile' user.username %}">` with `btn-secondary`
+
+### input.css Refactor (complete)
+- Added global `input` selector to `static/css/input.css` — styles all inputs sitewide without Tailwind classes
+- Converted widget `attrs` classes from `userProfile/forms.py` `CustomUserChangeForm.__init__` to CSS
+- Added `.btn-danger` class: red-500 base, red-600 hover, matches btn-primary/secondary pattern
+- Removed redundant `sm:` media query (values already set globally)
+- Note: `userProfile/forms.py` still has the Tailwind classes on widget attrs — those should be removed in a follow-up cleanup once input.css is confirmed working everywhere
+
+### Remaining Polish (pick up next session)
+1. **Button text wrapping** — "Resend Verification" and "Make Primary" wrap onto two lines, making buttons oversized. Fix: shorten button text (e.g., "Resend" / "Make Primary" → shorter) or add `whitespace-nowrap` to buttons
+2. **Add Email form spacing** — "Add" button is touching the input field. Add `mt-4` or similar margin-top to the button
+
+### Concepts Covered
+- allauth `EmailView.get_context_data` — `emailaddresses` vs `emailaddress_radios` (same objects, radios just add wrapper dict)
+- allauth POST routing: single endpoint, button `name` attribute tells the view which action to take
+- `type="submit"` buttons with `name` — clicked button's name is included in POST data
+- `e.preventDefault()` — cancels default browser behavior (form submit); if omitted, form submits normally
+- IIFE pattern (Immediately Invoked Function Expression) — scope isolation pre-ES6
+- `emailaddresses|length > 1` — Django template `{% if %}` syntax for length comparison
+- `add_email_form` vs `form` context variable — allauth passes both, `add_email_form` is the explicit name
+- Per-element vs. global CSS selectors for form inputs — global `input {}` cleaner than per-widget attrs
+
+---
+
+## Session: 2026-07-02
+
+### What We Did
+Started building `account/email.html`. Removed email management from `CustomUserChangeForm` and `user_account.html` in favor of allauth's built-in email management page. Wired HTMX seamless navigation to the allauth email page from account settings. Did NOT yet create `account/email.html` — ran out of time.
+
+### Email Field Removed from Account Settings (complete)
+- Removed `"email"` from `CustomUserChangeForm.fields` in `userProfile/forms.py`
+  - Rationale: allauth manages email addresses (verified state, primary address, multiple addresses) better than a plain editable field; data integrity and security
+  - Admin panel unaffected — uses `UserAdmin`'s own form, not `CustomUserChangeForm`
+- In `user_account.html`, replaced email `<div>` with "Manage Emails" HTMX button:
+  ```html
+  <button hx-get="{% url 'account_email' %}"
+          hx-target="#main-container"
+          hx-select="#main-container"
+          hx-push-url="true">Manage Emails</button>
+  ```
+  - `hx-select="#main-container"` extracts only the content div from the full page response — navbar stays put, only content swaps
+  - `hx-push-url="true"` updates the URL so back-button works
+  - POST actions inside the email page are regular form POSTs (allauth handles them), redirect normally — that's acceptable
+
+### Test Impact
+- `test_profile_picture_correct_size` in `test_forms.py` passes `email` in form data — harmless, Django ignores unknown fields
+
+### account/email.html — NOT YET BUILT
+Context for next session:
+- Template lives at `templates/account/email.html` (does not exist yet)
+- Must extend `base.html`, NOT allauth's base — use plain HTML, not `{% element %}` tags
+- Match layout from `user_account.html`: `mx-auto max-w-7xl` container, fieldset/grid pattern, same button classes
+- Allauth context variables:
+  - `emailaddress_radios` — list of dicts: `{emailaddress, checked, id}`
+  - `emailaddress.email`, `emailaddress.verified`, `emailaddress.primary`
+  - `can_add_email` — bool, controls whether Add Email section renders
+  - `form` — the add-email form (single email field)
+- Three POST actions, all submit same form, distinguished by button `name`:
+  - `action_primary` — Make Primary
+  - `action_send` — Re-send Verification
+  - `action_remove` — Remove (needs JS confirm dialog)
+- POST target: `{% url 'account_email' %}` (resolves to `/accounts/email/`)
+- Include "← Back to Account Settings" link at the top
+- JS confirm dialog on Remove (copy from allauth default or rewrite inline)
+
+---
+
 ## Session: 2026-06-28
 
 ### What We Did

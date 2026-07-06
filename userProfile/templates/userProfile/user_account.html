@@ -61,12 +61,15 @@
                         {{form.username.errors}}
                       </div>
                       <div class="">
-                        {{form.email.label_tag}}
-                        {{form.email}}
-                        {{form.email.errors}}
+                        <button class="btn-outline px-6 py-3 cursor-pointer"
+                          hx-get="{% url 'account_email' %}"
+                          hx-target="#main-container"
+                          hx-select="#main-container"
+                          hx-push-url="true">
+                          Manage Emails</button>
                       </div>
                       <div class="">
-                        <a class="btn-outline px-6 py-3" href="{% url 'account_change_password' %}">Change Password</a>
+                        <a class="btn-outline px-6 py-3 cursor-pointer" href="{% url 'account_change_password' %}">Change Password</a>
                       </div>
                     </div>
                   </div>

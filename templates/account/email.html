@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Email Management
+{% endblock title %}
+
+{% block content %}
+<div class="pt-20">
+  <header class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    {% include "userProfile/user_account.html#user_card" %}
+  </header>
+  <main class="">
+    <div class="mx-auto max-w-7xl pt-8 sm:px-6 lg:px-8">
+      <div class="">
+        <a href="{% url 'account_profile' user.username %}" class="btn-secondary">Back</a>
+      </div>
+      <div class="">
+        <h1 class="">Email Management</h1>
+          <div class="mx-auto max-w-7xl pt-8 sm:px-6 lg:px-8">
+            {% if emailaddresses %}
+              <div class="w-full px-6 py-4 odd:bg-gray-50">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-12">
+                      <p>Email Addresses</p>
+                    </div>
+                    <div class="md:col-span-2 space-y-6">
+                      {% for email in emailaddresses %}
+                        <div class="flex items-center gap-12">
+                          <p>{{email.email}}</p>
+                          <div class="flex">
+                            {% if email.primary %}<span class="badge badge-primary">Primary</span>{% endif %}
+                            {% if not email.verified %}<span class="badge badge-warning">Unverified</span>{% endif %}
+                          </div>
+                          <form class="flex gap-4" action="{% url 'account_email' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="email" value="{{ email.email }}">
+                            {% if not email.verified %}
+                              <button class="btn-outline" type="submit" name="action_send">Resend Verification</button>
+                            {% endif %}
+                            {% if not email.primary %}
+                              <button class="btn-outline" type="submit" name="action_primary">Make Primary</button>
+                              <button class="btn-danger" type="submit" name="action_remove">Delete</button>
+                            {% endif %}
+                          </form>
+                        </div> 
+                      {% endfor %}
+                    </div>
+                </div>
+              </div>
+            {% endif %}
+            {% if can_add_email %}
+              <div class="w-full px-6 py-4 odd:bg-gray-50">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div class="space-y-12">
+                    <p>Add Email</p>
+                  </div>
+                  <div class="md:col-span-2 space-y-6">
+                    <form class="" action="{% url 'account_email' %}" method="POST">
+                      {% csrf_token %}
+                      {% if add_email_form.non_field_errors %}
+                        <div class="rounded-md bg-red-50 p-4">
+                          <div class="flex">
+                            <div class="text-sm text-red-700">
+                              {% for error in add_email_form.non_field_errors %}
+                                <p>{{error}}</p>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      {% endif %}
+
+                      <div class="">
+                        <label for="{{add_email_form.email.id_for_label}}" class="block text-sm font-semibold leading-6 text-slate-900">New Email</label>
+                        <div class="mt-2">
+                          {{ add_email_form.email }}
+                        </div>
+                        {% if add_email_form.email.errors %}
+                          <p class="mt-1 text-sm text-red-600">{{add_email_form.email.errors.0}}</p>
+                        {% endif %}
+                      </div>
+                      <button type="submit" class="btn-primary" name="action_add">Add</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </div> 
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock content %}
+
+{% block extra_body %}
+    <script type="text/javascript">
+(function() {
+  var message = "Do you really want to remove the selected email address?";
+  var actions = document.getElementsByName('action_remove');
+  if (actions.length) {
+    actions[0].addEventListener("click", function(e) {
+      if (! confirm(message)) {
+        e.preventDefault();
+      }
+    });
+  }
+})();
+    </script>
+{% endblock extra_body %}
