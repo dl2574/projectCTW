@@ -96,6 +96,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True` — auto-login after confirmation
 - [~] Style allauth email management page (`account/email.html`) — nearly complete, two polish items remain (button text wrapping, Add form spacing)
 - [ ] Tests for `account/email.html` conditional button logic — verify correct buttons shown/hidden based on `email.primary` and `email.verified` state
+- [ ] Audit and refactor input/form field styling sitewide — global `input` selector in `input.css` broke some fields on `user_account.html`; needs consistent approach across all forms
 - [ ] HTMX auth redirect middleware — `base/middleware.py`
 
 ### User Profiles (Basic)
