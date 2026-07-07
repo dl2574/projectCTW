@@ -619,8 +619,14 @@
   .w-64 {
     width: calc(var(--spacing) * 64);
   }
+  .w-\[90px\] {
+    width: 90px;
+  }
   .w-\[200\%\] {
     width: 200%;
+  }
+  .w-\[200px\] {
+    width: 200px;
   }
   .w-auto {
     width: auto;
@@ -648,6 +654,9 @@
   }
   .min-w-0 {
     min-width: calc(var(--spacing) * 0);
+  }
+  .min-w-\[90px\] {
+    min-width: 90px;
   }
   .flex-1 {
     flex: 1;
@@ -1699,6 +1708,13 @@
       }
     }
   }
+  .hover\:text-gray-700 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-gray-700);
+      }
+    }
+  }
   .hover\:text-indigo-800 {
     &:hover {
       @media (hover: hover) {
@@ -2372,6 +2388,10 @@ input:focus {
 }
 .btn-danger:active {
   transform: scale(0.95);
+}
+.btn-sm {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
 }
 .card {
   border-radius: 0.75rem;

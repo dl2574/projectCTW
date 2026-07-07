@@ -10,6 +10,32 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-07-06
+
+### What We Did
+Continued polishing `account/email.html`. Fixed button sizing, back button, and header. Ran into row alignment issue — not yet resolved.
+
+### Completed
+- Removed `<h1>Email Management</h1>` — redundant with user card header
+- Replaced `btn-secondary` back button with plain muted text link: `← Account Settings`
+- Added `.btn-sm` class to `input.css` (`padding: 0.375rem 0.625rem`, `font-size: 0.75rem`) — layered on top of `.btn-outline`/`.btn-danger` for smaller row buttons
+- Fixed `.btn-primary` duplicate selector bug introduced by autocomplete (was overriding btn-primary instead of creating btn-sm)
+- Added `mt-2` to Add Email submit button for spacing
+- Logic fix: `action_primary` (Make Primary) now only shows when `email.verified and not email.primary` — you can't make an unverified address primary
+- Added `w-[90px]` to badge container to reserve space when no badges present
+- Added `flex-1` to email `<p>` to anchor badges and buttons to the right
+
+### Remaining Alignment Issue (pick up here)
+Row layout uses flex with three children: email text (`flex-1`), badge container (`w-[90px]`), form (buttons). When a row has no buttons the form is empty but still present — the badge gets pushed off-center. Tried `flex-shrink-0` on the form, no effect. 
+
+**Root cause**: with `flex-1` on the email text and no fixed anchor on the form, the empty form doesn't hold its space consistently.
+
+**Next approaches to try**:
+- Give the form a fixed width (`w-[200px]` or similar) matching the widest button combination
+- Or switch the row from flex to a 3-column CSS grid with fixed column definitions
+
+---
+
 ## Session: 2026-07-05
 
 ### What We Did

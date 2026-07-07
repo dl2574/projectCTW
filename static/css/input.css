@@ -244,6 +244,11 @@ input:focus {
   transform: scale(0.95);
 }
 
+.btn-sm {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+}
+
 .card {
   border-radius: 0.75rem;
   background-color: white;
