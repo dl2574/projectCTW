@@ -10,6 +10,43 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-07-08
+
+### What We Did
+Design discussion session — no code written. Fleshed out proposal redesign and docketed several future features.
+
+### Proposal Field List (finalized for now)
+- **Name** — unchanged
+- **Objective** — 1-2 sentence mission statement
+- **Problem** — what's wrong and why it matters
+- **Resolution** — what will be done about it
+- **Impact** — what the community gains (also serves sponsor audience)
+- **Activity tags** — multi-select, filterable (Clean Up, Repair, Build, etc.) — design discussion needed before building
+- **Virtual toggle** + **location text** — short term; GeoDjango later
+- **Minimum volunteer count** — integer, user-provided estimate; drives upvote threshold
+
+### Deliberately Excluded from Proposal
+- Supplies — too many unknowns, belongs in plan
+- Budget — same reason; proposal is a community interest check not a project plan
+- Duration — can't know without knowing volunteer count and skill level; belongs in plan
+
+### Upvote Threshold Formula
+`required_num_upvotes = max(10, ceil(min_volunteers * 1.5))` — calculated on save, not user-editable. Platform-wide. Floor of 10. Revisit post-launch with real data.
+
+### Docketed
+- GeoDjango setup as dedicated prerequisite task before any location-dependent features
+- Print/PDF export (WeasyPrint) — build after each feature is stable, not during development
+- Public roadmap page — after plan feature is complete
+- Activity tags + skill tags — two distinct systems, design discussion needed before building
+
+### Next Session
+- Finish email row alignment bug (`account/email.html`)
+- Then: write tests for conditional button logic
+- Then: input styling refactor sitewide
+- Proposal development begins after email/account verification work is wrapped up
+
+---
+
 ## Session: 2026-07-06
 
 ### What We Did

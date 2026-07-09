@@ -29,12 +29,21 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 **Goal**: Complete the essential event lifecycle for a functional MVP
 
 ### Event Proposal System
-- [ ] Complete event creation form with validation
-- [ ] Event detail view with all information
+- [ ] Redesign proposal as a multi-step wizard (replaces current single form)
+  - [ ] Step: Name + Objective (1-2 sentence mission statement)
+  - [ ] Step: Problem (what's wrong and why it matters)
+  - [ ] Step: Resolution (what will be done)
+  - [ ] Step: Impact (what the community gains — also serves sponsor audience)
+  - [ ] Step: Location (virtual toggle; if not virtual, plain text field for now)
+  - [ ] Step: Activity tags (multi-select — design discussion needed before building)
+  - [ ] Step: Minimum volunteer count (integer; drives upvote threshold formula)
+- [ ] Upvote threshold auto-calculated on proposal save: `max(10, ceil(min_volunteers * 1.5))` — remove hardcoded default of 3
+- [ ] Event detail view with all proposal fields displayed
 - [ ] Event editing capabilities (for creator only)
 - [ ] Event deletion/cancellation workflow
 - [ ] Image upload for events
-- [ ] Location field enhancements (physical/online/hybrid toggle)
+- [ ] Location field enhancements — virtual toggle + plain text for proposal (short term); GeoDjango for full location features (see GeoDjango task below)
+- [ ] **GeoDjango setup** (prerequisite for geographic filtering, geofencing, proximity discovery) — PostGIS on Railway, local dev setup, migrate location fields. Do as dedicated task before building any location-dependent features.
 - [ ] Event listing page with basic filtering
 
 ### Upvoting System
@@ -612,6 +621,13 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Plan for national/global expansion
 
 ---
+
+## Print / PDF Export (Docketed)
+**Timing**: After each feature is functionally complete and stable — not during development to avoid rebuilding as fields change.
+**Use cases**: city permit documentation, volunteer resume backup, employer verification, physical planning documents.
+**Scope**: Proposal PDF, Plan PDF, volunteer resume/history PDF.
+**Library**: WeasyPrint (renders styled HTML to PDF — best fit given existing Tailwind templates). Not reportlab.
+**Approach**: build a dedicated print template per document type, add a download view that renders it via WeasyPrint.
 
 ## Public Roadmap Page (Docketed)
 **Timing**: After plan feature is complete
