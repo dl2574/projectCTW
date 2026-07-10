@@ -20,11 +20,10 @@ Email Management
                     <div class="space-y-12">
                       <p>Email Addresses</p>
                     </div>
-                    <div class="md:col-span-2 space-y-6">
+                    <div class="grid grid-cols-[1fr_auto_auto] items-center gap-x-12 gap-y-6">
                       {% for email in emailaddresses %}
-                        <div class="flex items-center gap-12">
-                          <p class="flex-1">{{email.email}}</p>
-                          <div class="flex min-w-[90px]">
+                          <p>{{email.email}}</p>
+                          <div class="flex gap-2">
                             {% if email.primary %}<span class="badge badge-primary">Primary</span>{% endif %}
                             {% if not email.verified %}<span class="badge badge-warning">Unverified</span>{% endif %}
                           </div>
@@ -34,14 +33,13 @@ Email Management
                             {% if not email.verified %}
                               <button class="btn-outline btn-sm" type="submit" name="action_send">Resend Verification</button>
                             {% endif %}
-                            {% if email.verified and not email.primary %} 
+                            {% if email.verified and not email.primary %}
                               <button class="btn-outline btn-sm" type="submit" name="action_primary">Make Primary</button>
                             {% endif %}
                             {% if not email.primary %}
                               <button class="btn-danger btn-sm" type="submit" name="action_remove">Delete</button>
                             {% endif %}
                           </form>
-                        </div> 
                       {% endfor %}
                     </div>
                 </div>

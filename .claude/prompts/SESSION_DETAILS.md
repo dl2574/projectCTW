@@ -10,6 +10,32 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-07-09
+
+### What We Did
+Fixed the `account/email.html` row alignment bug carried over from 2026-07-06. Discussed but deferred: conditional button logic tests for the same template.
+
+### Row Alignment Fix (complete)
+- **Root cause confirmed**: each email row was its own independent flex container. `<p>` had `flex-1` and grew to fill whatever space the row's `<form>` didn't use. On the primary email's row, the form renders zero buttons (collapses to 0px width), so `<p>` grows further right than on other rows, shifting the badge's position — each row computed its own column widths independently, so nothing stayed aligned across rows.
+- **Rejected fixed-pixel widths** (`w-[200px]` on the form) as brittle — hardcoded values silently go stale when content changes (already bit us once with button text wrapping).
+- **Fix applied**: moved the grid to the *list wrapper* rather than per-row, so column tracks are shared across all rows instead of recalculated per-row:
+  - Wrapper (`md:col-span-2`) changed from `space-y-6` to `grid grid-cols-[1fr_auto_auto] items-center gap-x-12 gap-y-6`
+  - Removed the per-row `<div class="flex items-center gap-12">` wrapper — each row's three elements (`<p>`, badge `<div>`, `<form>`) are now direct grid children, auto-flowing into rows
+  - Dropped `flex-1` from `<p>` and `min-w-[90px]` from the badge div (grid handles sizing now); badge div kept `flex gap-2` for when both badges render together
+- **Verified manually in browser** (dev server + local test user with a primary/verified row and a secondary/unverified row) — user confirmed rows are now aligned correctly.
+- **Regression found during verification**: button text ("Resend Verification", "Make Primary") wraps onto two lines again. The `auto`-sized button column is now sized to the *narrowest* content that still fits across rows, which is tighter than before. Deferred — not fixed this session.
+
+### Concepts Covered
+- Flexbox default sizing (`flex: 0 1 auto`) — why an empty flex child collapses to 0 width instead of holding space
+- Why per-row flex containers can't produce cross-row alignment — each is an independent layout context with no shared sizing information
+- CSS Grid column tracks as the fix — defining `grid-template-columns` once on a shared parent means all rows size against the same tracks (widest content across *all* rows), instead of each row negotiating its own layout in isolation
+
+### Next Session
+- Fix button text wrapping regression (`whitespace-nowrap` on `.btn-sm`, or shorten "Resend Verification" / "Make Primary" labels)
+- Write tests for `account/email.html` conditional button logic (`action_send`/`action_primary`/`action_remove` per `email.primary`/`email.verified` state) — user was asked what scenarios/assertions they'd want before any test code is written; not yet answered
+
+---
+
 ## Session: 2026-07-08
 
 ### What We Did
