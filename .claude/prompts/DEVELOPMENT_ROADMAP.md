@@ -103,7 +103,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] Style allauth email confirmation page (`account/email_confirm.html`)
 - [x] Style allauth verification sent page (`account/verification_sent.html`)
 - [x] `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True` — auto-login after confirmation
-- [~] Style allauth email management page (`account/email.html`) — row alignment fixed (list wrapper converted to `grid grid-cols-[1fr_auto_auto]` so column widths are shared across rows); button text wrapping regressed under the narrower auto-sized button column, needs `whitespace-nowrap` or shorter labels
+- [x] Style allauth email management page (`account/email.html`) — row alignment fixed (list wrapper converted to `grid grid-cols-[1fr_auto_auto]` so column widths are shared across rows); button text wrapping fixed with `white-space: nowrap` on `.btn-sm`
 - [ ] Tests for `account/email.html` conditional button logic — verify correct buttons shown/hidden based on `email.primary` and `email.verified` state
 - [ ] Audit and refactor input/form field styling sitewide — global `input` selector in `input.css` broke some fields on `user_account.html`; needs consistent approach across all forms
 - [ ] HTMX auth redirect middleware — `base/middleware.py`
