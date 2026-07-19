@@ -10,6 +10,38 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-07-19
+
+### What We Did
+Wrote and verified the `account/email.html` conditional button logic tests carried over from 2026-07-10. Three test methods added to `EmailTemplateLogicTests` in `userProfile/tests/test_views.py`, covering the three reachable `(primary, verified)` states for an `EmailAddress` row. Full suite: 73 tests passing (was 70).
+
+### Test Scenario Design (discussion, before any code)
+- Worked through all 4 combinations of `(primary, verified)` for a row: `(True,True)` → no buttons, `(False,True)` → Make Primary + Delete, `(False,False)` → Resend Verification + Delete.
+- `(True,False)` (primary but unverified) initially flagged as a possible 4th case, then ruled out after tracing the actual code paths: `account_email` can only be viewed by an authenticated session, login enforces `ACCOUNT_EMAIL_VERIFICATION = "mandatory"`, and no view action can revert an already-verified primary back to unverified. Concluded there's no real code path that renders the template in that state — decided not to test it. Correct call, not just a shortcut.
+- Confirmed assertions should be response-content only (`assertContains`/`assertNotContains` on button `name` attributes) — not testing allauth's own POST handling, only the template's conditional rendering given a DB state.
+- Decided against a single page with all 3 states rendered at once and scoped per-row assertions — the per-row wrapper `<div>` was removed in the 2026-07-09 grid alignment fix, so there's no DOM boundary to scope a check to. Three isolated single-state test methods instead.
+
+### Bugs Found and Fixed While Writing
+- `setUpTestData` was missing `@classmethod` — would have raised `TypeError` when Django calls `cls.setUpTestData()`.
+- `assertNotContains(response, "action_verify")` — checked a string that doesn't exist anywhere in the template (`action_send` is the actual name attribute), so it was a no-op assertion that would pass regardless of correctness.
+- Forgot `.save()` after mutating `self.email.primary`/`self.email.verified` in-memory — mutation never reached the DB, so the view would've queried stale state.
+
+### Real Bug Uncovered: allauth Auto-Creates an EmailAddress on GET
+`account_email`'s view (`allauth/account/views.py`) calls `sync_user_email_addresses(request.user)` on every GET, silently creating an `EmailAddress(primary=False, verified=False)` for `user.email` if no matching row exists. The test `User` was built via `create_user()`, bypassing allauth's signup flow, so it had no such row — the first GET request created a phantom row that leaked an unexpected `action_send` button into the response and broke an assertion.
+Fix: `setUpTestData` now creates a `primary=True, verified=True` `EmailAddress` for the user's own email up front — this also matches reality, since mandatory verification means a real logged-in user's primary email is always verified by the time they can view the page.
+
+### Second Bug: DB Constraint on Primary Email
+Attempted to test "no buttons" by flipping the baseline row's `primary=False` and the test row's `primary=True, verified=True` in the same test. This recreated the exact multi-row contamination problem the row-isolation decision was meant to avoid — the baseline row, now `(primary=False, verified=True)`, correctly showed its own Make Primary/Delete buttons, which broke the assertions meant for the other row. Also touched allauth's DB-level `UniqueConstraint(fields=["user", "primary"], condition=Q(primary=True))` — only one primary row per user, enforced at the database. Fixed by deleting the extra test row for that one test instead, leaving only the already-correct baseline row on the page.
+
+### Memory Updates
+- Saved a testing-gotchas entry to project auto-memory: the allauth auto-create-on-GET behavior, the primary-email DB constraint, and the row-isolation pattern for future `email.html`-adjacent tests.
+- Saved a feedback memory: don't ask the user to paste code — read files directly once they report a save.
+
+### Next Session
+- Input/form field styling refactor sitewide — global `input` selector in `input.css` broke some fields on `user_account.html`. Need a consistent approach across all forms.
+
+---
+
 ## Session: 2026-07-10
 
 ### What We Did

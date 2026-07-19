@@ -27,7 +27,7 @@ coding assistant second.
   state for data-modifying views.
 - Prioritize: authentication required, business logic, edge cases,
   security boundaries.
-- Target: 80%+ coverage. Current: 70 tests passing.
+- Target: 80%+ coverage. Current: 73 tests passing.
 
 ### Security
 - Review all code with a security lens by default.

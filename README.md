@@ -64,7 +64,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ User account settings page with structured fieldsets and responsive two-column layout
 - ✅ Profile picture upload and display (navbar + account settings page), stored on Cloudinary
 - ✅ Styled email verification flow (confirmation, verification sent pages)
-- ✅ Email management page (`account/email.html`) — per-row layout with conditional actions, grid-based row alignment, button text wrapping fixed
+- ✅ Email management page (`account/email.html`) — per-row layout with conditional actions, grid-based row alignment, button text wrapping fixed, conditional button logic tested
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
 - ✅ Email notifications on status transition (wired to transition_to_planning())
 
@@ -307,7 +307,7 @@ We welcome contributions! ProjectCTW is working towards becoming an open source 
 
 ### Areas Where We Need Help
 
-- Expanding test coverage (we have 70 tests; target is 80%+ coverage)
+- Expanding test coverage (we have 73 tests; target is 80%+ coverage)
 - Frontend improvements and mobile responsiveness
 - Event planning UI (date voting, supply list, attendance)
 - Security review and hardening
