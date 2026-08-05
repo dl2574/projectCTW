@@ -5,7 +5,14 @@ from django.core.exceptions import ValidationError
 from django import forms
 from django.forms import ModelForm
 
-from allauth.account.forms import LoginForm, SignupForm
+from allauth.account.forms import (
+    AddEmailForm,
+    ChangePasswordForm,
+    LoginForm,
+    ResetPasswordForm,
+    ResetPasswordKeyForm,
+    SignupForm,
+)
 
 from hcaptcha.fields import hCaptchaField
 
@@ -46,15 +53,15 @@ class CustomUserChangeForm(ModelForm):
         for field in self.fields.values():
             if isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs.update({
-                    "class": "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    "class": "form-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                 })
             elif isinstance(field.widget, forms.FileInput):
                 field.widget.attrs.update({
-                    "class": "cursor-pointer",
+                    "class": "form-file cursor-pointer",
                 })
             else:
                 field.widget.attrs.update({
-                    "class": "block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    "class": "form-input"
                 })
 
     def clean_profile_picture(self):
@@ -72,16 +79,48 @@ class CustomLoginForm(LoginForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["login"].widget.attrs.update({
-            "class": "block w-full rounded-md border-0 py-1.5 px-1 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
+            "class": "form-input",
             "placeholder": ""
         })
         self.fields["password"].widget.attrs.update({
-            "class": "block w-full rounded-md border-0 py-1.5 px-1 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
+            "class": "form-input",
             "placeholder": ""
         })
         self.fields["remember"].widget.attrs.update({
-            "class": "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+            "class": "form-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
         })
+
+
+class CustomAddEmailForm(AddEmailForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["email"].widget.attrs.update({
+            "class": "form-input",
+            "placeholder": ""
+        })
+
+
+class CustomChangePasswordForm(ChangePasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-input"})
+
+
+class CustomResetPasswordForm(ResetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["email"].widget.attrs.update({
+            "class": "form-input",
+            "placeholder": ""
+        })
+
+
+class CustomResetPasswordKeyForm(ResetPasswordKeyForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-input"})
 
 
 class CustomSignupForm(SignupForm):
@@ -90,10 +129,10 @@ class CustomSignupForm(SignupForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["email"].widget.attrs.update({
-            "class": "block w-full rounded-md border-0 py-1.5 px-1 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
+            "class": "form-input",
             "placeholder": ""
         })
         self.fields["password1"].widget.attrs.update({
-            "class": "block w-full rounded-md border-0 py-1.5 px-1 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
+            "class": "form-input",
             "placeholder": ""
         })

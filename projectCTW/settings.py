@@ -220,6 +220,10 @@ ACCOUNT_USERNAME_REQUIRED = False  # Don't require username (we use email)
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
 ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm",
                  "signup": "userProfile.forms.CustomSignupForm",
+                 "add_email": "userProfile.forms.CustomAddEmailForm",
+                 "change_password": "userProfile.forms.CustomChangePasswordForm",
+                 "reset_password": "userProfile.forms.CustomResetPasswordForm",
+                 "reset_password_from_key": "userProfile.forms.CustomResetPasswordKeyForm",
                  }
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"

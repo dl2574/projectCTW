@@ -10,6 +10,60 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-08-05
+
+### What We Did
+Answered the "what breaks when the bare `input` selector is scoped" question from the 2026-07-19 audit, logged a new case-sensitive-login bug, then executed tasks 1-4 of the 8-task input styling refactor: opt-in CSS classes, `forms.py` widget updates, a custom `AddEmailForm`, and full styling of allauth's 3 password templates. All verified working, 73/73 tests still passing.
+
+### Pre-Work: Answering "Which Inputs Go Bare" (before any code)
+Scanned every form/template in the project to answer the open question from last session. Findings:
+- **Category A (zero class, fully bare)**: only `AddEmailForm.email` on `email.html` — matched the already-scoped task 3.
+- **Category B (partial class, currently leaking properties)**: checkboxes (`email_status_updates`, `email_event_reminders`, login's `remember`), the `profile_picture` file input, and a new one not previously flagged — `user_account.html`'s submit button (`<input type="submit" class="btn-primary">`) was getting `width: 100%` leaked from the bare selector since `.btn-primary` never declares `width`, likely defeating the parent's `flex justify-end`.
+- **Category C (fully covered, safe no-op)**: text inputs in `CustomUserChangeForm`/`CustomLoginForm`/`CustomSignupForm` — already had complete redundant Tailwind classes.
+- **Category D**: `EventForm`/`CommentForm` via crispy-tailwind — confirmed via reading `crispy_tailwind/templatetags/tailwind_field.py` that crispy assigns its own complete class string independent of our CSS. Safe either way, not urgent to migrate off crispy for correctness.
+- **Category E — checked and ruled out**: suspected hidden inputs (CSRF token on every form, `email.html`'s hidden `name="email"`) might also be silently un-hidden by the bare selector via CSS cascade origin rules. Verified against the actual WHATWG spec (`input[type=hidden i] { display: none !important; }`) — `!important` in the UA stylesheet wins regardless of author-rule specificity, so this was a non-issue in both the old and new state.
+- Sequencing note: allauth's 3 password templates get *some* free minimal box styling from the bare selector today with zero classes of their own — pulling the selector before those templates are built makes those flows look worse in the gap, not better.
+
+### Bug Found: Case-Insensitive Login Needed
+User found login is case-sensitive on the email field. Logged as an unchecked `**Bug**` item under Auth UX in `DEVELOPMENT_ROADMAP.md` — not triaged or fixed this session, root cause not yet located.
+
+### Working-Style Change: Directive Mode for CSS/Styling
+User asked for a scoped exception to the project's default Socratic mentorship mode: for CSS/styling property-level decisions specifically, explain the reasoning and just implement it rather than walking through it with guiding questions first. Rationale given: CSS/layout is a domain he's deliberately building depth in *outside* this project, and Socratic pacing there doesn't build ProjectCTW-relevant understanding — just slows down a mechanical decision. Explicitly scoped to CSS/styling only; logic/architecture/security/testing still get full mentorship. Saved as [[feedback_css_styling_directive_mode]].
+
+### Task 1: `input.css` — Opt-In Classes
+Replaced the bare `input {}` rule with `.form-input` (all six original properties: `display`, `width`, `border-radius`, `border`, `padding`, `box-shadow`, plus `color`/`font-size`/`line-height`, plus its own `::placeholder`/`:focus` rules). `.form-checkbox`/`.form-file` deliberately got **no** CSS properties — checkboxes and file inputs are native browser widgets, not text boxes; every property the bare rule set was actively wrong for them (that's the bug this refactor exists to fix). Their look comes entirely from Tailwind utility classes already living in `forms.py`. The class names still get applied as stable hooks for future shared styling, not because CSS needs them yet.
+
+### Task 2: `userProfile/forms.py` — Point Widgets at New Classes
+`CustomUserChangeForm`, `CustomLoginForm`, `CustomSignupForm` now use `.form-input`/`.form-checkbox ...`/`.form-file ...` instead of duplicating full Tailwind utility strings per field — removes the redundant duplication task 1's audit flagged.
+
+### Task 3: `CustomAddEmailForm`
+Added `CustomAddEmailForm(AddEmailForm)` applying `.form-input` to the `email` field, registered via `ACCOUNT_FORMS = {"add_email": "userProfile.forms.CustomAddEmailForm", ...}` — same pattern already used for `login`/`signup`, no view override needed. User confirmed visually: Add Email field looks right, and the account settings "Update" button visually improved (the `width: 100%` leak fix from the pre-work findings).
+
+### Task 4: Allauth's 3 Password Templates
+Allauth ships zero styled templates for the password change/reset flow. Built from scratch:
+- `templates/account/password_change.html` — styled as an authenticated account-settings page (mirrors `email.html`'s header/back-link chrome), only reachable from a logged-in account settings page
+- `templates/account/password_reset.html`, `password_reset_from_key.html` — styled as public entrance pages (mirrors `login.html`/`signup.html`'s gradient-card look)
+- `password_reset_from_key.html` reads `token_fail`/`action_url` from the view's context — confirmed via reading `PasswordResetFromKeyView.get_context_data()` in allauth source, not guessed
+- Went one step past the original 3-template count and also styled `password_reset_done.html`/`password_reset_from_key_done.html` (the two confirmation pages in the same flow) — flagged explicitly to the user as an unscoped addition rather than asked about, since it was small and directly justified (leaving them bare would mean a styled form dumping the user onto a jarring unstyled page).
+- Added 3 more form subclasses following the same pattern as `CustomAddEmailForm`: `CustomChangePasswordForm`, `CustomResetPasswordForm`, `CustomResetPasswordKeyForm`, registered in `ACCOUNT_FORMS` under the exact keys allauth's views look up (`change_password`, `reset_password`, `reset_password_from_key` — confirmed by reading `allauth/account/views.py`'s `get_form_class()` calls).
+- Verified with a throwaway smoke test (written, run, then deleted — not proposed as permanent coverage) hitting all 5 URLs including the bad-token `token_fail` branch — all returned 200 with expected content.
+
+### Question Answered: Why Both Custom Forms AND Manual Template Markup?
+User asked whether creating custom form subclasses was redundant with hand-writing the field markup in templates. Explained the two are different concerns: the form subclass's only job is putting `class="form-input"` onto the widget's `attrs` (the only way to get a CSS class onto Django's auto-rendered `{{ form.field }}` output without a filter library like `django-widget-tweaks`); the template's manual label/wrapper/error markup is layout Django never generates on its own unless using `.as_p`/crispy — which this project has been deliberately moving away from since `user_account.html` in March. Not redundant — matched existing site-wide convention.
+
+### Verification
+Tailwind rebuilt after each task (`python manage.py tailwind`), full suite re-run clean after every task (73/73, unchanged all session). Bare `input` rule confirmed gone from compiled `static/css/main.css` after task 1.
+
+### Memory Updates
+- Compacted `MEMORY.md` from 169 to 76 lines (approaching the harness's 200-line read limit) — moved detail into new topic files: `testing_gotchas.md`, `pattern_oob_swap.md`, `pattern_grid_alignment.md`, `project_proposal_redesign.md`, `completed_features_log.md`. Created `project_input_styling_refactor.md` to hold the full refactor scope/progress (previously inline in `MEMORY.md`), kept up to date through today's tasks 1-4.
+- Saved [[feedback_css_styling_directive_mode]] — the CSS/styling directive-mode preference described above.
+
+### Next Session
+- Tasks 5-8 of the input styling refactor: convert `EventForm`/`CommentForm` off crispy, remove `crispy_forms`/`crispy_tailwind` dependency, delete dead `login_register.html`, full manual browser verification pass (checkbox/file-input visual check and login/signup pages still not eyeballed — password flow pages also not yet opened in a browser, only smoke-tested).
+- Case-sensitive login bug — not triaged yet.
+
+---
+
 ## Session: 2026-07-19
 
 ### What We Did
@@ -37,8 +91,31 @@ Attempted to test "no buttons" by flipping the baseline row's `primary=False` an
 - Saved a testing-gotchas entry to project auto-memory: the allauth auto-create-on-GET behavior, the primary-email DB constraint, and the row-isolation pattern for future `email.html`-adjacent tests.
 - Saved a feedback memory: don't ask the user to paste code — read files directly once they report a save.
 
+### Input Styling Refactor — Scoped, Not Started
+Scanned the whole project for the "global `input` selector broke `user_account.html`" issue flagged in earlier sessions. Root cause identified precisely (not just "some fields lack classes"):
+
+- `input.css:112-122` has a bare, unscoped `input` selector setting `display`, `width`, `padding`, `box-shadow`, `border`. `CustomUserChangeForm.__init__` (userProfile/forms.py) already applies defensive Tailwind classes per widget type, but the checkbox (`h-4 w-4 rounded border-gray-300 ...`) and file-input (`cursor-pointer`) classes don't cover `box-shadow`/`padding`/`display`/`border` — CSS cascades per property, not per rule-block, so those properties leak through from the bare selector. Text inputs look fine only because their override class happens to redundantly re-declare the same properties.
+- `email.html`'s Add Email field uses allauth's stock `AddEmailForm` — confirmed no custom subclass exists anywhere in the project, so it has zero widget-class overrides, fully exposed to the bare selector.
+- `crispy-tailwind`/`django-crispy-forms` (`requirements.txt`) confirmed still live in exactly 2 places: `event_form.html` (`{{ form|crispy }}`, `EventForm` — 3 fields, no file/checkbox) and `event_detail.html`'s comment form (`{{ commentForm|crispy }}`, `CommentForm` — 1 field). It was already removed from `user_account.html` back on 2026-03-16 in favor of manual field rendering — user confirmed that's the precedent to finish applying everywhere.
+- `userProfile/templates/userProfile/login_register.html` still references `{{form|crispy}}` but confirmed **unrouted** — no `urls.py` or view reference anywhere. Dead code.
+- No allauth password templates (`password_change.html`, `password_reset.html`, `password_reset_from_key.html`) are overridden — confirmed via `find`, they don't exist under `templates/account/`. Currently rendering with zero Tailwind styling, outside the app's design system.
+
+Decision: full rework, not a partial patch — user explicitly chose to finish the crispy migration and fix the root cause now rather than leave it half-done.
+
+**8-task breakdown created (tracked in this session's task list, not yet started):**
+1. `input.css` — replace bare `input` selector with opt-in classes (`.form-input`, `.form-checkbox`, `.form-file`)
+2. `userProfile/forms.py` — point `CustomUserChangeForm`/`CustomLoginForm`/`CustomSignupForm` at the new shared classes
+3. New `AddEmailForm` subclass with widget classes for `email.html`
+4. Override + style allauth's 3 password templates
+5. Convert `EventForm`/`CommentForm` off crispy — manual rendering + widget classes in `event_form.html`/`event_detail.html`
+6. Remove `crispy_forms`/`crispy_tailwind` from `INSTALLED_APPS`, `requirements.txt`, `input.css` `@source` line
+7. Delete dead `login_register.html`
+8. Manual browser verification pass (no existing test coverage for rendered widget styling)
+
+Sizing estimate: ~1 full focused day, single session scope, not multi-week.
+
 ### Next Session
-- Input/form field styling refactor sitewide — global `input` selector in `input.css` broke some fields on `user_account.html`. Need a consistent approach across all forms.
+- Start the input styling refactor — task list above, beginning with task 1 (`input.css` root-cause fix).
 
 ---
 

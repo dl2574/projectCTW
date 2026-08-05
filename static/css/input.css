@@ -109,7 +109,12 @@ h6 {
   color: #0f172a;
 }
 
-input {
+/* Opt-in, not a bare `input` selector — a global element selector cascades
+   every property here onto every input sitewide (checkboxes, file pickers,
+   hidden fields), and per-widget override classes elsewhere in the project
+   only redeclare some of these properties, not all of them, so the rest
+   leaked through silently. `.form-input` is for text-like fields only. */
+.form-input {
   display: block;
   width: 100%;
   border-radius: 0.375rem;
@@ -121,14 +126,21 @@ input {
   line-height: 1.5rem;
 }
 
-input::placeholder {
+.form-input::placeholder {
   color: #9ca3af;
 }
 
-input:focus {
+.form-input:focus {
   outline: none;
   box-shadow: 0 0 0 2px inset #4f46e5;
 }
+
+/* .form-checkbox and .form-file intentionally have no rules here. Checkboxes
+   and file inputs are native browser widgets, not text boxes — none of the
+   properties above (padding, box-shadow ring, border-radius, forced width)
+   belong on them. Their look comes entirely from Tailwind utility classes
+   applied per-widget in forms.py. The class names exist as a stable hook for
+   future shared styling, not as a signal that they're unstyled by mistake. */
 
 
 /* Smooth scrolling */

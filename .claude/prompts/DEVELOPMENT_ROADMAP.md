@@ -105,8 +105,17 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True` — auto-login after confirmation
 - [x] Style allauth email management page (`account/email.html`) — row alignment fixed (list wrapper converted to `grid grid-cols-[1fr_auto_auto]` so column widths are shared across rows); button text wrapping fixed with `white-space: nowrap` on `.btn-sm`
 - [x] Tests for `account/email.html` conditional button logic — verify correct buttons shown/hidden based on `email.primary` and `email.verified` state
-- [ ] Audit and refactor input/form field styling sitewide — global `input` selector in `input.css` broke some fields on `user_account.html`; needs consistent approach across all forms
+- [ ] Audit and refactor input/form field styling sitewide — root cause: bare `input` selector in `input.css` leaks `box-shadow`/`padding`/`display`/`border` through incomplete per-widget class overrides (CSS cascades per-property). Full scope (see `SESSION_DETAILS.md` 2026-07-19, progress in 2026-08-05):
+  - [x] Replace bare `input` selector with opt-in `.form-input`/`.form-checkbox`/`.form-file` classes (`input.css`)
+  - [x] Point `CustomUserChangeForm`/`CustomLoginForm`/`CustomSignupForm` at the new classes (`userProfile/forms.py`)
+  - [x] Custom `AddEmailForm` for `email.html`
+  - [x] Style allauth's unstyled password templates (`password_change`, `password_reset`, `password_reset_from_key`, plus the 2 confirmation pages) — 3 new form subclasses, 5 new templates
+  - [ ] Finish crispy removal (`EventForm`/`CommentForm` + `event_form.html`/`event_detail.html`)
+  - [ ] Drop `crispy_forms`/`crispy_tailwind` dependency (`INSTALLED_APPS`, `requirements.txt`, `input.css` `@source` line)
+  - [ ] Delete dead `login_register.html`
+  - [ ] Full manual browser verification pass — checkbox/file-input visual check, login/signup pages, password flow pages (only smoke-tested so far, not eyeballed)
 - [ ] HTMX auth redirect middleware — `base/middleware.py`
+- [ ] **Bug**: Login is case-sensitive on the email field — found 2026-08-05, not yet triaged (root cause not yet located: could be allauth's `ACCOUNT_*` case-sensitivity settings, or a custom `authenticate()`/manager lookup doing an exact-match query instead of `__iexact`). Needs to be case-insensitive — email-based auth should match regardless of case per RFC 5321 local-part convention most users expect, and to avoid "locked out because I typed a capital letter" support issues.
 
 ### User Profiles (Basic)
 - [ ] Profile page showing basic user info
