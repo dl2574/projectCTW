@@ -10,6 +10,48 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-09-03
+
+### What We Did
+Completed tasks 5-7 of the 8-task input styling refactor: converted `EventForm`/`CommentForm` off crispy, removed the `crispy_forms`/`crispy_tailwind` dependency entirely (settings, requirements, local venv), and deleted the dead `login_register.html`. 73/73 tests passing throughout, verified after every step. Task 8 (manual browser pass) deferred to next session.
+
+### Session Start / Tooling Detour
+Began with the standard session-start review (`project-summary.md`, `SESSION_DETAILS.md`) recapping 2026-08-05's progress. User's neovim wouldn't launch — diagnosed as a `brew upgrade` mid-flight: `tree-sitter` had already been bumped to 0.27.0 and its old 0.26 dylib removed, but `neovim` hadn't been relinked yet (unrelated `aws-sdk-cpp` was still compiling ahead of it in the queue). Recommended waiting rather than interrupting the upgrade; worked directly in-chat instead of nvim for the rest of the session.
+
+### Question Answered: Why Manual Rendering Over crispy-forms (General, for Future Projects)
+User asked for the reasoning behind the project's crispy-forms decision, generalized beyond ProjectCTW, to carry into future projects. Corrected a premise first — crispy does render errors correctly, that was never the issue. Explained the real tradeoff: form libraries are a good default for generic/admin-style forms; manual rendering earns its cost once HTMX/Alpine need specific markup hooks a library's generated HTML fights against, once a real hand-built design system exists that a library's template pack doesn't speak, and while still building the mental model of what `{{ form.field }}`/widget `attrs` actually do.
+
+### Task 5: `EventForm`/`CommentForm` Off crispy
+- Walked user through writing `EventForm.__init__`/`CommentForm.__init__` themselves first (loop-over-fields pattern from `CustomChangePasswordForm`, no checkbox/file branching needed — all fields are plain text/textarea). Correctly identified the pattern; caught and corrected one gap (dropped `Meta` inner class) before implementing.
+- User attempted the `event_form.html` manual markup themselves using `email.html`'s single-field pattern as a base, correctly identified they'd need to wrap fields in a container div for spacing but wasn't sure of the exact structure — pointed to `user_account.html`'s existing `space-y-6` multi-field wrapper as the precedent to adapt.
+- Implemented: `events/forms.py` (`.form-input` loop on both forms), `event_form.html` (3-field manual markup: name/description/location), `event_detail.html` (1-field manual markup: comment). Removed now-dead `{% load tailwind_filters %}` from both templates (only use was the removed `|crispy` filter).
+- Verified `.form-input` is a bare class selector (`static/css/input.css:117`), not scoped to the `input` tag — confirmed it applies correctly to `<textarea>` before relying on it for the two `TextField`s.
+
+### Working-Style Change: Fix Inconsistencies in Place, Don't Defer Them
+While reviewing the converted markup, flagged that `event_form.html`'s submit button still used old bare utility classes (`border rounded-lg py-3 px-5`) instead of the `.btn-primary` component class used everywhere else. User's response: fix it now, not just flag it — explicit stated intent is getting markup/styling fully consistent sitewide as this refactor proceeds, correcting drift wherever it's noticed rather than leaving it as a deferred TODO. Fixed the button (`.btn-primary`, dropped the now-redundant padding utilities since the component class already sets them) and added `mt-6` for spacing since crispy was previously providing that gap implicitly. Saved as an extension to [[feedback_css_styling_directive_mode]] — still explain the reasoning, still ask first if a fix looks like it'd turn into its own mini-redesign, otherwise just fix it.
+
+### Task 6: Remove crispy Dependency
+- Removed `crispy_forms`/`crispy_tailwind` from `INSTALLED_APPS`, both `CRISPY_*` settings, both `requirements.txt` lines, and the `@source` line in `input.css`.
+- **Real bug caught before shipping**: a repo-wide sweep for `tailwind_filters` (the templatetag library crispy-tailwind provides) turned up 3 more live templates with a leftover `{% load tailwind_filters %}` — `user_profile.html`, `user_account.html`, `event_plan.html` — none of which actually used `|crispy` anymore (dead load statements from earlier conversions), but all of which would have raised `TemplateSyntaxError` the moment they rendered, since deregistering the app removes Django's ability to find that tag library. Removed the dead load line from all three before it could break anything.
+- Uninstalled `django-crispy-forms`/`crispy-tailwind` from the local `.venv` too, at user's request, so the environment actually matches `requirements.txt` rather than just the manifest being updated.
+- Verified after every sub-step: `manage.py check` clean, 73/73 tests passing, Tailwind rebuilt with **zero diff in `main.css`** both times — confirms nothing in the app actually depended on crispy's own utility classes, and nothing broke from removing the app registration.
+
+### Task 7: Delete Dead `login_register.html`
+Before deleting, ran a full-repo grep (not scoped to `.py`/`.html`) for any reference to the filename — only hits were in our own session docs (`DEVELOPMENT_ROADMAP.md`, `SESSION_DETAILS.md`), nothing in code, confirming the file was genuinely unrouted and safe to remove per the standing "look at the target before deleting" rule. Deleted; `check` and full suite still clean.
+
+### Small Flagged Finding (Not Chased)
+`input.css`'s now-deleted `@source` line hardcoded a `python3.13` venv path, but the actual local `.venv` runs `python3.12` (and `TECH_STACK.md` claims 3.14.x) — a three-way version mismatch across the project's own docs/config. Moot now that the line is gone, but worth a look at some point to confirm what Python version this project is actually meant to run on locally vs. what's documented.
+
+### Verification
+`manage.py check` and the full test suite (73/73, unchanged) run after every task this session. Tailwind rebuilt after each template/CSS change — no `main.css` diff at any point, meaning every class used in the new manual markup already existed in the compiled output from other pages (consistency, not new surface area).
+
+### Next Session
+- Task 8: full manual browser verification pass — checkboxes, file input, login/signup, the whole password flow (still only smoke-tested), and now the two newly-converted event forms. This closes out the 8-task input styling refactor.
+- Case-sensitive login bug — still not triaged (logged 2026-08-05).
+- Optional loose end: Python version mismatch across `.venv` (3.12) vs `TECH_STACK.md` (3.14.x) — noticed in passing, not investigated.
+
+---
+
 ## Session: 2026-08-05
 
 ### What We Did

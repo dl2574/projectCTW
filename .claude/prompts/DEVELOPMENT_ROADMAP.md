@@ -110,10 +110,10 @@ description: Full phase-by-phase development roadmap for ProjectCTW
   - [x] Point `CustomUserChangeForm`/`CustomLoginForm`/`CustomSignupForm` at the new classes (`userProfile/forms.py`)
   - [x] Custom `AddEmailForm` for `email.html`
   - [x] Style allauth's unstyled password templates (`password_change`, `password_reset`, `password_reset_from_key`, plus the 2 confirmation pages) — 3 new form subclasses, 5 new templates
-  - [ ] Finish crispy removal (`EventForm`/`CommentForm` + `event_form.html`/`event_detail.html`)
-  - [ ] Drop `crispy_forms`/`crispy_tailwind` dependency (`INSTALLED_APPS`, `requirements.txt`, `input.css` `@source` line)
-  - [ ] Delete dead `login_register.html`
-  - [ ] Full manual browser verification pass — checkbox/file-input visual check, login/signup pages, password flow pages (only smoke-tested so far, not eyeballed)
+  - [x] Finish crispy removal (`EventForm`/`CommentForm` + `event_form.html`/`event_detail.html`) — also fixed 3 leftover dead `{% load tailwind_filters %}` lines (`user_profile.html`, `user_account.html`, `event_plan.html`) and a `.btn-primary` consistency fix on `event_form.html`'s submit button
+  - [x] Drop `crispy_forms`/`crispy_tailwind` dependency (`INSTALLED_APPS`, `requirements.txt`, `input.css` `@source` line) — also uninstalled from local `.venv` so it matches `requirements.txt` exactly
+  - [x] Delete dead `login_register.html`
+  - [ ] Full manual browser verification pass — checkbox/file-input visual check, login/signup pages, password flow pages, and the two just-converted event forms (only smoke-tested/test-suite-verified so far, not eyeballed)
 - [ ] HTMX auth redirect middleware — `base/middleware.py`
 - [ ] **Bug**: Login is case-sensitive on the email field — found 2026-08-05, not yet triaged (root cause not yet located: could be allauth's `ACCOUNT_*` case-sensitivity settings, or a custom `authenticate()`/manager lookup doing an exact-match query instead of `__iexact`). Needs to be case-insensitive — email-based auth should match regardless of case per RFC 5321 local-part convention most users expect, and to avoid "locked out because I typed a capital letter" support issues.
 

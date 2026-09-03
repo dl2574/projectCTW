@@ -62,8 +62,6 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     # "allauth.socialaccount",
-    "crispy_forms",
-    "crispy_tailwind",
     "django_browser_reload",
     "anymail",
     "hcaptcha",
@@ -175,8 +173,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Tailwind config
-CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
-CRISPY_TEMPLATE_PACK = "tailwind"
 TAILWIND_INPUT_FILE = os.path.join(STATICFILES_DIRS[0], "css", "input.css")
 TAILWIND_OUTPUT_FILE = os.path.join(STATICFILES_DIRS[0], "css", "main.css")
 
