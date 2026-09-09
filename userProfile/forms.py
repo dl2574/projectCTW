@@ -53,11 +53,11 @@ class CustomUserChangeForm(ModelForm):
         for field in self.fields.values():
             if isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs.update({
-                    "class": "form-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    "class": "form-checkbox h-4 w-4 rounded border-gray-300 accent-teal-600 focus:ring-teal-600"
                 })
             elif isinstance(field.widget, forms.FileInput):
                 field.widget.attrs.update({
-                    "class": "form-file cursor-pointer",
+                    "class": "form-file cursor-pointer text-sm text-gray-600 file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-teal-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-teal-700 hover:file:bg-teal-100",
                 })
             else:
                 field.widget.attrs.update({
@@ -87,7 +87,7 @@ class CustomLoginForm(LoginForm):
             "placeholder": ""
         })
         self.fields["remember"].widget.attrs.update({
-            "class": "form-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+            "class": "form-checkbox h-4 w-4 rounded border-gray-300 accent-teal-600 focus:ring-teal-600"
         })
 
 

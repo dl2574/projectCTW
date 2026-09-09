@@ -35,6 +35,7 @@
     --color-emerald-50: oklch(97.9% 0.021 166.113);
     --color-emerald-600: oklch(59.6% 0.145 163.225);
     --color-teal-50: oklch(98.4% 0.014 180.72);
+    --color-teal-100: oklch(95.3% 0.051 180.801);
     --color-teal-200: oklch(91% 0.096 180.426);
     --color-teal-300: oklch(85.5% 0.138 181.071);
     --color-teal-500: oklch(70.4% 0.14 182.503);
@@ -125,6 +126,7 @@
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
+    --color-primary: #0d9488;
     --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
     --radius-full: 9999px;
   }
@@ -698,9 +700,6 @@
   .list-none {
     list-style-type: none;
   }
-  .appearance-none {
-    appearance: none;
-  }
   .columns-2 {
     columns: 2;
   }
@@ -1241,10 +1240,6 @@
     --tw-leading: calc(var(--spacing) * 9);
     line-height: calc(var(--spacing) * 9);
   }
-  .leading-normal {
-    --tw-leading: var(--leading-normal);
-    line-height: var(--leading-normal);
-  }
   .leading-tight {
     --tw-leading: var(--leading-tight);
     line-height: var(--leading-tight);
@@ -1388,6 +1383,9 @@
   }
   .underline {
     text-decoration-line: underline;
+  }
+  .accent-teal-600 {
+    accent-color: var(--color-teal-600);
   }
   .opacity-0 {
     opacity: 0%;
@@ -1539,6 +1537,59 @@
       @media (hover: hover) {
         color: var(--color-teal-700);
       }
+    }
+  }
+  .file\:mr-4 {
+    &::file-selector-button {
+      margin-right: calc(var(--spacing) * 4);
+    }
+  }
+  .file\:cursor-pointer {
+    &::file-selector-button {
+      cursor: pointer;
+    }
+  }
+  .file\:rounded-lg {
+    &::file-selector-button {
+      border-radius: var(--radius-lg);
+    }
+  }
+  .file\:border-0 {
+    &::file-selector-button {
+      border-style: var(--tw-border-style);
+      border-width: 0px;
+    }
+  }
+  .file\:bg-teal-50 {
+    &::file-selector-button {
+      background-color: var(--color-teal-50);
+    }
+  }
+  .file\:px-4 {
+    &::file-selector-button {
+      padding-inline: calc(var(--spacing) * 4);
+    }
+  }
+  .file\:py-2 {
+    &::file-selector-button {
+      padding-block: calc(var(--spacing) * 2);
+    }
+  }
+  .file\:text-sm {
+    &::file-selector-button {
+      font-size: var(--text-sm);
+      line-height: var(--tw-leading, var(--text-sm--line-height));
+    }
+  }
+  .file\:font-semibold {
+    &::file-selector-button {
+      --tw-font-weight: var(--font-weight-semibold);
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+  .file\:text-teal-700 {
+    &::file-selector-button {
+      color: var(--color-teal-700);
     }
   }
   .odd\:bg-gray-50 {
@@ -1697,6 +1748,15 @@
       }
     }
   }
+  .hover\:file\:bg-teal-100 {
+    &:hover {
+      @media (hover: hover) {
+        &::file-selector-button {
+          background-color: var(--color-teal-100);
+        }
+      }
+    }
+  }
   .focus\:ring-2 {
     &:focus {
       --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
@@ -1711,11 +1771,6 @@
   .focus\:ring-green-600 {
     &:focus {
       --tw-ring-color: var(--color-green-600);
-    }
-  }
-  .focus\:ring-indigo-600 {
-    &:focus {
-      --tw-ring-color: var(--color-indigo-600);
     }
   }
   .focus\:ring-red-600 {
@@ -2218,7 +2273,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .form-input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px inset #4f46e5;
+  box-shadow: 0 0 0 2px inset var(--color-primary);
 }
 @media (prefers-reduced-motion: no-preference) {
   html {

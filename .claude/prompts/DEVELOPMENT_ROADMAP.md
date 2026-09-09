@@ -46,6 +46,12 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] **GeoDjango setup** (prerequisite for geographic filtering, geofencing, proximity discovery) — PostGIS on Railway, local dev setup, migrate location fields. Do as dedicated task before building any location-dependent features.
 - [ ] Event listing page with basic filtering
 
+### Comment System
+- [ ] Restructure `event_detail.html` comment section for scale — flagged 2026-09-09 during the input styling browser pass: form currently sits below the full unordered comment list (`Comment` has no `Meta.ordering`, view does no ordering either — effectively oldest-first), which doesn't scale past a handful of comments
+  - [ ] Move comment form above the list
+  - [ ] Order comments newest-first
+  - [ ] "Load More" pagination, ~50 comments per page (HTMX fits the stack — partial swap appending the next page rather than a full reload)
+
 ### Upvoting System
 - [x] Complete upvote/downvote functionality
 - [x] Visual upvote counter on event cards (HTMX partial updates, no full page reload)
@@ -105,7 +111,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True` — auto-login after confirmation
 - [x] Style allauth email management page (`account/email.html`) — row alignment fixed (list wrapper converted to `grid grid-cols-[1fr_auto_auto]` so column widths are shared across rows); button text wrapping fixed with `white-space: nowrap` on `.btn-sm`
 - [x] Tests for `account/email.html` conditional button logic — verify correct buttons shown/hidden based on `email.primary` and `email.verified` state
-- [ ] Audit and refactor input/form field styling sitewide — root cause: bare `input` selector in `input.css` leaks `box-shadow`/`padding`/`display`/`border` through incomplete per-widget class overrides (CSS cascades per-property). Full scope (see `SESSION_DETAILS.md` 2026-07-19, progress in 2026-08-05):
+- [x] Audit and refactor input/form field styling sitewide — root cause: bare `input` selector in `input.css` leaks `box-shadow`/`padding`/`display`/`border` through incomplete per-widget class overrides (CSS cascades per-property). Full scope (see `SESSION_DETAILS.md` 2026-07-19, progress in 2026-08-05, closed out 2026-09-09):
   - [x] Replace bare `input` selector with opt-in `.form-input`/`.form-checkbox`/`.form-file` classes (`input.css`)
   - [x] Point `CustomUserChangeForm`/`CustomLoginForm`/`CustomSignupForm` at the new classes (`userProfile/forms.py`)
   - [x] Custom `AddEmailForm` for `email.html`
@@ -113,7 +119,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
   - [x] Finish crispy removal (`EventForm`/`CommentForm` + `event_form.html`/`event_detail.html`) — also fixed 3 leftover dead `{% load tailwind_filters %}` lines (`user_profile.html`, `user_account.html`, `event_plan.html`) and a `.btn-primary` consistency fix on `event_form.html`'s submit button
   - [x] Drop `crispy_forms`/`crispy_tailwind` dependency (`INSTALLED_APPS`, `requirements.txt`, `input.css` `@source` line) — also uninstalled from local `.venv` so it matches `requirements.txt` exactly
   - [x] Delete dead `login_register.html`
-  - [ ] Full manual browser verification pass — checkbox/file-input visual check, login/signup pages, password flow pages, and the two just-converted event forms (only smoke-tested/test-suite-verified so far, not eyeballed)
+  - [x] Full manual browser verification pass (2026-09-09) — found and fixed 3 real theme bugs surfaced by the pass, not just visual confirmation: checkboxes (`text-indigo-600` was dead code with no `@tailwindcss/forms` plugin installed; fixed to `accent-teal-600`), text-input focus ring (hardcoded indigo hex `#4f46e5` → `var(--color-primary)`), file input (had zero button styling beyond `cursor-pointer`; added `file:` variant classes for a teal, clearly-interactive button). Login/signup, password flow (incl. `token_fail` branch), and the event/comment forms all confirmed good as-is. 73/73 tests passing throughout.
 - [ ] HTMX auth redirect middleware — `base/middleware.py`
 - [ ] **Bug**: Login is case-sensitive on the email field — found 2026-08-05, not yet triaged (root cause not yet located: could be allauth's `ACCOUNT_*` case-sensitivity settings, or a custom `authenticate()`/manager lookup doing an exact-match query instead of `__iexact`). Needs to be case-insensitive — email-based auth should match regardless of case per RFC 5321 local-part convention most users expect, and to avoid "locked out because I typed a capital letter" support issues.
 

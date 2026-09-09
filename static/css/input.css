@@ -131,7 +131,7 @@ h6 {
 
 .form-input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px inset #4f46e5;
+  box-shadow: 0 0 0 2px inset var(--color-primary);
 }
 
 /* .form-checkbox and .form-file intentionally have no rules here. Checkboxes
