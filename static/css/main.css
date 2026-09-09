@@ -1773,6 +1773,11 @@
       --tw-ring-color: var(--color-green-600);
     }
   }
+  .focus\:ring-indigo-600 {
+    &:focus {
+      --tw-ring-color: var(--color-indigo-600);
+    }
+  }
   .focus\:ring-red-600 {
     &:focus {
       --tw-ring-color: var(--color-red-600);

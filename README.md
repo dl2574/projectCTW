@@ -67,6 +67,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ Email management page (`account/email.html`) — per-row layout with conditional actions, grid-based row alignment, button text wrapping fixed, conditional button logic tested
 - ✅ Styled password change/reset flow (allauth's `password_change`, `password_reset`, `password_reset_from_key` + confirmation pages) — previously unstyled
 - ✅ `EventForm`/`CommentForm` migrated off `django-crispy-forms` to manual field rendering — matches sitewide form-styling convention; `crispy_forms`/`crispy_tailwind` dependency fully removed from the project (settings, requirements, venv)
+- ✅ Sitewide input styling refactor complete — opt-in `.form-input`/`.form-checkbox`/`.form-file` classes replace a bare `input` selector that leaked text-field styling onto checkboxes/file inputs; manual browser verification pass caught and fixed 3 theme-color bugs (checkbox fill, focus ring, file input button) left over from ungrouped Tailwind defaults
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
 - ✅ Email notifications on status transition (wired to transition_to_planning())
 
