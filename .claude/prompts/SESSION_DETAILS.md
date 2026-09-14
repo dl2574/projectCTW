@@ -10,6 +10,57 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-09-14
+
+### What We Did
+Fixed the case-sensitive login bug (logged 2026-08-05, top of Next Priorities). Session opened with a "refresh yourself" catch-up (no formal protocol requested), user picked the login bug, and what looked like a one-line config fix turned into a real root-cause investigation, a scope decision, and a test-writing session with two real debugging detours. 74/74 tests passing, one new permanent regression test.
+
+### Investigation: Why Login Was Case-Sensitive
+Initial source-reading pass (Django's `ModelBackend.get_by_natural_key` exact match, allauth's `filter_users_by_email` exact-match-before-case-insensitive-compare) suggested the bug was upstream in email normalization at signup — no adapter override, `save_user()`/`new_user()` set `User.email` verbatim. User pushed back with a real data point: they'd read that allauth auto-lowercases emails since some version, and their own DB showed lowercase emails already. That correction was the right instinct — it just pointed at the wrong layer.
+
+Reproduced empirically instead of continuing to theorize (throwaway `TestCase`, written/run/deleted, matching established session practice): built a test account exactly like production would (mixed-case `User.email`, lowercase verified `EmailAddress` — confirmed via `managers.py`/`models.py` that allauth *does* always lowercase `EmailAddress`, just not the project's own `User.email` field) and called `authenticate()`/the real login view directly. Result: **every case variant failed, including exact lowercase** — proving the bug wasn't in the case-comparison logic at all.
+
+**Actual root cause**: `settings.py` had `ACCOUNT_LOGIN_METHODS = {'email'}` — a setting name that doesn't exist anywhere in the installed `django-allauth==0.63.2` (confirmed via full-package grep, zero hits). It's from a materially later release; the package's versioning jumped from the `0.x` scheme straight to `64.x`/`65.x` at some point, and `ACCOUNT_LOGIN_METHODS` replacing the legacy `ACCOUNT_AUTHENTICATION_METHOD` setting landed somewhere in that gap. Django/allauth don't error on an unrecognized `ACCOUNT_*` setting — it's silently ignored. That left allauth's internal `AUTHENTICATION_METHOD` defaulted to `"username"`, meaning allauth's own email-based backend (`AuthenticationBackend._authenticate_by_email`, which *does* correctly do case-insensitive lookup via the always-lowercase `EmailAddress` table) never actually ran. The only backend that ever succeeded was plain Django `ModelBackend`, via an **exact-match** query against the custom `User.email` field — which is why it looked like "must be lowercase": stored `User.email` values happened to already be lowercase for this user's real accounts, not because anything enforced it.
+
+### Scope Decision: Minimal Fix Now, Upgrade Later
+Presented two options rather than picking one: (1) switch to the setting name 0.63.2 actually reads (`ACCOUNT_AUTHENTICATION_METHOD = "email"`) — one-line fix, and (2) upgrade `django-allauth` to current (`65.19.3`) so the setting the user originally wrote becomes correct. Flagged #2 as scope creep for a "shouldn't be too bad" bug fix — real work (changelog review across a huge version range, re-verifying the whole auth flow, checking for other silently-drifted settings). User agreed to #1 now, explicitly wants the upgrade eventually for security/bugfix reasons (auth is a priority surface for them). Logged as [[project_allauth_upgrade]] and a new roadmap item under Phase 7 Security Hardening.
+
+### Fix Applied
+`projectCTW/settings.py`: commented out `ACCOUNT_LOGIN_METHODS = {'email'}`, added `ACCOUNT_AUTHENTICATION_METHOD = "email"`. Confirmed only reference to the old setting name anywhere in project code (not just settings.py) before touching it.
+
+### Test Written: `LoginpageTests.test_login_with_mismatched_case_email`
+User designed the test themselves through guided questions rather than being handed it — landed on: test through the real `/accounts/login/` view (not calling `authenticate()` directly), input case must differ from stored case (not just test lowercase), immutable `setUpTestData` fixture, assert on response code. Taught the `user.backend` attribute Django sets on successful auth as a way to prove *which* backend succeeded, then walked through why it's actually redundant here — if the fixture's stored casing and the login attempt's casing are made to genuinely differ, `ModelBackend`'s exact match necessarily fails on its own, so a pass can only come from the intended allauth backend. Good design instead of a second assertion.
+
+Two real debugging detours while writing it (both real mistakes, not scripted):
+1. **Wrong password value**: `"password": self.user.password` — submitted the *hashed* password (what `create_user()` actually stores) instead of the plaintext. Caught via guided question rather than being told directly; fixed by keeping the plaintext as its own `cls.password` value in `setUpTestData` instead of retyping the literal in two places.
+2. **Unrealistic fixture**: even after the password fix, still got `200` (form validation failure, not the settings bug reappearing). Root-caused via a second throwaway diagnostic test (direct `filter_users_by_email()` call returned `[]`) — the `EmailAddress` fixture copied `cls.user.email` verbatim instead of lowering it, so it didn't reflect what a real signup guarantees (allauth's manager always lowercases `EmailAddress.email`, confirmed earlier in the session). Fixed to `email=cls.user.email.lower()`. Logged as a new entry in [[testing_gotchas]] since this is a reusable pitfall for any future test involving `EmailAddress` fixtures built by hand.
+
+### Verification
+Full suite run after the settings fix and after the test was finalized: 74/74 passing (up from 73). Two scratch diagnostic test files written to `userProfile/tests/` during investigation, both deleted before wrap-up — never proposed as permanent coverage, matching established practice.
+
+### Session Wrap-Up
+Updated `DEVELOPMENT_ROADMAP.md` (login bug marked `[x]` with root cause/fix summary, new allauth-upgrade item under Phase 7 Security Hardening, `Last Updated` bumped), `README.md` (new feature bullet, test count 73→74), `.claude/CLAUDE.md` (test count 73→74), this file, and `MEMORY.md`/new memory file [[project_allauth_upgrade]] plus a [[testing_gotchas]] addition. Staged, not committed.
+
+### Second Finding: Hardcoded `SECRET_KEY` Fallback (Found While Verifying the First Fix)
+While confirming `.env` had never been committed (checking the user's recollection about an old Django key possibly being pushed early on — it hadn't; every historical `settings.py` version used `env.str`/`os.getenv`, never a literal), the search surfaced something live rather than historical: `SECRET_KEY`'s `env.str(..., default="v4+fj7#z)uc77az8)c24u52(a=q8p9faz(bskhen=w9a=+q60-")` — a fixed, working Django secret key sitting in plaintext in the public repo. Explained the risk (OWASP A05 Security Misconfiguration): `SECRET_KEY` signs sessions, CSRF tokens, and password-reset tokens; a missing env var anywhere (bad local setup, misconfigured deployment, a fork) would silently fall back to this exact known-public value instead of failing loudly.
+
+User explained the reasoning behind the original design: the custom `resetsecret` management command needs `SECRET_KEY` to already resolve to *something*, because `manage.py` loads `settings.py` for any command — without a fallback, a fresh clone with no `.env` couldn't even run `resetsecret` to bootstrap one. Legitimate constraint, not an oversight.
+
+Fix: pointed to `django.core.management.utils.get_random_secret_key()` (the same generator Django's own `startproject` uses) as the `default=` instead of the fixed string — keeps the bootstrap capability (`resetsecret` still runs on a fresh clone) but makes the fallback a fresh random value per process start instead of one public string forever. Side benefit flagged: a real deployment that's silently missing the env var now fails *loudly* (constant session/CSRF churn) instead of silently working on a known-compromised key. User made the edit themselves (import + `default=get_random_secret_key()`), verified with `manage.py check` and the full suite — both clean, 74/74.
+
+### Verification (Both Fixes)
+`manage.py check` clean and full suite green (74/74) after each fix, re-confirmed once more before commit.
+
+### Session Wrap-Up
+Updated `DEVELOPMENT_ROADMAP.md`, `README.md`, `.claude/CLAUDE.md`, this file, and `MEMORY.md` for the login fix; this entry covers the `SECRET_KEY` fix added after the first wrap-up pass. User asked me to make the commit directly this session (stepping away, explicitly requested — not a standing change to the "user commits himself" preference) with a written explanation of the message's reasoning to read on return.
+
+### Next Session
+- The allauth upgrade itself — not started, scoped as its own session per [[project_allauth_upgrade]].
+- Event Planning UI (`DEVELOPMENT_ROADMAP.md` → Phase 1 → Event Planning Features) — still unbuilt.
+- Comment section restructuring (newest-first, form-on-top, HTMX "Load More") — still logged, not started.
+
+---
+
 ## Session: 2026-09-09
 
 ### What We Did

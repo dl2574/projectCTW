@@ -25,6 +25,23 @@ class RegisterpageTests(TestCase):
 
 
 class LoginpageTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.password = "testpass123"
+        cls.user = get_user_model().objects.create_user(
+            username="testuser",
+            email="TestUser@email.com",
+            password=cls.password,
+            first_name="Lord",
+            last_name="Fly",
+        )
+        cls.primary_email = EmailAddress.objects.create(
+            user=cls.user,
+            email=cls.user.email.lower(),
+            primary=True,
+            verified=True,
+        )
+
     def test_url_exists_at_correct_location(self):
         response = self.client.get("/accounts/login/")
         self.assertEqual(response.status_code, 200)
@@ -41,6 +58,17 @@ class LoginpageTests(TestCase):
         response = self.client.get(reverse("account_login"))
         self.assertContains(response, "Welcome back")
         self.assertContains(response, "Sign in")
+
+    def test_login_with_mismatched_case_email(self):
+        response = self.client.post(
+            reverse("account_login"),
+            {
+                "login": "tESTuSER@email.com",
+                "password": self.password,
+            },
+            follow=False,
+        )
+        self.assertEqual(response.status_code, 302)
 
 
 class EmailTemplateLogicTests(TestCase):

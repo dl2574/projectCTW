@@ -70,6 +70,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ Sitewide input styling refactor complete — opt-in `.form-input`/`.form-checkbox`/`.form-file` classes replace a bare `input` selector that leaked text-field styling onto checkboxes/file inputs; manual browser verification pass caught and fixed 3 theme-color bugs (checkbox fill, focus ring, file input button) left over from ungrouped Tailwind defaults
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
 - ✅ Email notifications on status transition (wired to transition_to_planning())
+- ✅ Case-insensitive email login — fixed a silently-ignored allauth setting that was defeating email-based authentication's built-in case-insensitivity
 
 ### Planned Features
 
@@ -309,7 +310,7 @@ We welcome contributions! ProjectCTW is working towards becoming an open source 
 
 ### Areas Where We Need Help
 
-- Expanding test coverage (we have 73 tests; target is 80%+ coverage)
+- Expanding test coverage (we have 74 tests; target is 80%+ coverage)
 - Frontend improvements and mobile responsiveness
 - Event planning UI (date voting, supply list, attendance)
 - Security review and hardening

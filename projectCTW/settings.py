@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 from environs import Env
 import os
+from django.core.management.utils import get_random_secret_key
 
 env = Env()
 env.read_env()
@@ -29,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # When setting up this project, ensure to create a .env file and run
 # "python manage.py resetsecret" to generate a new safe key.
 SECRET_KEY = env.str(
-    "SECRET_KEY", default="v4+fj7#z)uc77az8)c24u52(a=q8p9faz(bskhen=w9a=+q60-")
+    "SECRET_KEY", default=get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
@@ -207,7 +208,9 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 # New django-allauth configuration format (replaces deprecated settings)
-ACCOUNT_LOGIN_METHODS = {'email'}  # Login via email only
+# ACCOUNT_LOGIN_METHODS = {'email'}  # Login via email only
+# This is a setting for a later version
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 # Email and single password (* = required)
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_UNIQUE_EMAIL = True

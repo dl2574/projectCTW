@@ -8,7 +8,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 
 # ProjectCTW Development Roadmap
 
-**Last Updated**: 2026-07-19
+**Last Updated**: 2026-09-14
 **Vision**: A platform enabling community members to propose, plan, and execute volunteer projects while building a verified volunteer resume.
 
 ---
@@ -121,7 +121,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
   - [x] Delete dead `login_register.html`
   - [x] Full manual browser verification pass (2026-09-09) — found and fixed 3 real theme bugs surfaced by the pass, not just visual confirmation: checkboxes (`text-indigo-600` was dead code with no `@tailwindcss/forms` plugin installed; fixed to `accent-teal-600`), text-input focus ring (hardcoded indigo hex `#4f46e5` → `var(--color-primary)`), file input (had zero button styling beyond `cursor-pointer`; added `file:` variant classes for a teal, clearly-interactive button). Login/signup, password flow (incl. `token_fail` branch), and the event/comment forms all confirmed good as-is. 73/73 tests passing throughout.
 - [ ] HTMX auth redirect middleware — `base/middleware.py`
-- [ ] **Bug**: Login is case-sensitive on the email field — found 2026-08-05, not yet triaged (root cause not yet located: could be allauth's `ACCOUNT_*` case-sensitivity settings, or a custom `authenticate()`/manager lookup doing an exact-match query instead of `__iexact`). Needs to be case-insensitive — email-based auth should match regardless of case per RFC 5321 local-part convention most users expect, and to avoid "locked out because I typed a capital letter" support issues.
+- [x] **Bug**: Login is case-sensitive on the email field — found 2026-08-05, fixed 2026-09-14. Root cause: `ACCOUNT_LOGIN_METHODS = {'email'}` is a setting name that doesn't exist in the pinned `django-allauth==0.63.2` (introduced in a later release), so it was silently ignored and allauth's own case-insensitive email backend never ran — login only "worked" via Django's `ModelBackend` exact-match fallback, hence lowercase-only. Fixed by switching to the setting name 0.63.2 actually reads: `ACCOUNT_AUTHENTICATION_METHOD = "email"`. Regression test: `LoginpageTests.test_login_with_mismatched_case_email`. Full detail in [[project_allauth_upgrade]].
 
 ### User Profiles (Basic)
 - [ ] Profile page showing basic user info
@@ -545,6 +545,8 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Load testing and benchmarking
 
 ### Security Hardening
+- [x] **Fixed hardcoded `SECRET_KEY` fallback** — `settings.py`'s `env.str("SECRET_KEY", default=...)` had a fixed, working key string committed in plaintext (public repo), needed so `resetsecret` could bootstrap on a fresh clone with no `.env`. Found 2026-09-14 while verifying `.env` had never been committed. Fixed to `default=get_random_secret_key()` (Django's own generator) — same bootstrap capability, but a fresh random value per process start instead of one public string forever; a deployment silently missing the env var now fails loudly instead of silently running on a known key.
+- [ ] **Upgrade `django-allauth`** — currently pinned at `0.63.2`, latest is `65.19.3` (versioning scheme changed around the `64.x` jump, so this spans real breaking changes, not a patch bump). Flagged 2026-09-14 after the case-sensitive-login bug traced back to a setting name (`ACCOUNT_LOGIN_METHODS`) that doesn't exist in the installed version and was silently ignored — auth is security-critical, staying this far behind risks missing real bugfixes/security patches and more silent setting-drift bugs like this one. Scope: review changelog/upgrade notes across the version range, diff every `ACCOUNT_*`/`SOCIALACCOUNT_*` setting against the target version, re-verify the whole auth flow. Deliberately deferred as its own session — see [[project_allauth_upgrade]].
 - [ ] Security audit/penetration testing
 - [ ] OWASP Top 10 review
 - [ ] Rate limiting on forms and APIs
