@@ -1,5 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth import get_user_model
+
+from allauth.account.models import EmailAddress
 
 
 class RegisterpageTests(TestCase):
@@ -22,6 +25,23 @@ class RegisterpageTests(TestCase):
 
 
 class LoginpageTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.password = "testpass123"
+        cls.user = get_user_model().objects.create_user(
+            username="testuser",
+            email="TestUser@email.com",
+            password=cls.password,
+            first_name="Lord",
+            last_name="Fly",
+        )
+        cls.primary_email = EmailAddress.objects.create(
+            user=cls.user,
+            email=cls.user.email.lower(),
+            primary=True,
+            verified=True,
+        )
+
     def test_url_exists_at_correct_location(self):
         response = self.client.get("/accounts/login/")
         self.assertEqual(response.status_code, 200)
@@ -38,3 +58,64 @@ class LoginpageTests(TestCase):
         response = self.client.get(reverse("account_login"))
         self.assertContains(response, "Welcome back")
         self.assertContains(response, "Sign in")
+
+    def test_login_with_mismatched_case_email(self):
+        response = self.client.post(
+            reverse("account_login"),
+            {
+                "login": "tESTuSER@email.com",
+                "password": self.password,
+            },
+            follow=False,
+        )
+        self.assertEqual(response.status_code, 302)
+
+
+class EmailTemplateLogicTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            username="testuser",
+            email="testuser@email.com",
+            password="testpass123",
+            first_name="Jane",
+            last_name="Doe",
+        )
+        cls.primary_email = EmailAddress.objects.create(
+            user=cls.user,
+            email=cls.user.email,
+            primary=True,
+            verified=True,
+        )
+
+    def setUp(self):
+        self.email = EmailAddress.objects.create(
+            user=self.user,
+            email="test@test.com",
+            primary=False,
+            verified=False,
+        )
+
+    def test_email_verified_not_primary(self):
+        self.email.verified = True
+        self.email.save()
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("account_email"))
+        self.assertContains(response, "action_primary")
+        self.assertContains(response, "action_remove")
+        self.assertNotContains(response, "action_send")
+
+    def test_email_primary_and_verified(self):
+        self.email.delete()
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("account_email"))
+        self.assertNotContains(response, "action_primary")
+        self.assertNotContains(response, "action_remove")
+        self.assertNotContains(response, "action_send")
+
+    def test_email_unverified_not_primary(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("account_email"))
+        self.assertContains(response, "action_send")
+        self.assertContains(response, "action_remove")
+        self.assertNotContains(response, "action_primary")

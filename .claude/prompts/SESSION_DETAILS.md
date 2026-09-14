@@ -10,6 +10,508 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-09-14
+
+### What We Did
+Fixed the case-sensitive login bug (logged 2026-08-05, top of Next Priorities). Session opened with a "refresh yourself" catch-up (no formal protocol requested), user picked the login bug, and what looked like a one-line config fix turned into a real root-cause investigation, a scope decision, and a test-writing session with two real debugging detours. 74/74 tests passing, one new permanent regression test.
+
+### Investigation: Why Login Was Case-Sensitive
+Initial source-reading pass (Django's `ModelBackend.get_by_natural_key` exact match, allauth's `filter_users_by_email` exact-match-before-case-insensitive-compare) suggested the bug was upstream in email normalization at signup — no adapter override, `save_user()`/`new_user()` set `User.email` verbatim. User pushed back with a real data point: they'd read that allauth auto-lowercases emails since some version, and their own DB showed lowercase emails already. That correction was the right instinct — it just pointed at the wrong layer.
+
+Reproduced empirically instead of continuing to theorize (throwaway `TestCase`, written/run/deleted, matching established session practice): built a test account exactly like production would (mixed-case `User.email`, lowercase verified `EmailAddress` — confirmed via `managers.py`/`models.py` that allauth *does* always lowercase `EmailAddress`, just not the project's own `User.email` field) and called `authenticate()`/the real login view directly. Result: **every case variant failed, including exact lowercase** — proving the bug wasn't in the case-comparison logic at all.
+
+**Actual root cause**: `settings.py` had `ACCOUNT_LOGIN_METHODS = {'email'}` — a setting name that doesn't exist anywhere in the installed `django-allauth==0.63.2` (confirmed via full-package grep, zero hits). It's from a materially later release; the package's versioning jumped from the `0.x` scheme straight to `64.x`/`65.x` at some point, and `ACCOUNT_LOGIN_METHODS` replacing the legacy `ACCOUNT_AUTHENTICATION_METHOD` setting landed somewhere in that gap. Django/allauth don't error on an unrecognized `ACCOUNT_*` setting — it's silently ignored. That left allauth's internal `AUTHENTICATION_METHOD` defaulted to `"username"`, meaning allauth's own email-based backend (`AuthenticationBackend._authenticate_by_email`, which *does* correctly do case-insensitive lookup via the always-lowercase `EmailAddress` table) never actually ran. The only backend that ever succeeded was plain Django `ModelBackend`, via an **exact-match** query against the custom `User.email` field — which is why it looked like "must be lowercase": stored `User.email` values happened to already be lowercase for this user's real accounts, not because anything enforced it.
+
+### Scope Decision: Minimal Fix Now, Upgrade Later
+Presented two options rather than picking one: (1) switch to the setting name 0.63.2 actually reads (`ACCOUNT_AUTHENTICATION_METHOD = "email"`) — one-line fix, and (2) upgrade `django-allauth` to current (`65.19.3`) so the setting the user originally wrote becomes correct. Flagged #2 as scope creep for a "shouldn't be too bad" bug fix — real work (changelog review across a huge version range, re-verifying the whole auth flow, checking for other silently-drifted settings). User agreed to #1 now, explicitly wants the upgrade eventually for security/bugfix reasons (auth is a priority surface for them). Logged as [[project_allauth_upgrade]] and a new roadmap item under Phase 7 Security Hardening.
+
+### Fix Applied
+`projectCTW/settings.py`: commented out `ACCOUNT_LOGIN_METHODS = {'email'}`, added `ACCOUNT_AUTHENTICATION_METHOD = "email"`. Confirmed only reference to the old setting name anywhere in project code (not just settings.py) before touching it.
+
+### Test Written: `LoginpageTests.test_login_with_mismatched_case_email`
+User designed the test themselves through guided questions rather than being handed it — landed on: test through the real `/accounts/login/` view (not calling `authenticate()` directly), input case must differ from stored case (not just test lowercase), immutable `setUpTestData` fixture, assert on response code. Taught the `user.backend` attribute Django sets on successful auth as a way to prove *which* backend succeeded, then walked through why it's actually redundant here — if the fixture's stored casing and the login attempt's casing are made to genuinely differ, `ModelBackend`'s exact match necessarily fails on its own, so a pass can only come from the intended allauth backend. Good design instead of a second assertion.
+
+Two real debugging detours while writing it (both real mistakes, not scripted):
+1. **Wrong password value**: `"password": self.user.password` — submitted the *hashed* password (what `create_user()` actually stores) instead of the plaintext. Caught via guided question rather than being told directly; fixed by keeping the plaintext as its own `cls.password` value in `setUpTestData` instead of retyping the literal in two places.
+2. **Unrealistic fixture**: even after the password fix, still got `200` (form validation failure, not the settings bug reappearing). Root-caused via a second throwaway diagnostic test (direct `filter_users_by_email()` call returned `[]`) — the `EmailAddress` fixture copied `cls.user.email` verbatim instead of lowering it, so it didn't reflect what a real signup guarantees (allauth's manager always lowercases `EmailAddress.email`, confirmed earlier in the session). Fixed to `email=cls.user.email.lower()`. Logged as a new entry in [[testing_gotchas]] since this is a reusable pitfall for any future test involving `EmailAddress` fixtures built by hand.
+
+### Verification
+Full suite run after the settings fix and after the test was finalized: 74/74 passing (up from 73). Two scratch diagnostic test files written to `userProfile/tests/` during investigation, both deleted before wrap-up — never proposed as permanent coverage, matching established practice.
+
+### Session Wrap-Up
+Updated `DEVELOPMENT_ROADMAP.md` (login bug marked `[x]` with root cause/fix summary, new allauth-upgrade item under Phase 7 Security Hardening, `Last Updated` bumped), `README.md` (new feature bullet, test count 73→74), `.claude/CLAUDE.md` (test count 73→74), this file, and `MEMORY.md`/new memory file [[project_allauth_upgrade]] plus a [[testing_gotchas]] addition. Staged, not committed.
+
+### Second Finding: Hardcoded `SECRET_KEY` Fallback (Found While Verifying the First Fix)
+While confirming `.env` had never been committed (checking the user's recollection about an old Django key possibly being pushed early on — it hadn't; every historical `settings.py` version used `env.str`/`os.getenv`, never a literal), the search surfaced something live rather than historical: `SECRET_KEY`'s `env.str(..., default="v4+fj7#z)uc77az8)c24u52(a=q8p9faz(bskhen=w9a=+q60-")` — a fixed, working Django secret key sitting in plaintext in the public repo. Explained the risk (OWASP A05 Security Misconfiguration): `SECRET_KEY` signs sessions, CSRF tokens, and password-reset tokens; a missing env var anywhere (bad local setup, misconfigured deployment, a fork) would silently fall back to this exact known-public value instead of failing loudly.
+
+User explained the reasoning behind the original design: the custom `resetsecret` management command needs `SECRET_KEY` to already resolve to *something*, because `manage.py` loads `settings.py` for any command — without a fallback, a fresh clone with no `.env` couldn't even run `resetsecret` to bootstrap one. Legitimate constraint, not an oversight.
+
+Fix: pointed to `django.core.management.utils.get_random_secret_key()` (the same generator Django's own `startproject` uses) as the `default=` instead of the fixed string — keeps the bootstrap capability (`resetsecret` still runs on a fresh clone) but makes the fallback a fresh random value per process start instead of one public string forever. Side benefit flagged: a real deployment that's silently missing the env var now fails *loudly* (constant session/CSRF churn) instead of silently working on a known-compromised key. User made the edit themselves (import + `default=get_random_secret_key()`), verified with `manage.py check` and the full suite — both clean, 74/74.
+
+### Verification (Both Fixes)
+`manage.py check` clean and full suite green (74/74) after each fix, re-confirmed once more before commit.
+
+### Session Wrap-Up
+Updated `DEVELOPMENT_ROADMAP.md`, `README.md`, `.claude/CLAUDE.md`, this file, and `MEMORY.md` for the login fix; this entry covers the `SECRET_KEY` fix added after the first wrap-up pass. User asked me to make the commit directly this session (stepping away, explicitly requested — not a standing change to the "user commits himself" preference) with a written explanation of the message's reasoning to read on return.
+
+### Next Session
+- The allauth upgrade itself — not started, scoped as its own session per [[project_allauth_upgrade]].
+- Event Planning UI (`DEVELOPMENT_ROADMAP.md` → Phase 1 → Event Planning Features) — still unbuilt.
+- Comment section restructuring (newest-first, form-on-top, HTMX "Load More") — still logged, not started.
+
+---
+
+## Session: 2026-09-09
+
+### What We Did
+Session opened with the user asking to just review files and get spun up rather than the full formal session-start protocol — recapped status from `MEMORY.md`/`SESSION_DETAILS.md`/`DEVELOPMENT_ROADMAP.md` and confirmed 73/73 tests passing, clean working tree. User picked up straight where 2026-09-03 left off: **task 8, the final task of the 8-task input styling refactor** — a full manual browser verification pass. Completed it, found and fixed 3 real bugs along the way (not just visual confirmation), had a design discussion about the comment section's scalability (logged, not built), and closed with dedicated commit-message coaching plus a heredoc explainer. Refactor is now fully closed out and committed (`60e1737`).
+
+### Task 8: Manual Browser Verification Pass — Complete
+Started dev server/Tailwind watcher check (user already had both running locally) and worked through the full checklist from `DEVELOPMENT_ROADMAP.md`/2026-07-19's scoping: checkboxes, file input, login/signup, password flow (5 pages incl. `token_fail`), event/comment forms. All confirmed visually correct by the user except 3 findings below — all fixed, all re-verified, 73/73 tests passing after each fix.
+
+**Bug 1 — Checkboxes wrong color**: User reported native browser blue instead of theme color. Root cause traced (not guessed): `text-indigo-600` in `userProfile/forms.py` was **dead code** — this project has no `@tailwindcss/forms` plugin installed (confirmed via `tailwind.config.js` and `input.css`), so a bare `text-*` utility never maps to `accent-color` on a checkbox; what was rendering was pure browser default. Fixed both occurrences (`CustomUserChangeForm`, `CustomLoginForm`'s `remember` field) to `accent-teal-600` — `accent-*` is a core Tailwind utility (since 3.4) that actually sets `accent-color`, no plugin needed. Also swapped `focus:ring-indigo-600` → `focus:ring-teal-600` in the same edit for theme consistency.
+
+**Bug 2 — Text input focus ring wrong color**: Same species of bug — `.form-input:focus` in `input.css` had a hardcoded `box-shadow: ... inset #4f46e5` (indigo-600 hex). Changed to `var(--color-primary)`, pointing at the theme token already defined at the top of the file instead of a second hardcoded value that can drift out of sync.
+
+**Bug 3 — File input had no interactive affordance**: User reported the profile picture upload looked like plain text, nothing indicating it was clickable. `.form-file` deliberately carries zero CSS (native-widget philosophy from the refactor's root design), and `forms.py` was only giving it `cursor-pointer` — no styling of the actual `::file-selector-button` pseudo-element Tailwind exposes via the `file:` variant. Added `file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-teal-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-teal-700 hover:file:bg-teal-100` — themed, clearly-interactive button.
+
+All 3 follow the same pattern flagged as a small/CSS-property-level decision — explained the root cause, then fixed directly per the standing [[feedback_css_styling_directive_mode]] convention, no back-and-forth needed.
+
+### Question Answered: Why Doesn't the File Input Show the Current Filename?
+User asked whether the file input should reference the user's existing `profile_picture` to show the current filename instead of "No file chosen." Explained this isn't achievable at all, regardless of styling: browsers deliberately block any script/server from pre-populating `<input type="file">`'s displayed selection — a security restriction preventing a page from spoofing a pre-selected file to trick a user into submitting something they didn't choose. Correct pattern is a separate preview element, not the input itself — and `user_account.html` already has one (`user_card` partial, 64px thumbnail in the header) plus the navbar's sticky avatar. User confirmed that's sufficient; no template change made.
+
+### Design Discussion: Comment Section Doesn't Scale (Logged, Not Built)
+User flagged that the comment section (form pinned below the full comment list, no ordering) would get unruly with hundreds of comments in a live environment. Confirmed in code: `Comment` has no `Meta.ordering`, and the view (`event.comment_set.all()`) doesn't order it either — effectively oldest-first by insertion. User's proposed direction: move the form above the list, order newest-first, add a "Load More" cutoff around ~50 comments per page. Agreed this is real but out of scope for today's verification pass — added a new `### Comment System` section to `DEVELOPMENT_ROADMAP.md` (Phase 1) capturing the finding and the proposed approach. Not built this session.
+
+### Commit Message Coaching
+Per [[feedback_commit_messages]] (user wants dedicated practice, not messages written for them), walked through 2 draft iterations before the user's final version:
+- **Draft 1** ("Refactor site styling... remove crispy tailwind...") — flagged as describing the *whole multi-session refactor's mission*, not this specific diff. Crispy removal and any HTML template changes were already committed in a prior commit (`8f74b4a`); this diff touches only `forms.py`/`input.css`/the roadmap doc. Core lesson: commit messages should describe the diff being committed, not restate project-level narrative.
+- **Draft 2** ("Perform UI/UX verification... two site wide style issues... improve design of profile picture input") — flagged for undercounting (3 bugs, one root cause, not "2 bugs + 1 UX improvement" — the file input fix is the same category as the other two, not a separate enhancement), imprecise location ("old template code" when the actual files are Python/CSS, no templates touched), and exceeding the project's own `CONTRIBUTING.md` 50-char subject convention (52 chars).
+- User asked for a drafted example directly at that point rather than a third coaching round — provided one (subject 40 chars, why-then-what structure, root cause explained per bullet, roadmap addition kept in its own paragraph since it's a different kind of change). User adapted it and committed as `60e1737a`.
+- Two minor typos survived into the final committed message ("Tialwind", "given no visual sin") — flagged, not amended (user's call, already local-only).
+
+### Question Answered: Heredoc Syntax (Docketed Item from Memory Next-Priorities)
+Explained heredocs generally (`<<'EOF' ... EOF>`, delimiter is just a token, quoting the delimiter disables shell variable/backtick expansion inside the block) and the specific `git commit -m "$(cat <<'EOF' ... EOF)"` pattern for multi-paragraph messages from a single command. Noted this is mainly useful for scripts/tools with no interactive editor (how I have to do it) — for the user typing at a terminal, plain `git commit` with no `-m` opens `$EDITOR` (nvim) for a natural multi-line write, no heredoc needed.
+
+### Verification
+73/73 tests run after every code change (checkbox fix, focus-ring fix, file-input fix) — unchanged all session. Tailwind rebuilt after each CSS/`forms.py` change; confirmed each new utility class actually landed in compiled `main.css` before calling a fix verified.
+
+### Session Wrap-Up
+Updated `DEVELOPMENT_ROADMAP.md` (task 8 + parent input-styling-refactor item checked off with findings noted; new `Comment System` section added), `README.md` (new bullet marking the refactor's completion and the QA findings), and this file. `.claude/CLAUDE.md` test count unchanged (still 73) — no edit needed there. Staged, not committed (session-wrap convention) — separate from the already-committed `60e1737a` styling-QA commit.
+
+### Next Session
+- Case-sensitive login bug — still not triaged (logged 2026-08-05, still open).
+- Or start the Event Planning UI (`DEVELOPMENT_ROADMAP.md` → Phase 1 → Event Planning Features) — HTMX auth-redirect middleware (`base/middleware.py` is currently just `pass`), Plan page tab structure, `Objective` model, date-proposal voting, supply lists.
+- Comment section restructuring (newest-first, form-on-top, HTMX "Load More") — now logged in the roadmap, not scoped/started.
+
+---
+
+## Session: 2026-09-03
+
+### What We Did
+Completed tasks 5-7 of the 8-task input styling refactor: converted `EventForm`/`CommentForm` off crispy, removed the `crispy_forms`/`crispy_tailwind` dependency entirely (settings, requirements, local venv), and deleted the dead `login_register.html`. 73/73 tests passing throughout, verified after every step. Task 8 (manual browser pass) deferred to next session.
+
+### Session Start / Tooling Detour
+Began with the standard session-start review (`project-summary.md`, `SESSION_DETAILS.md`) recapping 2026-08-05's progress. User's neovim wouldn't launch — diagnosed as a `brew upgrade` mid-flight: `tree-sitter` had already been bumped to 0.27.0 and its old 0.26 dylib removed, but `neovim` hadn't been relinked yet (unrelated `aws-sdk-cpp` was still compiling ahead of it in the queue). Recommended waiting rather than interrupting the upgrade; worked directly in-chat instead of nvim for the rest of the session.
+
+### Question Answered: Why Manual Rendering Over crispy-forms (General, for Future Projects)
+User asked for the reasoning behind the project's crispy-forms decision, generalized beyond ProjectCTW, to carry into future projects. Corrected a premise first — crispy does render errors correctly, that was never the issue. Explained the real tradeoff: form libraries are a good default for generic/admin-style forms; manual rendering earns its cost once HTMX/Alpine need specific markup hooks a library's generated HTML fights against, once a real hand-built design system exists that a library's template pack doesn't speak, and while still building the mental model of what `{{ form.field }}`/widget `attrs` actually do.
+
+### Task 5: `EventForm`/`CommentForm` Off crispy
+- Walked user through writing `EventForm.__init__`/`CommentForm.__init__` themselves first (loop-over-fields pattern from `CustomChangePasswordForm`, no checkbox/file branching needed — all fields are plain text/textarea). Correctly identified the pattern; caught and corrected one gap (dropped `Meta` inner class) before implementing.
+- User attempted the `event_form.html` manual markup themselves using `email.html`'s single-field pattern as a base, correctly identified they'd need to wrap fields in a container div for spacing but wasn't sure of the exact structure — pointed to `user_account.html`'s existing `space-y-6` multi-field wrapper as the precedent to adapt.
+- Implemented: `events/forms.py` (`.form-input` loop on both forms), `event_form.html` (3-field manual markup: name/description/location), `event_detail.html` (1-field manual markup: comment). Removed now-dead `{% load tailwind_filters %}` from both templates (only use was the removed `|crispy` filter).
+- Verified `.form-input` is a bare class selector (`static/css/input.css:117`), not scoped to the `input` tag — confirmed it applies correctly to `<textarea>` before relying on it for the two `TextField`s.
+
+### Working-Style Change: Fix Inconsistencies in Place, Don't Defer Them
+While reviewing the converted markup, flagged that `event_form.html`'s submit button still used old bare utility classes (`border rounded-lg py-3 px-5`) instead of the `.btn-primary` component class used everywhere else. User's response: fix it now, not just flag it — explicit stated intent is getting markup/styling fully consistent sitewide as this refactor proceeds, correcting drift wherever it's noticed rather than leaving it as a deferred TODO. Fixed the button (`.btn-primary`, dropped the now-redundant padding utilities since the component class already sets them) and added `mt-6` for spacing since crispy was previously providing that gap implicitly. Saved as an extension to [[feedback_css_styling_directive_mode]] — still explain the reasoning, still ask first if a fix looks like it'd turn into its own mini-redesign, otherwise just fix it.
+
+### Task 6: Remove crispy Dependency
+- Removed `crispy_forms`/`crispy_tailwind` from `INSTALLED_APPS`, both `CRISPY_*` settings, both `requirements.txt` lines, and the `@source` line in `input.css`.
+- **Real bug caught before shipping**: a repo-wide sweep for `tailwind_filters` (the templatetag library crispy-tailwind provides) turned up 3 more live templates with a leftover `{% load tailwind_filters %}` — `user_profile.html`, `user_account.html`, `event_plan.html` — none of which actually used `|crispy` anymore (dead load statements from earlier conversions), but all of which would have raised `TemplateSyntaxError` the moment they rendered, since deregistering the app removes Django's ability to find that tag library. Removed the dead load line from all three before it could break anything.
+- Uninstalled `django-crispy-forms`/`crispy-tailwind` from the local `.venv` too, at user's request, so the environment actually matches `requirements.txt` rather than just the manifest being updated.
+- Verified after every sub-step: `manage.py check` clean, 73/73 tests passing, Tailwind rebuilt with **zero diff in `main.css`** both times — confirms nothing in the app actually depended on crispy's own utility classes, and nothing broke from removing the app registration.
+
+### Task 7: Delete Dead `login_register.html`
+Before deleting, ran a full-repo grep (not scoped to `.py`/`.html`) for any reference to the filename — only hits were in our own session docs (`DEVELOPMENT_ROADMAP.md`, `SESSION_DETAILS.md`), nothing in code, confirming the file was genuinely unrouted and safe to remove per the standing "look at the target before deleting" rule. Deleted; `check` and full suite still clean.
+
+### Small Flagged Finding (Not Chased)
+`input.css`'s now-deleted `@source` line hardcoded a `python3.13` venv path, but the actual local `.venv` runs `python3.12` (and `TECH_STACK.md` claims 3.14.x) — a three-way version mismatch across the project's own docs/config. Moot now that the line is gone, but worth a look at some point to confirm what Python version this project is actually meant to run on locally vs. what's documented.
+
+### Verification
+`manage.py check` and the full test suite (73/73, unchanged) run after every task this session. Tailwind rebuilt after each template/CSS change — no `main.css` diff at any point, meaning every class used in the new manual markup already existed in the compiled output from other pages (consistency, not new surface area).
+
+### Next Session
+- Task 8: full manual browser verification pass — checkboxes, file input, login/signup, the whole password flow (still only smoke-tested), and now the two newly-converted event forms. This closes out the 8-task input styling refactor.
+- Case-sensitive login bug — still not triaged (logged 2026-08-05).
+- Optional loose end: Python version mismatch across `.venv` (3.12) vs `TECH_STACK.md` (3.14.x) — noticed in passing, not investigated.
+
+---
+
+## Session: 2026-08-05
+
+### What We Did
+Answered the "what breaks when the bare `input` selector is scoped" question from the 2026-07-19 audit, logged a new case-sensitive-login bug, then executed tasks 1-4 of the 8-task input styling refactor: opt-in CSS classes, `forms.py` widget updates, a custom `AddEmailForm`, and full styling of allauth's 3 password templates. All verified working, 73/73 tests still passing.
+
+### Pre-Work: Answering "Which Inputs Go Bare" (before any code)
+Scanned every form/template in the project to answer the open question from last session. Findings:
+- **Category A (zero class, fully bare)**: only `AddEmailForm.email` on `email.html` — matched the already-scoped task 3.
+- **Category B (partial class, currently leaking properties)**: checkboxes (`email_status_updates`, `email_event_reminders`, login's `remember`), the `profile_picture` file input, and a new one not previously flagged — `user_account.html`'s submit button (`<input type="submit" class="btn-primary">`) was getting `width: 100%` leaked from the bare selector since `.btn-primary` never declares `width`, likely defeating the parent's `flex justify-end`.
+- **Category C (fully covered, safe no-op)**: text inputs in `CustomUserChangeForm`/`CustomLoginForm`/`CustomSignupForm` — already had complete redundant Tailwind classes.
+- **Category D**: `EventForm`/`CommentForm` via crispy-tailwind — confirmed via reading `crispy_tailwind/templatetags/tailwind_field.py` that crispy assigns its own complete class string independent of our CSS. Safe either way, not urgent to migrate off crispy for correctness.
+- **Category E — checked and ruled out**: suspected hidden inputs (CSRF token on every form, `email.html`'s hidden `name="email"`) might also be silently un-hidden by the bare selector via CSS cascade origin rules. Verified against the actual WHATWG spec (`input[type=hidden i] { display: none !important; }`) — `!important` in the UA stylesheet wins regardless of author-rule specificity, so this was a non-issue in both the old and new state.
+- Sequencing note: allauth's 3 password templates get *some* free minimal box styling from the bare selector today with zero classes of their own — pulling the selector before those templates are built makes those flows look worse in the gap, not better.
+
+### Bug Found: Case-Insensitive Login Needed
+User found login is case-sensitive on the email field. Logged as an unchecked `**Bug**` item under Auth UX in `DEVELOPMENT_ROADMAP.md` — not triaged or fixed this session, root cause not yet located.
+
+### Working-Style Change: Directive Mode for CSS/Styling
+User asked for a scoped exception to the project's default Socratic mentorship mode: for CSS/styling property-level decisions specifically, explain the reasoning and just implement it rather than walking through it with guiding questions first. Rationale given: CSS/layout is a domain he's deliberately building depth in *outside* this project, and Socratic pacing there doesn't build ProjectCTW-relevant understanding — just slows down a mechanical decision. Explicitly scoped to CSS/styling only; logic/architecture/security/testing still get full mentorship. Saved as [[feedback_css_styling_directive_mode]].
+
+### Task 1: `input.css` — Opt-In Classes
+Replaced the bare `input {}` rule with `.form-input` (all six original properties: `display`, `width`, `border-radius`, `border`, `padding`, `box-shadow`, plus `color`/`font-size`/`line-height`, plus its own `::placeholder`/`:focus` rules). `.form-checkbox`/`.form-file` deliberately got **no** CSS properties — checkboxes and file inputs are native browser widgets, not text boxes; every property the bare rule set was actively wrong for them (that's the bug this refactor exists to fix). Their look comes entirely from Tailwind utility classes already living in `forms.py`. The class names still get applied as stable hooks for future shared styling, not because CSS needs them yet.
+
+### Task 2: `userProfile/forms.py` — Point Widgets at New Classes
+`CustomUserChangeForm`, `CustomLoginForm`, `CustomSignupForm` now use `.form-input`/`.form-checkbox ...`/`.form-file ...` instead of duplicating full Tailwind utility strings per field — removes the redundant duplication task 1's audit flagged.
+
+### Task 3: `CustomAddEmailForm`
+Added `CustomAddEmailForm(AddEmailForm)` applying `.form-input` to the `email` field, registered via `ACCOUNT_FORMS = {"add_email": "userProfile.forms.CustomAddEmailForm", ...}` — same pattern already used for `login`/`signup`, no view override needed. User confirmed visually: Add Email field looks right, and the account settings "Update" button visually improved (the `width: 100%` leak fix from the pre-work findings).
+
+### Task 4: Allauth's 3 Password Templates
+Allauth ships zero styled templates for the password change/reset flow. Built from scratch:
+- `templates/account/password_change.html` — styled as an authenticated account-settings page (mirrors `email.html`'s header/back-link chrome), only reachable from a logged-in account settings page
+- `templates/account/password_reset.html`, `password_reset_from_key.html` — styled as public entrance pages (mirrors `login.html`/`signup.html`'s gradient-card look)
+- `password_reset_from_key.html` reads `token_fail`/`action_url` from the view's context — confirmed via reading `PasswordResetFromKeyView.get_context_data()` in allauth source, not guessed
+- Went one step past the original 3-template count and also styled `password_reset_done.html`/`password_reset_from_key_done.html` (the two confirmation pages in the same flow) — flagged explicitly to the user as an unscoped addition rather than asked about, since it was small and directly justified (leaving them bare would mean a styled form dumping the user onto a jarring unstyled page).
+- Added 3 more form subclasses following the same pattern as `CustomAddEmailForm`: `CustomChangePasswordForm`, `CustomResetPasswordForm`, `CustomResetPasswordKeyForm`, registered in `ACCOUNT_FORMS` under the exact keys allauth's views look up (`change_password`, `reset_password`, `reset_password_from_key` — confirmed by reading `allauth/account/views.py`'s `get_form_class()` calls).
+- Verified with a throwaway smoke test (written, run, then deleted — not proposed as permanent coverage) hitting all 5 URLs including the bad-token `token_fail` branch — all returned 200 with expected content.
+
+### Question Answered: Why Both Custom Forms AND Manual Template Markup?
+User asked whether creating custom form subclasses was redundant with hand-writing the field markup in templates. Explained the two are different concerns: the form subclass's only job is putting `class="form-input"` onto the widget's `attrs` (the only way to get a CSS class onto Django's auto-rendered `{{ form.field }}` output without a filter library like `django-widget-tweaks`); the template's manual label/wrapper/error markup is layout Django never generates on its own unless using `.as_p`/crispy — which this project has been deliberately moving away from since `user_account.html` in March. Not redundant — matched existing site-wide convention.
+
+### Verification
+Tailwind rebuilt after each task (`python manage.py tailwind`), full suite re-run clean after every task (73/73, unchanged all session). Bare `input` rule confirmed gone from compiled `static/css/main.css` after task 1.
+
+### Memory Updates
+- Compacted `MEMORY.md` from 169 to 76 lines (approaching the harness's 200-line read limit) — moved detail into new topic files: `testing_gotchas.md`, `pattern_oob_swap.md`, `pattern_grid_alignment.md`, `project_proposal_redesign.md`, `completed_features_log.md`. Created `project_input_styling_refactor.md` to hold the full refactor scope/progress (previously inline in `MEMORY.md`), kept up to date through today's tasks 1-4.
+- Saved [[feedback_css_styling_directive_mode]] — the CSS/styling directive-mode preference described above.
+
+### Next Session
+- Tasks 5-8 of the input styling refactor: convert `EventForm`/`CommentForm` off crispy, remove `crispy_forms`/`crispy_tailwind` dependency, delete dead `login_register.html`, full manual browser verification pass (checkbox/file-input visual check and login/signup pages still not eyeballed — password flow pages also not yet opened in a browser, only smoke-tested).
+- Case-sensitive login bug — not triaged yet.
+
+---
+
+## Session: 2026-07-19
+
+### What We Did
+Wrote and verified the `account/email.html` conditional button logic tests carried over from 2026-07-10. Three test methods added to `EmailTemplateLogicTests` in `userProfile/tests/test_views.py`, covering the three reachable `(primary, verified)` states for an `EmailAddress` row. Full suite: 73 tests passing (was 70).
+
+### Test Scenario Design (discussion, before any code)
+- Worked through all 4 combinations of `(primary, verified)` for a row: `(True,True)` → no buttons, `(False,True)` → Make Primary + Delete, `(False,False)` → Resend Verification + Delete.
+- `(True,False)` (primary but unverified) initially flagged as a possible 4th case, then ruled out after tracing the actual code paths: `account_email` can only be viewed by an authenticated session, login enforces `ACCOUNT_EMAIL_VERIFICATION = "mandatory"`, and no view action can revert an already-verified primary back to unverified. Concluded there's no real code path that renders the template in that state — decided not to test it. Correct call, not just a shortcut.
+- Confirmed assertions should be response-content only (`assertContains`/`assertNotContains` on button `name` attributes) — not testing allauth's own POST handling, only the template's conditional rendering given a DB state.
+- Decided against a single page with all 3 states rendered at once and scoped per-row assertions — the per-row wrapper `<div>` was removed in the 2026-07-09 grid alignment fix, so there's no DOM boundary to scope a check to. Three isolated single-state test methods instead.
+
+### Bugs Found and Fixed While Writing
+- `setUpTestData` was missing `@classmethod` — would have raised `TypeError` when Django calls `cls.setUpTestData()`.
+- `assertNotContains(response, "action_verify")` — checked a string that doesn't exist anywhere in the template (`action_send` is the actual name attribute), so it was a no-op assertion that would pass regardless of correctness.
+- Forgot `.save()` after mutating `self.email.primary`/`self.email.verified` in-memory — mutation never reached the DB, so the view would've queried stale state.
+
+### Real Bug Uncovered: allauth Auto-Creates an EmailAddress on GET
+`account_email`'s view (`allauth/account/views.py`) calls `sync_user_email_addresses(request.user)` on every GET, silently creating an `EmailAddress(primary=False, verified=False)` for `user.email` if no matching row exists. The test `User` was built via `create_user()`, bypassing allauth's signup flow, so it had no such row — the first GET request created a phantom row that leaked an unexpected `action_send` button into the response and broke an assertion.
+Fix: `setUpTestData` now creates a `primary=True, verified=True` `EmailAddress` for the user's own email up front — this also matches reality, since mandatory verification means a real logged-in user's primary email is always verified by the time they can view the page.
+
+### Second Bug: DB Constraint on Primary Email
+Attempted to test "no buttons" by flipping the baseline row's `primary=False` and the test row's `primary=True, verified=True` in the same test. This recreated the exact multi-row contamination problem the row-isolation decision was meant to avoid — the baseline row, now `(primary=False, verified=True)`, correctly showed its own Make Primary/Delete buttons, which broke the assertions meant for the other row. Also touched allauth's DB-level `UniqueConstraint(fields=["user", "primary"], condition=Q(primary=True))` — only one primary row per user, enforced at the database. Fixed by deleting the extra test row for that one test instead, leaving only the already-correct baseline row on the page.
+
+### Memory Updates
+- Saved a testing-gotchas entry to project auto-memory: the allauth auto-create-on-GET behavior, the primary-email DB constraint, and the row-isolation pattern for future `email.html`-adjacent tests.
+- Saved a feedback memory: don't ask the user to paste code — read files directly once they report a save.
+
+### Input Styling Refactor — Scoped, Not Started
+Scanned the whole project for the "global `input` selector broke `user_account.html`" issue flagged in earlier sessions. Root cause identified precisely (not just "some fields lack classes"):
+
+- `input.css:112-122` has a bare, unscoped `input` selector setting `display`, `width`, `padding`, `box-shadow`, `border`. `CustomUserChangeForm.__init__` (userProfile/forms.py) already applies defensive Tailwind classes per widget type, but the checkbox (`h-4 w-4 rounded border-gray-300 ...`) and file-input (`cursor-pointer`) classes don't cover `box-shadow`/`padding`/`display`/`border` — CSS cascades per property, not per rule-block, so those properties leak through from the bare selector. Text inputs look fine only because their override class happens to redundantly re-declare the same properties.
+- `email.html`'s Add Email field uses allauth's stock `AddEmailForm` — confirmed no custom subclass exists anywhere in the project, so it has zero widget-class overrides, fully exposed to the bare selector.
+- `crispy-tailwind`/`django-crispy-forms` (`requirements.txt`) confirmed still live in exactly 2 places: `event_form.html` (`{{ form|crispy }}`, `EventForm` — 3 fields, no file/checkbox) and `event_detail.html`'s comment form (`{{ commentForm|crispy }}`, `CommentForm` — 1 field). It was already removed from `user_account.html` back on 2026-03-16 in favor of manual field rendering — user confirmed that's the precedent to finish applying everywhere.
+- `userProfile/templates/userProfile/login_register.html` still references `{{form|crispy}}` but confirmed **unrouted** — no `urls.py` or view reference anywhere. Dead code.
+- No allauth password templates (`password_change.html`, `password_reset.html`, `password_reset_from_key.html`) are overridden — confirmed via `find`, they don't exist under `templates/account/`. Currently rendering with zero Tailwind styling, outside the app's design system.
+
+Decision: full rework, not a partial patch — user explicitly chose to finish the crispy migration and fix the root cause now rather than leave it half-done.
+
+**8-task breakdown created (tracked in this session's task list, not yet started):**
+1. `input.css` — replace bare `input` selector with opt-in classes (`.form-input`, `.form-checkbox`, `.form-file`)
+2. `userProfile/forms.py` — point `CustomUserChangeForm`/`CustomLoginForm`/`CustomSignupForm` at the new shared classes
+3. New `AddEmailForm` subclass with widget classes for `email.html`
+4. Override + style allauth's 3 password templates
+5. Convert `EventForm`/`CommentForm` off crispy — manual rendering + widget classes in `event_form.html`/`event_detail.html`
+6. Remove `crispy_forms`/`crispy_tailwind` from `INSTALLED_APPS`, `requirements.txt`, `input.css` `@source` line
+7. Delete dead `login_register.html`
+8. Manual browser verification pass (no existing test coverage for rendered widget styling)
+
+Sizing estimate: ~1 full focused day, single session scope, not multi-week.
+
+### Next Session
+- Start the input styling refactor — task list above, beginning with task 1 (`input.css` root-cause fix).
+
+---
+
+## Session: 2026-07-10
+
+### What We Did
+Short session — fixed the button text wrapping regression carried over from 2026-07-09. Started prepping for the `account/email.html` conditional button logic tests but got sidetracked by an nvim configuration issue and tabled it. No test code written.
+
+### Button Wrapping Fix (complete)
+- Added `white-space: nowrap;` to `.btn-sm` in `static/css/input.css`
+- Tailwind rebuilt (`static/css/main.css` regenerated — diff is mostly unrelated unused-class pruning from the rebuild, not hand-edited)
+- Confirmed manually: "Resend Verification" / "Make Primary" no longer wrap under the grid's auto-sized button column
+- 70 tests still passing, no regressions
+
+### Test Prep (incomplete, tabled)
+- Added imports to `userProfile/tests/test_views.py` (`get_user_model`, `allauth.account.models.EmailAddress`) in anticipation of writing the `account/email.html` button-logic tests
+- No test class/methods written — scenario planning (what states/combinations to assert, response content vs. DB state) still hasn't happened
+
+### Next Session
+- Write tests for `account/email.html` conditional button logic (`action_send`/`action_primary`/`action_remove` per `email.primary`/`email.verified` state) — ask what scenarios/assertions before writing any test code
+- Then: input styling refactor sitewide
+
+---
+
+## Session: 2026-07-09
+
+### What We Did
+Fixed the `account/email.html` row alignment bug carried over from 2026-07-06. Discussed but deferred: conditional button logic tests for the same template.
+
+### Row Alignment Fix (complete)
+- **Root cause confirmed**: each email row was its own independent flex container. `<p>` had `flex-1` and grew to fill whatever space the row's `<form>` didn't use. On the primary email's row, the form renders zero buttons (collapses to 0px width), so `<p>` grows further right than on other rows, shifting the badge's position — each row computed its own column widths independently, so nothing stayed aligned across rows.
+- **Rejected fixed-pixel widths** (`w-[200px]` on the form) as brittle — hardcoded values silently go stale when content changes (already bit us once with button text wrapping).
+- **Fix applied**: moved the grid to the *list wrapper* rather than per-row, so column tracks are shared across all rows instead of recalculated per-row:
+  - Wrapper (`md:col-span-2`) changed from `space-y-6` to `grid grid-cols-[1fr_auto_auto] items-center gap-x-12 gap-y-6`
+  - Removed the per-row `<div class="flex items-center gap-12">` wrapper — each row's three elements (`<p>`, badge `<div>`, `<form>`) are now direct grid children, auto-flowing into rows
+  - Dropped `flex-1` from `<p>` and `min-w-[90px]` from the badge div (grid handles sizing now); badge div kept `flex gap-2` for when both badges render together
+- **Verified manually in browser** (dev server + local test user with a primary/verified row and a secondary/unverified row) — user confirmed rows are now aligned correctly.
+- **Regression found during verification**: button text ("Resend Verification", "Make Primary") wraps onto two lines again. The `auto`-sized button column is now sized to the *narrowest* content that still fits across rows, which is tighter than before. Deferred — not fixed this session.
+
+### Concepts Covered
+- Flexbox default sizing (`flex: 0 1 auto`) — why an empty flex child collapses to 0 width instead of holding space
+- Why per-row flex containers can't produce cross-row alignment — each is an independent layout context with no shared sizing information
+- CSS Grid column tracks as the fix — defining `grid-template-columns` once on a shared parent means all rows size against the same tracks (widest content across *all* rows), instead of each row negotiating its own layout in isolation
+
+### Next Session
+- Fix button text wrapping regression (`whitespace-nowrap` on `.btn-sm`, or shorten "Resend Verification" / "Make Primary" labels)
+- Write tests for `account/email.html` conditional button logic (`action_send`/`action_primary`/`action_remove` per `email.primary`/`email.verified` state) — user was asked what scenarios/assertions they'd want before any test code is written; not yet answered
+
+---
+
+## Session: 2026-07-08
+
+### What We Did
+Design discussion session — no code written. Fleshed out proposal redesign and docketed several future features.
+
+### Proposal Field List (finalized for now)
+- **Name** — unchanged
+- **Objective** — 1-2 sentence mission statement
+- **Problem** — what's wrong and why it matters
+- **Resolution** — what will be done about it
+- **Impact** — what the community gains (also serves sponsor audience)
+- **Activity tags** — multi-select, filterable (Clean Up, Repair, Build, etc.) — design discussion needed before building
+- **Virtual toggle** + **location text** — short term; GeoDjango later
+- **Minimum volunteer count** — integer, user-provided estimate; drives upvote threshold
+
+### Deliberately Excluded from Proposal
+- Supplies — too many unknowns, belongs in plan
+- Budget — same reason; proposal is a community interest check not a project plan
+- Duration — can't know without knowing volunteer count and skill level; belongs in plan
+
+### Upvote Threshold Formula
+`required_num_upvotes = max(10, ceil(min_volunteers * 1.5))` — calculated on save, not user-editable. Platform-wide. Floor of 10. Revisit post-launch with real data.
+
+### Docketed
+- GeoDjango setup as dedicated prerequisite task before any location-dependent features
+- Print/PDF export (WeasyPrint) — build after each feature is stable, not during development
+- Public roadmap page — after plan feature is complete
+- Activity tags + skill tags — two distinct systems, design discussion needed before building
+
+### Next Session
+- Finish email row alignment bug (`account/email.html`)
+- Then: write tests for conditional button logic
+- Then: input styling refactor sitewide
+- Proposal development begins after email/account verification work is wrapped up
+
+---
+
+## Session: 2026-07-06
+
+### What We Did
+Continued polishing `account/email.html`. Fixed button sizing, back button, and header. Ran into row alignment issue — not yet resolved.
+
+### Completed
+- Removed `<h1>Email Management</h1>` — redundant with user card header
+- Replaced `btn-secondary` back button with plain muted text link: `← Account Settings`
+- Added `.btn-sm` class to `input.css` (`padding: 0.375rem 0.625rem`, `font-size: 0.75rem`) — layered on top of `.btn-outline`/`.btn-danger` for smaller row buttons
+- Fixed `.btn-primary` duplicate selector bug introduced by autocomplete (was overriding btn-primary instead of creating btn-sm)
+- Added `mt-2` to Add Email submit button for spacing
+- Logic fix: `action_primary` (Make Primary) now only shows when `email.verified and not email.primary` — you can't make an unverified address primary
+- Added `w-[90px]` to badge container to reserve space when no badges present
+- Added `flex-1` to email `<p>` to anchor badges and buttons to the right
+
+### Remaining Alignment Issue (pick up here)
+Row layout uses flex with three children: email text (`flex-1`), badge container (`w-[90px]`), form (buttons). When a row has no buttons the form is empty but still present — the badge gets pushed off-center. Tried `flex-shrink-0` on the form, no effect. 
+
+**Root cause**: with `flex-1` on the email text and no fixed anchor on the form, the empty form doesn't hold its space consistently.
+
+**Next approaches to try**:
+- Give the form a fixed width (`w-[200px]` or similar) matching the widest button combination
+- Or switch the row from flex to a 3-column CSS grid with fixed column definitions
+
+---
+
+## Session: 2026-07-05
+
+### What We Did
+Built `templates/account/email.html` — nearly complete, two polish items remaining for next session.
+
+### Design Decision: Per-Row Layout (complete)
+- Rejected allauth's radio + bottom buttons pattern in favor of per-row forms
+- Rationale: users will have 1-2 emails max; per-row is clearer, removes radio selection step
+- Each email row has its own `<form>` posting to `{% url 'account_email' %}` with a hidden `name="email"` input
+- allauth routes by button `name` attribute: `action_primary`, `action_send`, `action_remove`
+
+### email.html Structure (complete)
+- Extends `base.html`, matches `user_account.html` fieldset/grid layout
+- Loops `{% for email in emailaddresses %}` (not `emailaddress_radios` — simpler, same objects)
+- Row layout: email text | badges | form buttons (flex, items-center, gap-12)
+- Badges: `.badge.badge-primary` (Primary), `.badge.badge-warning` (Unverified) — both can appear simultaneously (allauth allows unverified primary)
+- Conditional buttons per row:
+  - `action_send` (Resend Verification): `{% if not email.verified %}`
+  - `action_primary` (Make Primary): `{% if not email.primary %}`
+  - `action_remove` (Delete): `{% if not email.primary %}` — user must set a new primary before deleting
+- JS IIFE confirm dialog on Delete (copied pattern from allauth default, stripped i18n)
+- `{% if can_add_email %}` section: Add Email form using `add_email_form` context variable
+  - `add_email_form.email` rendered via `{{ add_email_form.email }}` (Django widget, styled via CSS selector)
+  - Field errors via `add_email_form.email.errors.0`, non-field errors via `add_email_form.non_field_errors`
+  - Submit button `name="action_add"`
+- Back button: plain `<a href="{% url 'account_profile' user.username %}">` with `btn-secondary`
+
+### input.css Refactor (complete)
+- Added global `input` selector to `static/css/input.css` — styles all inputs sitewide without Tailwind classes
+- Converted widget `attrs` classes from `userProfile/forms.py` `CustomUserChangeForm.__init__` to CSS
+- Added `.btn-danger` class: red-500 base, red-600 hover, matches btn-primary/secondary pattern
+- Removed redundant `sm:` media query (values already set globally)
+- Note: `userProfile/forms.py` still has the Tailwind classes on widget attrs — those should be removed in a follow-up cleanup once input.css is confirmed working everywhere
+
+### Remaining Polish (pick up next session)
+1. **Button text wrapping** — "Resend Verification" and "Make Primary" wrap onto two lines, making buttons oversized. Fix: shorten button text (e.g., "Resend" / "Make Primary" → shorter) or add `whitespace-nowrap` to buttons
+2. **Add Email form spacing** — "Add" button is touching the input field. Add `mt-4` or similar margin-top to the button
+
+### Concepts Covered
+- allauth `EmailView.get_context_data` — `emailaddresses` vs `emailaddress_radios` (same objects, radios just add wrapper dict)
+- allauth POST routing: single endpoint, button `name` attribute tells the view which action to take
+- `type="submit"` buttons with `name` — clicked button's name is included in POST data
+- `e.preventDefault()` — cancels default browser behavior (form submit); if omitted, form submits normally
+- IIFE pattern (Immediately Invoked Function Expression) — scope isolation pre-ES6
+- `emailaddresses|length > 1` — Django template `{% if %}` syntax for length comparison
+- `add_email_form` vs `form` context variable — allauth passes both, `add_email_form` is the explicit name
+- Per-element vs. global CSS selectors for form inputs — global `input {}` cleaner than per-widget attrs
+
+---
+
+## Session: 2026-07-02
+
+### What We Did
+Started building `account/email.html`. Removed email management from `CustomUserChangeForm` and `user_account.html` in favor of allauth's built-in email management page. Wired HTMX seamless navigation to the allauth email page from account settings. Did NOT yet create `account/email.html` — ran out of time.
+
+### Email Field Removed from Account Settings (complete)
+- Removed `"email"` from `CustomUserChangeForm.fields` in `userProfile/forms.py`
+  - Rationale: allauth manages email addresses (verified state, primary address, multiple addresses) better than a plain editable field; data integrity and security
+  - Admin panel unaffected — uses `UserAdmin`'s own form, not `CustomUserChangeForm`
+- In `user_account.html`, replaced email `<div>` with "Manage Emails" HTMX button:
+  ```html
+  <button hx-get="{% url 'account_email' %}"
+          hx-target="#main-container"
+          hx-select="#main-container"
+          hx-push-url="true">Manage Emails</button>
+  ```
+  - `hx-select="#main-container"` extracts only the content div from the full page response — navbar stays put, only content swaps
+  - `hx-push-url="true"` updates the URL so back-button works
+  - POST actions inside the email page are regular form POSTs (allauth handles them), redirect normally — that's acceptable
+
+### Test Impact
+- `test_profile_picture_correct_size` in `test_forms.py` passes `email` in form data — harmless, Django ignores unknown fields
+
+### account/email.html — NOT YET BUILT
+Context for next session:
+- Template lives at `templates/account/email.html` (does not exist yet)
+- Must extend `base.html`, NOT allauth's base — use plain HTML, not `{% element %}` tags
+- Match layout from `user_account.html`: `mx-auto max-w-7xl` container, fieldset/grid pattern, same button classes
+- Allauth context variables:
+  - `emailaddress_radios` — list of dicts: `{emailaddress, checked, id}`
+  - `emailaddress.email`, `emailaddress.verified`, `emailaddress.primary`
+  - `can_add_email` — bool, controls whether Add Email section renders
+  - `form` — the add-email form (single email field)
+- Three POST actions, all submit same form, distinguished by button `name`:
+  - `action_primary` — Make Primary
+  - `action_send` — Re-send Verification
+  - `action_remove` — Remove (needs JS confirm dialog)
+- POST target: `{% url 'account_email' %}` (resolves to `/accounts/email/`)
+- Include "← Back to Account Settings" link at the top
+- JS confirm dialog on Remove (copy from allauth default or rewrite inline)
+
+---
+
+## Session: 2026-06-28
+
+### What We Did
+Styled allauth email verification templates. Diagnosed quoted-printable encoding in console email output. Added auto-login on email confirmation. Reviewed `account/email.html` for next session.
+
+### Email Confirm & Verification Sent Templates (complete)
+- `templates/account/email_confirm.html` — extended `base.html`, styled with Tailwind, shows email address and confirm button, handles expired/invalid key branch with link back to email management
+- `templates/account/verification_sent.html` — extended `base.html`, styled with Tailwind
+- `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True` added to settings — user is auto-logged in after clicking confirmation link (safe: they just proved email ownership)
+
+### Quoted-Printable Encoding (debug)
+- Console email backend renders emails in quoted-printable format — long lines wrap with `=` at line end
+- "confirm-emai=l" in console output was NOT a typo — `=` is a soft line-break marker; joining lines gives the correct URL
+- No code change needed
+
+### account/email.html — Reviewed, Not Yet Styled
+- Lists all email addresses as radio buttons with Verified/Unverified/Primary badges
+- Three form actions on selected radio: Make Primary, Re-send Verification, Remove
+- Add Email section (conditional on `can_add_email`)
+- JS confirm dialog on Remove button
+- All three actions POST to `accounts/email/` — allauth routes by button `name` attribute
+- More complex than the other two templates; style next session
+
+---
+
+## Session: 2026-05-24
+
+### What We Did
+Wired `collectstatic` into Railway pre-deploy command. Deleted stale Procfile. Completed profile picture form validation tests. Practiced commit message writing.
+
+### collectstatic in Railway (complete)
+- Pre-deploy command updated to: `python manage.py collectstatic --noinput && python manage.py migrate`
+- Root cause of previous 500: `CompressedManifestStaticFilesStorage` raises `ValueError` if `{% static %}` references a file not in its manifest
+- Procfile deleted — was stale, Railway uses dashboard config, GitHub Actions uses `.github/` workflows
+
+### Profile Picture Form Tests (complete)
+- `userProfile/tests/test_forms.py` — `UserChangeFormTests` class added (3 tests, 70 total passing)
+- `SimpleUploadedFile` is in `django.core.files.uploadedfile` (not `django.test`)
+- `make_image_file(self, size=None)` helper: `PIL.Image.new` → `BytesIO` → `img.save(buffer, "JPEG")` → `buffer.getvalue()` + optional null-byte padding → `SimpleUploadedFile`
+- Padding valid JPEG bytes with `b"\x00" * N` works — Pillow stops at end-of-image marker, ignores trailing bytes
+- `ModelForm.is_valid()` calls `validate_unique()` which hits the DB — `SimpleTestCase` forbids this; must use `TestCase`
+- `MAX_PROFILE_PICTURE_SIZE = 2 * 1024 * 1024` extracted to class-level constant on `CustomUserChangeForm`
+- Files must be passed as second argument to `ModelForm(data, files)` — not in `data`
+
+### Commit Message Practice
+- Imperative mood, present tense: "Add" not "Added"
+- Subject line under 72 chars, blank line, then body
+- Body explains WHY not WHAT
+- Use heredoc for multiline `git commit -m` — cover heredoc in detail next session
+
+---
+
 ## Session: 2026-05-23
 
 ### What We Did
@@ -49,11 +551,12 @@ Completed Cloudinary integration for production image storage. Reviewed and conf
 - Image compression (Cloudinary can handle transforms on delivery — may not need server-side)
 
 > [!todo] Next Steps (pick up here)
-> 1. Write tests for profile picture upload (form validation, view behavior, AccountProfileView)
-> 2. Style allauth email verification pages (unstyled defaults)
-> 3. HTMX auth redirect middleware — `base/middleware.py`
-> 4. Build Event Date section UI
-> 5. Login page brute force protection (rate limiting / captcha) — docketed
+> 1. Style allauth email verification pages (unstyled defaults)
+> 2. HTMX auth redirect middleware — `base/middleware.py`
+> 3. Build Event Date section UI
+> 4. Login page brute force protection (rate limiting / captcha) — docketed
+> 5. Site logging and alerting (Sentry + Railway log drains) — docketed
+> 6. Cover heredoc — what it is, when to use it, git commit formatting
 
 ---
 

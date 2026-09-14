@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load tailwind_filters %}
 
 {% block content %}
     <div class="pt-20">
@@ -10,8 +9,36 @@
                 <div>
                     <form method="POST">
                         {% csrf_token %}
-                        {{form|crispy}}
-                        <button class="border rounded-lg py-3 px-5" type="submit">Submit</button>
+                        <div class="space-y-6">
+                            <div>
+                                <label for="{{form.name.id_for_label}}" class="block text-sm font-semibold leading-6 text-slate-900">Event Name</label>
+                                <div class="mt-2">
+                                    {{ form.name }}
+                                </div>
+                                {% if form.name.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{form.name.errors.0}}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label for="{{form.description.id_for_label}}" class="block text-sm font-semibold leading-6 text-slate-900">Description</label>
+                                <div class="mt-2">
+                                    {{ form.description }}
+                                </div>
+                                {% if form.description.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{form.description.errors.0}}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label for="{{form.location.id_for_label}}" class="block text-sm font-semibold leading-6 text-slate-900">Location</label>
+                                <div class="mt-2">
+                                    {{ form.location }}
+                                </div>
+                                {% if form.location.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{form.location.errors.0}}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <button class="btn-primary mt-6" type="submit">Submit</button>
                     </form>
                 </div>
             </div>

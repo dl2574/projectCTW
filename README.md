@@ -63,8 +63,14 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ Transactional email service (via Resend/django-anymail) with per-recipient error handling and logging
 - ✅ User account settings page with structured fieldsets and responsive two-column layout
 - ✅ Profile picture upload and display (navbar + account settings page), stored on Cloudinary
+- ✅ Styled email verification flow (confirmation, verification sent pages)
+- ✅ Email management page (`account/email.html`) — per-row layout with conditional actions, grid-based row alignment, button text wrapping fixed, conditional button logic tested
+- ✅ Styled password change/reset flow (allauth's `password_change`, `password_reset`, `password_reset_from_key` + confirmation pages) — previously unstyled
+- ✅ `EventForm`/`CommentForm` migrated off `django-crispy-forms` to manual field rendering — matches sitewide form-styling convention; `crispy_forms`/`crispy_tailwind` dependency fully removed from the project (settings, requirements, venv)
+- ✅ Sitewide input styling refactor complete — opt-in `.form-input`/`.form-checkbox`/`.form-file` classes replace a bare `input` selector that leaked text-field styling onto checkboxes/file inputs; manual browser verification pass caught and fixed 3 theme-color bugs (checkbox fill, focus ring, file input button) left over from ungrouped Tailwind defaults
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
 - ✅ Email notifications on status transition (wired to transition_to_planning())
+- ✅ Case-insensitive email login — fixed a silently-ignored allauth setting that was defeating email-based authentication's built-in case-insensitivity
 
 ### Planned Features
 
@@ -95,7 +101,6 @@ See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the co
 - **SQLite** - Development database
 - **django-allauth** - Authentication
 - **django-anymail + Resend** - Transactional email
-- **django-crispy-forms** - Form rendering
 - **WhiteNoise** - Static file serving
 - **Gunicorn** - WSGI server (production)
 
@@ -286,7 +291,7 @@ Production URL: [www.projectctw.com](https://www.projectctw.com)
 2. Create pull requests to merge into `main`
 3. GitHub Actions runs the test suite
 4. If tests pass, Railway automatically deploys to production
-5. Database migrations run automatically via `Procfile`
+5. Database migrations run automatically via Railway pre-deploy command
 
 ---
 
@@ -305,7 +310,7 @@ We welcome contributions! ProjectCTW is working towards becoming an open source 
 
 ### Areas Where We Need Help
 
-- Expanding test coverage (we have 69 tests; target is 80%+ coverage)
+- Expanding test coverage (we have 74 tests; target is 80%+ coverage)
 - Frontend improvements and mobile responsiveness
 - Event planning UI (date voting, supply list, attendance)
 - Security review and hardening

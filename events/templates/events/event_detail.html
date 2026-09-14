@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
 {% load event_tags %}
-{% load tailwind_filters %}
 
 {% block title %}Event Details - {{ event.name }} {% endblock title%}
 
@@ -122,7 +121,15 @@
                     <form method="POST" class="border-t border-slate-200 pt-6">
                         {% csrf_token %}
                         <div class="space-y-4">
-                            {{ commentForm|crispy }}
+                            <div>
+                                <label for="{{commentForm.comment.id_for_label}}" class="block text-sm font-semibold leading-6 text-slate-900">Comment</label>
+                                <div class="mt-2">
+                                    {{ commentForm.comment }}
+                                </div>
+                                {% if commentForm.comment.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{commentForm.comment.errors.0}}</p>
+                                {% endif %}
+                            </div>
                             <button type="submit" class="btn-primary">
                                 <i class="fa-solid fa-paper-plane mr-2"></i>
                                 Post Comment

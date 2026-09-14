@@ -8,7 +8,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 
 # ProjectCTW Development Roadmap
 
-**Last Updated**: 2026-03-15
+**Last Updated**: 2026-09-14
 **Vision**: A platform enabling community members to propose, plan, and execute volunteer projects while building a verified volunteer resume.
 
 ---
@@ -29,13 +29,28 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 **Goal**: Complete the essential event lifecycle for a functional MVP
 
 ### Event Proposal System
-- [ ] Complete event creation form with validation
-- [ ] Event detail view with all information
+- [ ] Redesign proposal as a multi-step wizard (replaces current single form)
+  - [ ] Step: Name + Objective (1-2 sentence mission statement)
+  - [ ] Step: Problem (what's wrong and why it matters)
+  - [ ] Step: Resolution (what will be done)
+  - [ ] Step: Impact (what the community gains — also serves sponsor audience)
+  - [ ] Step: Location (virtual toggle; if not virtual, plain text field for now)
+  - [ ] Step: Activity tags (multi-select — design discussion needed before building)
+  - [ ] Step: Minimum volunteer count (integer; drives upvote threshold formula)
+- [ ] Upvote threshold auto-calculated on proposal save: `max(10, ceil(min_volunteers * 1.5))` — remove hardcoded default of 3
+- [ ] Event detail view with all proposal fields displayed
 - [ ] Event editing capabilities (for creator only)
 - [ ] Event deletion/cancellation workflow
 - [ ] Image upload for events
-- [ ] Location field enhancements (physical/online/hybrid toggle)
+- [ ] Location field enhancements — virtual toggle + plain text for proposal (short term); GeoDjango for full location features (see GeoDjango task below)
+- [ ] **GeoDjango setup** (prerequisite for geographic filtering, geofencing, proximity discovery) — PostGIS on Railway, local dev setup, migrate location fields. Do as dedicated task before building any location-dependent features.
 - [ ] Event listing page with basic filtering
+
+### Comment System
+- [ ] Restructure `event_detail.html` comment section for scale — flagged 2026-09-09 during the input styling browser pass: form currently sits below the full unordered comment list (`Comment` has no `Meta.ordering`, view does no ordering either — effectively oldest-first), which doesn't scale past a handful of comments
+  - [ ] Move comment form above the list
+  - [ ] Order comments newest-first
+  - [ ] "Load More" pagination, ~50 comments per page (HTMX fits the stack — partial swap appending the next page rather than a full reload)
 
 ### Upvoting System
 - [x] Complete upvote/downvote functionality
@@ -53,15 +68,27 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] `open_date_proposals` field added to Plan model (BooleanField, default=False)
 - [x] `@login_required` added to planView
 - [ ] HTMX middleware — `base/middleware.py` intercepts 302 redirects on HX-Request and returns HX-Redirect header for full-page navigation instead of partial swap
+- [ ] Plan page structure — separate page from event detail, tab menu (Details, Plan, Supplies, Dates)
+  - [ ] Detail page remains generic (the proposal); Plan page is the planning space
+  - [ ] Access control model TBD — options: gated entry (committed users/admins/sponsors only) vs. read-all/write-if-committed
+- [ ] Objective model (design complete, not yet built)
+  - [ ] `Objective` model: id (UUID), plan (FK), name, type (BINARY|QUANTITY), target (nullable), completed (nullable), status
+  - [ ] Admin marks objectives complete/incomplete at the event
+  - [ ] Quantity objectives (e.g., "Repair 5 windows"): track target vs. completed count
+  - [ ] Binary objectives (e.g., "Set up check-in station"): complete/incomplete only
+  - [ ] Incomplete objectives at event end trigger: plan another date OR close event as-is
+  - [ ] Move `SupplyItem.plan` FK → `SupplyItem.objective` FK
+  - [ ] Objectives feed volunteer resumes — all completed objectives credited to all attendees (no per-person tracking)
 - [ ] Date proposal system
   - [ ] Create/submit proposed dates
   - [ ] Vote on proposed dates
   - [ ] Select winning date (most votes)
   - [ ] Lock in final event date
 - [ ] Supply list functionality
-  - [ ] Add/edit/remove supply items
+  - [ ] Add/edit/remove supply items (linked to objectives, not plan directly)
   - [ ] Mark items as needed/fulfilled
   - [ ] Track who's bringing what
+  - [ ] Sponsors can see supplies tied to specific objectives (for sponsor legibility)
 - [ ] Volunteer commitment system
   - [ ] Users can commit to attending
   - [ ] Show committed volunteer count
@@ -77,6 +104,24 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Attendance tracking and verification
 - [ ] Mark event as completed
 - [ ] Event completion summary page
+
+### Auth UX
+- [x] Style allauth email confirmation page (`account/email_confirm.html`)
+- [x] Style allauth verification sent page (`account/verification_sent.html`)
+- [x] `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True` — auto-login after confirmation
+- [x] Style allauth email management page (`account/email.html`) — row alignment fixed (list wrapper converted to `grid grid-cols-[1fr_auto_auto]` so column widths are shared across rows); button text wrapping fixed with `white-space: nowrap` on `.btn-sm`
+- [x] Tests for `account/email.html` conditional button logic — verify correct buttons shown/hidden based on `email.primary` and `email.verified` state
+- [x] Audit and refactor input/form field styling sitewide — root cause: bare `input` selector in `input.css` leaks `box-shadow`/`padding`/`display`/`border` through incomplete per-widget class overrides (CSS cascades per-property). Full scope (see `SESSION_DETAILS.md` 2026-07-19, progress in 2026-08-05, closed out 2026-09-09):
+  - [x] Replace bare `input` selector with opt-in `.form-input`/`.form-checkbox`/`.form-file` classes (`input.css`)
+  - [x] Point `CustomUserChangeForm`/`CustomLoginForm`/`CustomSignupForm` at the new classes (`userProfile/forms.py`)
+  - [x] Custom `AddEmailForm` for `email.html`
+  - [x] Style allauth's unstyled password templates (`password_change`, `password_reset`, `password_reset_from_key`, plus the 2 confirmation pages) — 3 new form subclasses, 5 new templates
+  - [x] Finish crispy removal (`EventForm`/`CommentForm` + `event_form.html`/`event_detail.html`) — also fixed 3 leftover dead `{% load tailwind_filters %}` lines (`user_profile.html`, `user_account.html`, `event_plan.html`) and a `.btn-primary` consistency fix on `event_form.html`'s submit button
+  - [x] Drop `crispy_forms`/`crispy_tailwind` dependency (`INSTALLED_APPS`, `requirements.txt`, `input.css` `@source` line) — also uninstalled from local `.venv` so it matches `requirements.txt` exactly
+  - [x] Delete dead `login_register.html`
+  - [x] Full manual browser verification pass (2026-09-09) — found and fixed 3 real theme bugs surfaced by the pass, not just visual confirmation: checkboxes (`text-indigo-600` was dead code with no `@tailwindcss/forms` plugin installed; fixed to `accent-teal-600`), text-input focus ring (hardcoded indigo hex `#4f46e5` → `var(--color-primary)`), file input (had zero button styling beyond `cursor-pointer`; added `file:` variant classes for a teal, clearly-interactive button). Login/signup, password flow (incl. `token_fail` branch), and the event/comment forms all confirmed good as-is. 73/73 tests passing throughout.
+- [ ] HTMX auth redirect middleware — `base/middleware.py`
+- [x] **Bug**: Login is case-sensitive on the email field — found 2026-08-05, fixed 2026-09-14. Root cause: `ACCOUNT_LOGIN_METHODS = {'email'}` is a setting name that doesn't exist in the pinned `django-allauth==0.63.2` (introduced in a later release), so it was silently ignored and allauth's own case-insensitive email backend never ran — login only "worked" via Django's `ModelBackend` exact-match fallback, hence lowercase-only. Fixed by switching to the setting name 0.63.2 actually reads: `ACCOUNT_AUTHENTICATION_METHOD = "email"`. Regression test: `LoginpageTests.test_login_with_mismatched_case_email`. Full detail in [[project_allauth_upgrade]].
 
 ### User Profiles (Basic)
 - [ ] Profile page showing basic user info
@@ -102,7 +147,8 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Form validation tests
 - [ ] Test authentication/permission checks
 - [ ] Add tests for ProposedDate, Comment models
-- [ ] Tests for profile picture upload (CustomUserChangeForm, AccountProfileView)
+- [x] Tests for profile picture upload — form validation (size limit, image type) in `UserChangeFormTests`
+- [ ] Tests for profile picture upload — view behavior (AccountProfileView)
 
 ### Documentation
 - [ ] Add inline code comments for complex logic
@@ -183,6 +229,8 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Volunteer resume generation
   - [ ] PDF export of volunteer history
   - [ ] Include verified attendance
+  - [ ] Resume entry model: "Attended [Event], which completed [list of Objectives]"
+  - [ ] All completed objectives credited to all attendees — no per-person objective tracking
   - [ ] Show skills/categories participated in
   - [ ] Total hours and impact metrics
 - [ ] Shareable profile link
@@ -497,6 +545,8 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Load testing and benchmarking
 
 ### Security Hardening
+- [x] **Fixed hardcoded `SECRET_KEY` fallback** — `settings.py`'s `env.str("SECRET_KEY", default=...)` had a fixed, working key string committed in plaintext (public repo), needed so `resetsecret` could bootstrap on a fresh clone with no `.env`. Found 2026-09-14 while verifying `.env` had never been committed. Fixed to `default=get_random_secret_key()` (Django's own generator) — same bootstrap capability, but a fresh random value per process start instead of one public string forever; a deployment silently missing the env var now fails loudly instead of silently running on a known key.
+- [ ] **Upgrade `django-allauth`** — currently pinned at `0.63.2`, latest is `65.19.3` (versioning scheme changed around the `64.x` jump, so this spans real breaking changes, not a patch bump). Flagged 2026-09-14 after the case-sensitive-login bug traced back to a setting name (`ACCOUNT_LOGIN_METHODS`) that doesn't exist in the installed version and was silently ignored — auth is security-critical, staying this far behind risks missing real bugfixes/security patches and more silent setting-drift bugs like this one. Scope: review changelog/upgrade notes across the version range, diff every `ACCOUNT_*`/`SOCIALACCOUNT_*` setting against the target version, re-verify the whole auth flow. Deliberately deferred as its own session — see [[project_allauth_upgrade]].
 - [ ] Security audit/penetration testing
 - [ ] OWASP Top 10 review
 - [ ] Rate limiting on forms and APIs
@@ -586,6 +636,22 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Add features from Phase 2 and beyond
 - [ ] Build case studies and success stories
 - [ ] Plan for national/global expansion
+
+---
+
+## Print / PDF Export (Docketed)
+**Timing**: After each feature is functionally complete and stable — not during development to avoid rebuilding as fields change.
+**Use cases**: city permit documentation, volunteer resume backup, employer verification, physical planning documents.
+**Scope**: Proposal PDF, Plan PDF, volunteer resume/history PDF.
+**Library**: WeasyPrint (renders styled HTML to PDF — best fit given existing Tailwind templates). Not reportlab.
+**Approach**: build a dedicated print template per document type, add a download view that renders it via WeasyPrint.
+
+## Public Roadmap Page (Docketed)
+**Timing**: After plan feature is complete
+**Goal**: A public-facing page on the site showing completed features and what's coming next — visible progress for non-technical visitors (potential donors, investors, community members) without requiring a GitHub account.
+- Show completed features, in-progress work, and upcoming priorities
+- Signals active development and builds trust
+- Lays groundwork for a future donate button or investor conversations
 
 ---
 
