@@ -21,7 +21,7 @@ This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participatin
 
 ### Prerequisites
 
-- Python 3.14+ (required by Django 6.0)
+- Python 3.14+ (project's pinned version for CI/deployment; Django 6.0 itself only requires 3.12+)
 - PostgreSQL (for production) or SQLite (for development)
 - Tailwind CSS 4.x standalone CLI
 - Git

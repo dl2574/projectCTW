@@ -66,6 +66,10 @@ jobs:
       run: |
         python manage.py migrate
 
+    - name: System Check (fail on warnings, not just errors)
+      run: |
+        python manage.py check --fail-level WARNING
+
     - name: Run Tests
       run: |
         python manage.py test

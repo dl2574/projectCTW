@@ -208,15 +208,9 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 # New django-allauth configuration format (replaces deprecated settings)
-# ACCOUNT_LOGIN_METHODS = {'email'}  # Login via email only
-# This is a setting for a later version
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-# Email and single password (* = required)
+ACCOUNT_LOGIN_METHODS = {'email'}  # Login via email only
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = False  # Don't require username (we use email)
-# Single password field, no confirmation
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
 ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm",
                  "signup": "userProfile.forms.CustomSignupForm",
                  "add_email": "userProfile.forms.CustomAddEmailForm",
@@ -224,7 +218,6 @@ ACCOUNT_FORMS = {"login": "userProfile.forms.CustomLoginForm",
                  "reset_password": "userProfile.forms.CustomResetPasswordForm",
                  "reset_password_from_key": "userProfile.forms.CustomResetPasswordKeyForm",
                  }
-ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
