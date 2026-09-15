@@ -10,6 +10,52 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-09-15
+
+### What We Did
+Two real threads closed out this session: finishing the Python 3.14 migration (local machine catching up to what CI/Railway had already been running since Feb 2026), and the full `django-allauth` upgrade (`0.63.2` → `65.19.3`) — planned, executed, and deployed to production in one sitting after being deliberately deferred from 2026-09-14.
+
+### Python 3.14 Migration — Completed
+Started as a "what's next" catch-up, picked a 5-minute docketed loose end (`.venv` reports 3.12, some docs claim 3.14) — turned into a real, unresolved gap, not stale docs. Traced via git history: `ecb9bcd`/`3d54f22` (Feb 20–22, 2026) show the user deliberately moved CI (`ci.yml` pins `python-version: ["3.14"]`) and `runtime.txt` to Python 3.14 seven months ago — confirmed still working via 5 green CI runs checked back to August. The only thing that never moved was the local `.venv`, still 3.12.7.
+
+Fixed `README.md`/`CONTRIBUTING.md`, which said "3.14+ (required by Django 6.0)" — false causal claim, Django 6.0.2's own package metadata says `Requires-Python: >=3.12`. Corrected to state the real reason (project's CI/deployment pin). `.claude/CLAUDE.md`/`TECH_STACK.md` were already correct — an early misdiagnosis this session initially treated them as stale too, caught and corrected before editing anything.
+
+Environment work: found the machine's bare `python3` was controlled by the python.org 3.12 installer (`/Library/Frameworks/Python.framework/Versions/3.12`), not Homebrew, sitting first in `PATH`. Decided to move to Homebrew-managed Python going forward (clean upgrade/uninstall lifecycle, sidesteps python.org's bundled-certifi/cert-store gotcha already flagged as an undug memory topic). User uninstalled python.org 3.12 themselves (framework dir, `/Applications/Python 3.12`, 12 dangling symlinks, 4 pkg receipts). First `~/.zshrc` PATH attempt pointed at Homebrew's `libexec/bin` — wrong, that directory only exposes `python`/`pip` for a keg-only formula, not `python3`. Corrected to `opt/python@3.14/bin`, which has the real versioned binaries. Rebuilt `.venv` from scratch on 3.14.7, reinstalled `requirements.txt`, verified `manage.py check` clean and 74/74 tests passing on the rebuilt local venv. User committed this (`902ee4e`).
+
+### `django-allauth` Upgrade — Planned, Executed, Deployed
+Picked up the deliberately-deferred upgrade from 2026-09-14. User asked directly whether it or Event Planning UI should go first; agreed with the user's own instinct that allauth should come first, with a concrete reason beyond general security-mindedness: Event Planning UI's first task is new HTMX auth-redirect middleware (`base/middleware.py`, currently `pass`) — better built on a current auth library than a known-stale one.
+
+**Planning**: researched the settings translation map via docs.allauth.org and allauth.org release notes — `ACCOUNT_AUTHENTICATION_METHOD` → `ACCOUNT_LOGIN_METHODS`, three settings (`ACCOUNT_USERNAME_REQUIRED`, `ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE`, `ACCOUNT_EMAIL_REQUIRED`) obsolete, folded into `ACCOUNT_SIGNUP_FIELDS` list syntax. Confirmed via live `pip index versions django-allauth` that `65.19.3` is still current — target is latest, not a 64.x stopping point. Wrote the full 6-phase plan to a new `.claude/prompts/ALLAUTH_UPGRADE_ROADMAP.md`, matching the project's existing feature-roadmap convention. User's own suggestion: create a dedicated `allauth-upgrade` branch off `development` before touching anything, given the multi-session risk profile — it ended up only taking one session.
+
+**Phase 1 (isolated check)**: built a scratch venv (Python 3.14.7, not the working `.venv`) with `requirements.txt` + `django-allauth==65.19.3`, ran `manage.py check` against the real `settings.py` before touching anything. Result: exactly the 4 pre-researched deprecation warnings, no surprises — validated the planning research completely. Also confirmed `SOCIALACCOUNT_*` is still fully unused (repo-wide grep, only hit is the commented-out app line).
+
+**Phase 2 (settings migration)**: bumped `requirements.txt` + the real `.venv` for real this time. User made the `settings.py` edit themselves after a guided walkthrough of `ACCOUNT_SIGNUP_FIELDS` semantics (the `*` suffix = shown+required, no suffix = shown+optional, absent = not shown). Correctly reasoned through why the three obsolete booleans could just be deleted rather than translated — the existing `['email*', 'password1*']` list already implied everything they used to express. `ACCOUNT_LOGIN_METHODS = {'email'}` was already sitting commented-out in `settings.py` from the 2026-09-14 investigation — just needed uncommenting. `manage.py check` came back clean, verified independently.
+
+**Phase 3 (automated suite)**: 74/74 passing. Grepped test files for direct allauth-internals usage per the plan's flagged risk (internal API signatures aren't covered by a settings-only translation) — only hit was a stable `EmailAddress` model import, no internal function calls survived from 2026-09-14's throwaway diagnostics.
+
+**Phase 4 (manual walkthrough)**: user confirmed every flow by hand in the browser across two rounds — signup, email verification (correct + expired link), logout, and the full email-management round trip (add → verify → set new primary → revert → delete) first; then login (including a deliberate case-insensitive re-test — the exact regression that started this whole upgrade), password reset (all 5 pages), password change, and remember-me. Zero issues across the entire pass.
+
+**Phase 5 (regression coverage)**: no behavior changed anywhere, so no new test was needed — asked the user directly rather than assuming. Real process improvement instead: `ci.yml` had no `manage.py check` step at all before this session (only `migrate`+`test`). Added one with `--fail-level WARNING`, explained why the default (`ERROR` only) wouldn't have caught deprecation-class warnings like this upgrade's 4. Also explained a real limitation of the gate directly rather than overselling it: it protects *future* upgrades from leaving stale settings behind, but would **not** have caught the original 2026-09-14 bug — that was a typo'd future setting name on an old pinned version, and unknown setting names aren't validated by either version, only deprecated-known ones are.
+
+**Phase 6 (deploy)**: user committed on `allauth-upgrade` (`2bbc868`), merged to `development`, merged to `main` (`9a24c7d`), Railway auto-deployed. User confirmed successful, no issues. Branch deleted after merge (user's own git-hygiene call, confirmed it was safe — fully merged into both `development` and `main` first).
+
+### Git/Learning Moment
+User asked what command created the `allauth-upgrade` branch, wanting to learn git branch management directly rather than have it done silently. Explained `git checkout -b <name>` (create+switch in one step) vs plain `git checkout <name>` (switch-only, fails if the branch doesn't exist yet), plus the modern `git switch -c` equivalent. Correctly predicted that re-running the switch-only form on an already-checked-out branch would be a no-op; only imprecision was not accounting for git's `Already on '<branch>'` confirmation message — minor, concept was right.
+
+### Verification
+`manage.py check` and the full suite run independently by the assistant at every phase boundary this session, not just taken on the user's word — matches established practice. 74/74 passing throughout, both before and after the allauth upgrade. No regressions anywhere.
+
+### Session Wrap-Up
+Updated `DEVELOPMENT_ROADMAP.md` (allauth upgrade item marked `[x]` with full summary, `Last Updated` bumped), `README.md` (new allauth-upgrade feature bullet, `django-allauth` version noted in Tech Stack, CI/CD pipeline description updated to mention the new check gate), this file, `.claude/prompts/ALLAUTH_UPGRADE_ROADMAP.md` (all 6 phases marked complete with full detail throughout, not just at wrap-up), and `MEMORY.md`/`project_allauth_upgrade.md`/`project_python_314_migration.md`. `.claude/CLAUDE.md` test count unchanged (still 74) — no edit needed there. User asked for doc updates and the commit to be done directly this session (explicitly requested — not a standing change to the "user commits himself" preference).
+
+### Next Session
+- Event Planning UI (`DEVELOPMENT_ROADMAP.md` → Phase 1 → Event Planning Features) — no longer blocked on allauth, this is the natural next pick. HTMX auth-redirect middleware (`base/middleware.py` currently just `pass`), Plan page tab structure, `Objective` model, date-proposal voting, supply lists.
+- Comment section restructuring (newest-first, form-on-top, HTMX "Load More") — still logged, not started.
+- Login page brute force protection (rate limiting / hCaptcha) — docketed, not urgent yet.
+- Site logging and alerting (Sentry, Railway log drains) — docketed.
+
+---
+
 ## Session: 2026-09-14
 
 ### What We Did

@@ -71,6 +71,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
 - ✅ Email notifications on status transition (wired to transition_to_planning())
 - ✅ Case-insensitive email login — fixed a silently-ignored allauth setting that was defeating email-based authentication's built-in case-insensitivity
+- ✅ `django-allauth` upgraded `0.63.2` → `65.19.3` — full settings migration, all auth flows manually re-verified, CI now gates on `manage.py check --fail-level WARNING` to catch future silent settings drift
 
 ### Planned Features
 
@@ -99,7 +100,7 @@ See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the co
 - **Django 6.0.2** - Web framework
 - **PostgreSQL** - Production database
 - **SQLite** - Development database
-- **django-allauth** - Authentication
+- **django-allauth 65.19.3** - Authentication
 - **django-anymail + Resend** - Transactional email
 - **WhiteNoise** - Static file serving
 - **Gunicorn** - WSGI server (production)
@@ -280,8 +281,8 @@ python manage.py resetsecret     # Generate new SECRET_KEY in .env
 
 - **Development Branch** → Merge to `main` after testing
 - **Main Branch** → Triggers GitHub Actions
-- **GitHub Actions** → Runs tests
-- **Railway** → Auto-deploys if tests pass
+- **GitHub Actions** → Runs system checks (`manage.py check --fail-level WARNING`) and tests
+- **Railway** → Auto-deploys if checks and tests pass
 
 Production URL: [www.projectctw.com](https://www.projectctw.com)
 
@@ -289,8 +290,8 @@ Production URL: [www.projectctw.com](https://www.projectctw.com)
 
 1. All development happens on the `development` branch
 2. Create pull requests to merge into `main`
-3. GitHub Actions runs the test suite
-4. If tests pass, Railway automatically deploys to production
+3. GitHub Actions runs system checks (`manage.py check --fail-level WARNING`), then the test suite
+4. If checks and tests pass, Railway automatically deploys to production
 5. Database migrations run automatically via Railway pre-deploy command
 
 ---

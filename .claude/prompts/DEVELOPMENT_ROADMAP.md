@@ -8,7 +8,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 
 # ProjectCTW Development Roadmap
 
-**Last Updated**: 2026-09-14
+**Last Updated**: 2026-09-15
 **Vision**: A platform enabling community members to propose, plan, and execute volunteer projects while building a verified volunteer resume.
 
 ---
@@ -546,7 +546,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 
 ### Security Hardening
 - [x] **Fixed hardcoded `SECRET_KEY` fallback** — `settings.py`'s `env.str("SECRET_KEY", default=...)` had a fixed, working key string committed in plaintext (public repo), needed so `resetsecret` could bootstrap on a fresh clone with no `.env`. Found 2026-09-14 while verifying `.env` had never been committed. Fixed to `default=get_random_secret_key()` (Django's own generator) — same bootstrap capability, but a fresh random value per process start instead of one public string forever; a deployment silently missing the env var now fails loudly instead of silently running on a known key.
-- [ ] **Upgrade `django-allauth`** — currently pinned at `0.63.2`, latest is `65.19.3` (versioning scheme changed around the `64.x` jump, so this spans real breaking changes, not a patch bump). Flagged 2026-09-14 after the case-sensitive-login bug traced back to a setting name (`ACCOUNT_LOGIN_METHODS`) that doesn't exist in the installed version and was silently ignored — auth is security-critical, staying this far behind risks missing real bugfixes/security patches and more silent setting-drift bugs like this one. Scope: review changelog/upgrade notes across the version range, diff every `ACCOUNT_*`/`SOCIALACCOUNT_*` setting against the target version, re-verify the whole auth flow. Deliberately deferred as its own session — see [[project_allauth_upgrade]].
+- [x] **Upgrade `django-allauth`** — `0.63.2` → `65.19.3`, done and deployed 2026-09-15. Flagged 2026-09-14 after the case-sensitive-login bug traced back to a setting name (`ACCOUNT_LOGIN_METHODS`) that doesn't exist in the installed version and was silently ignored. Executed as a full 6-phase plan in one session: isolated `manage.py check` pass (4 deprecation warnings, exactly as researched, no surprises) → settings migration (`ACCOUNT_AUTHENTICATION_METHOD`→`ACCOUNT_LOGIN_METHODS`, 3 obsolete booleans folded into `ACCOUNT_SIGNUP_FIELDS`) → 74/74 tests passing → full manual auth-flow walkthrough including a deliberate case-insensitive-login re-test → added a CI gate (`manage.py check --fail-level WARNING`, ci.yml previously had no check step at all) → deployed, no issues. Full phase-by-phase detail: `.claude/prompts/ALLAUTH_UPGRADE_ROADMAP.md`. See [[project_allauth_upgrade]].
 - [ ] Security audit/penetration testing
 - [ ] OWASP Top 10 review
 - [ ] Rate limiting on forms and APIs

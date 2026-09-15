@@ -11,7 +11,7 @@ description: Implementation roadmap for upgrading django-allauth from 0.63.2 to 
 # django-allauth Upgrade — Implementation Roadmap
 
 **Target**: `django-allauth` **0.63.2 → 65.19.3** (latest on PyPI, confirmed 2026-09-15). Go all the way to latest — do not stop partway at a 64.x checkpoint.
-**Status**: Phases 1–5 complete — real environment on 65.19.3, `manage.py check` clean, 74/74 tests passing, full manual auth-flow walkthrough confirmed, CI now gates on `manage.py check --fail-level WARNING`. Phase 6 (deploy) not yet started.
+**Status**: ✅ COMPLETE — all 6 phases done, deployed to production 2026-09-15, no issues. `django-allauth` is now 65.19.3 live at projectctw.com.
 **Owner**: David
 
 ---
@@ -103,12 +103,12 @@ Result: the translation map from planning is validated — exactly these 4, no s
   - **Known limitation, recorded honestly**: default `manage.py check` only fails on `ERROR`+, not `WARNING` — `--fail-level WARNING` was required to actually catch deprecation-class issues like the 4 this upgrade just fixed.
   - **This gate would NOT have caught the original 2026-09-14 bug** — that was a typo'd *future* setting name while still pinned to `0.63.2`, and neither old nor new allauth validates *unknown* `ACCOUNT_*` names, only ones it used to recognize and has since deprecated. This gate protects the *next* upgrade from leaving stale settings behind, not against writing a setting name too early.
 
-## Phase 6: Deploy
+## Phase 6: Deploy — ✅ COMPLETE (2026-09-15)
 **Goal**: Ship it safely, given this touches every user's session.
 
-- [ ] Push to `main`, watch GitHub Actions CI
-- [ ] Watch Railway logs post-deploy for auth-related errors
-- [ ] Update `MEMORY.md` / `project_allauth_upgrade.md` — close out as complete
+- [x] Committed on `allauth-upgrade` (`2bbc868` "Upgrade allauth to v65.19.3"), merged to `development`, merged to `main` (`9a24c7d`)
+- [x] Deployed to Railway — confirmed successful, no issues
+- [x] `MEMORY.md` / `project_allauth_upgrade.md` closed out as complete (this edit)
 
 ---
 
@@ -133,3 +133,6 @@ Same day — four phases in one session total. Full manual walkthrough by the us
 
 ### 2026-09-15 (Phase 5)
 Same day — five phases in one session. No behavior changes surfaced anywhere in Phases 1–4, so no new regression test was needed. Instead added a real CI process improvement: `ci.yml` had no `manage.py check` step at all before this (only `migrate`+`test`) — added one using `--fail-level WARNING` (not the default `ERROR`) since deprecation-class warnings like this upgrade's 4 don't fail the bare command otherwise. Explicitly scoped what this does and doesn't protect against: catches *future* upgrades leaving stale settings behind, would NOT have caught the original 2026-09-14 bug (a typo'd future setting name on an old pinned version — unknown setting names aren't validated by either version, only deprecated-known ones are).
+
+### 2026-09-15 (Phase 6 — DEPLOYED)
+Same day — full 6-phase upgrade from planning through production deploy, all in one session. User committed on `allauth-upgrade` (`2bbc868`), merged to `development`, merged to `main` (`9a24c7d`), Railway auto-deployed. User confirmed: deployment complete, no issues. `django-allauth` 0.63.2 → 65.19.3 is live. Upgrade is fully closed — see `project_allauth_upgrade` memory for the cross-session history from root-cause discovery through completion.
