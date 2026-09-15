@@ -120,7 +120,7 @@ See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the co
 
 ### Prerequisites
 
-- Python 3.14+ (required by Django 6.0)
+- Python 3.14+ (project's pinned version for CI/deployment; Django 6.0 itself only requires 3.12+)
 - pip (Python package manager)
 - Git
 - Tailwind CSS standalone CLI
