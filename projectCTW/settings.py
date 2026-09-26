@@ -87,6 +87,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",  # django-allauth
     "django_browser_reload.middleware.BrowserReloadMiddleware",  # django-browser-reload
+    "base.middleware.HxRedirectMiddleware", # Custom middleware to allow htmx to handle redirects from login_required
 ]
 
 ROOT_URLCONF = "projectCTW.urls"

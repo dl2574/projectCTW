@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/bin/python *)",
+      "Bash(.venv/bin/pip show *)",
+      "Bash(git add *)",
+      "WebSearch",
+      "Bash(python manage.py test)",
+      "Read(//Users/davidlococo/.config/nvim/lua/config/**)",
+      "Read(//Users/davidlococo/.local/share/nvim/lazy/snacks.nvim/lua/snacks/**)",
+      "Read(//Users/davidlococo/.local/share/nvim/lazy/LazyVim/**)",
+      "Read(//Users/davidlococo/.local/share/nvim/lazy/LazyVim/lua/lazyvim/**)",
+      "Bash(python manage.py help)",
+      "Bash(python3 manage.py test)",
+      "Bash(.venv/bin/python3 manage.py test)",
+      "Bash(.venv/bin/python3 manage.py tailwind)",
+      "Bash(cp /private/tmp/claude-501/-Users-davidlococo-Programming-Web-projectCTW-projectCTW/5110cf29-2efd-435f-9b63-02d2d7e7ec7a/scratchpad/smoke_password_templates.py userProfile/tests/test_zzz_smoke_tmp.py)",
+      "Bash(.venv/bin/python3 manage.py test userProfile.tests.test_zzz_smoke_tmp -v 2)",
+      "Bash(git commit *)"
+    ]
+  }
+}

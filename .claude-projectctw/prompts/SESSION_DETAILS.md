@@ -10,6 +10,66 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-09-26
+
+### What We Did
+Started the Event Planning UI phase (no longer blocked on the allauth upgrade) — first task per `DEVELOPMENT_ROADMAP.md`: the HTMX auth-redirect middleware. Session stopped mid-feature: middleware itself is written, wired in, and manually verified working; automated test coverage is a skeleton only, no test methods written yet. Full mentorship pass — this was the user's first custom Django middleware and first RequestFactory-based test, both genuinely new territory rather than review of known material.
+
+### Problem Diagnosis (User-Led)
+Before writing anything, walked through the adjacent code per the project's "explain before building" rule: `planView` (`events/views.py`) combines `@login_required(login_url="account_login")` with an `HX-Request` check that returns a partial. User correctly diagnosed the bug themselves: when an unauthenticated user's htmx request hits a `@login_required` view, the browser's `fetch` call transparently follows the resulting 302 *before htmx's JS ever sees it* — so htmx receives the login page's full HTML back with a 200 status and swaps it into whatever partial target it was aimed at ("page in a page"). Correct diagnosis on the first attempt, no correction needed.
+
+### Middleware Protocol (New Concept)
+User had never written custom Django middleware before. Explained the `get_response` chaining mechanism from first principles: `BaseHandler.load_middleware()` builds middleware as nested "onion" layers at startup, wrapping each class around the next (innermost `get_response` is Django's real view-dispatcher), so calling `self.get_response(request)` from any middleware always returns the fully-processed final response regardless of that middleware's position in the list. User correctly reasoned from this that `HxRedirectMiddleware`'s placement in `MIDDLEWARE` doesn't affect correctness here (it only reads the final response) and chose to place it at the end of the list.
+
+### Implementation — `base/middleware.py`
+User wrote `HxRedirectMiddleware` themselves, iteratively:
+- Correctly identified all four pieces needed: `request.headers.get('HX-Request')`, a `300 <= status_code < 400` range check (not just `== 302`), reading the `Location` header, and rewriting it to `HX-Redirect` while forcing `status_code = 200`.
+- Genuine gap surfaced and corrected: initially confused the `next` query-string param (allauth/`login_required`'s own post-login redirect target) with the HTTP `Location` header (the actual redirect-destination mechanism) — cleared up as a real, useful distinction, not just a naming slip.
+- **Real bug caught via guided trace-through, not told directly**: while fixing a comment (per the project's WHY-not-WHAT comment standard) in nvim, an edit accidentally left `return response` nested inside the `if` block. Asked the user to trace what `__call__` returns when the condition is `False` (i.e., on almost all normal traffic) — user caught it immediately: every non-redirect response would implicitly return `None`, which would have broken the entire site the moment this shipped. Fixed by the user, not by me.
+- Edge case discussed and deliberately **not** handled: a 3xx response missing a `Location` header. User reasoned correctly that this app's only trigger for the `if` branch is `login_required`'s own redirect, which always sets `Location` — so a defensive guard would be handling a scenario that can't actually occur here, per the project's own "don't validate what can't happen" convention. Left as direct `response['Location']` access, no ternary/guard added.
+- Registered in `settings.py`: `"base.middleware.HxRedirectMiddleware"`, appended to the end of `MIDDLEWARE`.
+
+### Manual Verification
+User reloaded the dev server and walked the repro themselves: logged out, triggered an htmx request against a `@login_required` view — confirmed proper full-page redirect to the login page (no page-in-a-page), and confirmed `next` correctly routed back to the original plan view after login.
+
+### Test Design (Started, Not Finished)
+Before writing test code, asked what scenarios needed coverage. User's first answer covered only the positive case (htmx + redirect); prompted to think about the two decomposed halves of the `if` condition — user then correctly named the two pass-through cases that also need coverage: non-htmx + redirect (should be untouched), and htmx + non-redirect (should be untouched) — reasoning that these prove the `if` is properly constrained, not just that the happy path works.
+
+**Design decision — isolation over integration**: presented two testing approaches (drive it through `self.client` against a real `@login_required` view like `planView`, vs. instantiate `HxRedirectMiddleware` directly with a stub `get_response` via `RequestFactory`). User chose the isolated approach unprompted, correctly reasoning that going through a real view would exercise unrelated logic (auth, DB lookups, template rendering) that's already covered elsewhere and isn't what this test is supposed to verify.
+
+**New concept introduced**: `RequestFactory` vs. `Client` — `Client` runs a request through the entire configured `MIDDLEWARE` stack plus URL resolution and the real view; `RequestFactory` only builds a bare `HttpRequest` object, running nothing else. This is what makes true isolation possible here (write a throwaway `get_response` stub, pass it a `RequestFactory`-built request instead of chaining to a live view).
+
+**Import gotcha corrected**: user proposed `from ../middleware import HxRedirectMiddleware` — invalid Python syntax (`../` is a shell/path convention, not a Python one). Corrected to dotted relative-import syntax: `from ..middleware import HxRedirectMiddleware`, and pointed to the existing precedent already in the codebase (`events/tests/test_models.py`'s `from ..models import (...)`) rather than inventing a new convention.
+
+Session ended before test methods were written. `base/tests/test_middleware.py` currently contains only:
+```python
+from django.test import RequestFactory, SimpleTestCase
+from ..middleware import HxRedirectMiddleware
+
+
+class BaseMiddlewareTests(SimpleTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        pass
+```
+No test methods, no assertions yet.
+
+### Verification
+Full suite run at session close: 74/74 passing (unchanged — no new test methods exist yet to affect the count). Required activating `.venv` manually (`source .venv/bin/activate`) before `manage.py test` would resolve Django — consistent with the Python 3.14 migration's environment setup, not a new issue.
+
+### `coverage.py` — Flagged for Next Session
+User found `coverage.py` while looking up `RequestFactory` documentation. Not discussed or evaluated this session — just noted as a topic to pick up next time, likely in the context of the project's existing 80%+ coverage target (`.claude/CLAUDE.md` Testing section).
+
+### Session Wrap-Up
+Updated `DEVELOPMENT_ROADMAP.md` (Event Planning Features → HTMX middleware item split into sub-bullets: middleware implementation `[x]`, automated tests `[ ]` with the three required scenarios spelled out; `Last Updated` bumped). This file. No README.md or `.claude/CLAUDE.md` test-count edit — test count unchanged at 74 and the feature isn't complete enough (no test coverage yet) to add as a shipped feature bullet. `MEMORY.md` updated with current progress and the `coverage.py` follow-up. Staged, not committed, per standing convention.
+
+### Next Session
+- Finish `base/tests/test_middleware.py`: write the three test methods (htmx+redirect asserts `HX-Redirect` header + status 200; non-htmx+redirect and htmx+non-redirect both assert the response passes through untouched).
+- Discuss `coverage.py` — whether/how to adopt it for measuring progress against the project's 80%+ coverage target.
+- Once the middleware item is fully closed out (implementation + tests), continue with the next unchecked Event Planning Features item: Plan page structure (tab menu — Details/Plan/Supplies/Dates; access-control model still TBD — gated entry vs. read-all/write-if-committed).
+
+---
+
 ## Session: 2026-09-15
 
 ### What We Did

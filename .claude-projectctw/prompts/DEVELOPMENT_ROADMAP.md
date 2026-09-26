@@ -8,7 +8,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 
 # ProjectCTW Development Roadmap
 
-**Last Updated**: 2026-09-15
+**Last Updated**: 2026-09-26
 **Vision**: A platform enabling community members to propose, plan, and execute volunteer projects while building a verified volunteer resume.
 
 ---
@@ -68,6 +68,8 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] `open_date_proposals` field added to Plan model (BooleanField, default=False)
 - [x] `@login_required` added to planView
 - [ ] HTMX middleware — `base/middleware.py` intercepts 302 redirects on HX-Request and returns HX-Redirect header for full-page navigation instead of partial swap
+  - [x] `HxRedirectMiddleware` written and wired into `MIDDLEWARE` in `settings.py`; manually verified in browser (logged-out htmx request to `planView` now does a proper full-page redirect to login, `next` round-trips back to the plan page correctly)
+  - [ ] Automated test coverage — `base/tests/test_middleware.py` skeleton started (`RequestFactory` + stub `get_response`, isolated from real views), no test methods written yet. Needs: htmx+redirect (asserts `HX-Redirect` header set, status 200), non-htmx+redirect (untouched), htmx+non-redirect (untouched)
 - [ ] Plan page structure — separate page from event detail, tab menu (Details, Plan, Supplies, Dates)
   - [ ] Detail page remains generic (the proposal); Plan page is the planning space
   - [ ] Access control model TBD — options: gated entry (committed users/admins/sponsors only) vs. read-all/write-if-committed
