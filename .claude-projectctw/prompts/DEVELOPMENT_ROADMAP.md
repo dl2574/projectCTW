@@ -8,7 +8,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 
 # ProjectCTW Development Roadmap
 
-**Last Updated**: 2026-09-26
+**Last Updated**: 2026-10-05
 **Vision**: A platform enabling community members to propose, plan, and execute volunteer projects while building a verified volunteer resume.
 
 ---
@@ -67,9 +67,9 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] Plan model integration with events (auto-created on PROPOSAL → PLANNING transition)
 - [x] `open_date_proposals` field added to Plan model (BooleanField, default=False)
 - [x] `@login_required` added to planView
-- [ ] HTMX middleware — `base/middleware.py` intercepts 302 redirects on HX-Request and returns HX-Redirect header for full-page navigation instead of partial swap
+- [x] HTMX middleware — `base/middleware.py` intercepts 302 redirects on HX-Request and returns HX-Redirect header for full-page navigation instead of partial swap
   - [x] `HxRedirectMiddleware` written and wired into `MIDDLEWARE` in `settings.py`; manually verified in browser (logged-out htmx request to `planView` now does a proper full-page redirect to login, `next` round-trips back to the plan page correctly)
-  - [ ] Automated test coverage — `base/tests/test_middleware.py` skeleton started (`RequestFactory` + stub `get_response`, isolated from real views), no test methods written yet. Needs: htmx+redirect (asserts `HX-Redirect` header set, status 200), non-htmx+redirect (untouched), htmx+non-redirect (untouched)
+  - [x] Automated test coverage — `base/tests/test_middleware.py`, 3 isolated tests (`RequestFactory` request + stub `get_response`, no real views): htmx+redirect → `HX-Redirect` set + status 200; non-htmx+redirect → untouched 302, no `HX-Redirect`; htmx+non-redirect → no `HX-Redirect`. Each verified to fail against a deliberately broken middleware (2026-10-05)
 - [ ] Plan page structure — separate page from event detail, tab menu (Details, Plan, Supplies, Dates)
   - [ ] Detail page remains generic (the proposal); Plan page is the planning space
   - [ ] Access control model TBD — options: gated entry (committed users/admins/sponsors only) vs. read-all/write-if-committed
@@ -122,7 +122,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
   - [x] Drop `crispy_forms`/`crispy_tailwind` dependency (`INSTALLED_APPS`, `requirements.txt`, `input.css` `@source` line) — also uninstalled from local `.venv` so it matches `requirements.txt` exactly
   - [x] Delete dead `login_register.html`
   - [x] Full manual browser verification pass (2026-09-09) — found and fixed 3 real theme bugs surfaced by the pass, not just visual confirmation: checkboxes (`text-indigo-600` was dead code with no `@tailwindcss/forms` plugin installed; fixed to `accent-teal-600`), text-input focus ring (hardcoded indigo hex `#4f46e5` → `var(--color-primary)`), file input (had zero button styling beyond `cursor-pointer`; added `file:` variant classes for a teal, clearly-interactive button). Login/signup, password flow (incl. `token_fail` branch), and the event/comment forms all confirmed good as-is. 73/73 tests passing throughout.
-- [ ] HTMX auth redirect middleware — `base/middleware.py`
+- [x] HTMX auth redirect middleware — `base/middleware.py` (implemented 2026-09-26, tested 2026-10-05)
 - [x] **Bug**: Login is case-sensitive on the email field — found 2026-08-05, fixed 2026-09-14. Root cause: `ACCOUNT_LOGIN_METHODS = {'email'}` is a setting name that doesn't exist in the pinned `django-allauth==0.63.2` (introduced in a later release), so it was silently ignored and allauth's own case-insensitive email backend never ran — login only "worked" via Django's `ModelBackend` exact-match fallback, hence lowercase-only. Fixed by switching to the setting name 0.63.2 actually reads: `ACCOUNT_AUTHENTICATION_METHOD = "email"`. Regression test: `LoginpageTests.test_login_with_mismatched_case_email`. Full detail in [[project_allauth_upgrade]].
 
 ### User Profiles (Basic)

@@ -10,6 +10,77 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-10-05
+
+### What We Did
+Finished automated test coverage for `HxRedirectMiddleware`. The middleware item in Event Planning Features is now fully closed (implemented 2026-09-26, tested today). The user wrote all three tests; review was Socratic, one round of feedback at a time.
+
+### Scenario 1 (htmx + redirect): fixing the 2026-10-04 draft
+- **Stub `get_response`**: defined inside the test method so each scenario controls its own response. First attempt passed `test_response` (a local variable inside the stub) to the constructor instead of the stub function itself. The user corrected it: the constructor takes a *callable that returns a response*, not a response.
+- **Request vs response headers**: the first stub set `HX-Request` on the *response*. Fixed: `HX-Request` is sent by the client, so it goes on the `RequestFactory` request via `headers={"HX-Request": "true"}` (lowercase, matching what htmx actually sends).
+- **`HttpResponseRedirect(redirect_path)`** replaced a hand-built `HttpResponse` with manually set status/`Location`. One line, and it is what `login_required` really returns.
+- **Set literal bug**: `assertEqual(response["HX-Redirect"], {redirect_path})`, f-string braces left behind, which made a `set`. Failed with `'/login/' != {'/login/'}`. Fixed.
+- **Clarification**: the user asked whether `response.headers["X"] = ...` (from the Django docs) was wrong. It isn't. My objection was only the `headders` typo; `response["X"]` is equivalent shorthand.
+- **Break-it check**: commented out `response.status_code = 200` in the middleware, saw the test fail, then restored it. Confirms the status assertion guards the rewrite.
+
+### Scenarios 2 and 3 (pass-through cases)
+- `test_non_htmx_redirect_untouched`: no `HX-Request` header; asserts status stays 302 and `assertNotIn("HX-Redirect", response)`.
+- `test_htmx_request_with_no_redirect`: stub returns `HttpResponse("OK")`; asserts no `HX-Redirect`. The user correctly reasoned that a status assertion would add nothing here, because the middleware's rewrite also produces 200, so it couldn't tell pass-through from rewritten.
+- Switched `assertFalse(x in y)` → `assertNotIn` for useful failure messages; `in response` works directly on `HttpResponse`, no `.headers` needed.
+- Break-it check: the user added `HX-Redirect` to every response and both pass-through tests failed. Noted the more targeted version (remove one condition of the `if` at a time) as optional: removing the status-range check makes scenario 3 *error* with `KeyError: 'Location'` rather than fail an assertion.
+
+### Corrected Reasoning: 3xx Without `Location`
+The user's first reason for not testing a 3xx without `Location` was "that wouldn't be valid HTTP". **Incorrect**: `304 Not Modified` is valid and never carries `Location`. On an htmx request, the middleware would raise `KeyError`, which means a 500. The decision not to test it still stands, for the correct reason: it is **not reachable in the current stack**. No `ConditionalGetMiddleware` or `@etag`/`@condition` views, and WhiteNoise's static-file 304s short-circuit in an outer middleware layer before reaching `HxRedirectMiddleware`. **Revisit if ETag/conditional-GET caching is ever added.**
+
+### Docs
+- README/CONTRIBUTING roadmap links still pointed at `.claude/prompts/` (broken since the folder was renamed to `.claude-projectctw/`). Fixed all 4 links.
+- README: middleware added to Current Features; test count 74 → 77.
+
+### Verification
+Full suite: **77/77 passing** (74 + 3 new in `base/tests/test_middleware.py`). Middleware file confirmed restored with no diff after the break-it checks.
+
+### Next Session
+- Discuss `coverage.py`: what it measures (line vs branch coverage) and whether to adopt it now against the 80%+ target.
+- Then the next Event Planning Features item: Plan page structure (tab menu: Details/Plan/Supplies/Dates; access-control model still TBD).
+
+---
+
+## Session: 2026-10-04
+
+### What We Did
+Short session (user wasn't feeling well and stopped early on purpose). Resumed the `HxRedirectMiddleware` test work from 2026-09-26. Did housekeeping on the working tree, cleared up test-class setup hooks, and the user wrote a first draft of scenario 1. The draft has known problems and is **not finished**. Left for the user to fix next session rather than written for them, because the missing piece (the stub `get_response`) is the core new concept.
+
+### Housekeeping
+- `.claude-projectctw/CLAUDE.md`: the user had reflowed lines and renamed paths `.claude/` → `.claude-projectctw/` (the folder was renamed). Numbered lists were out of order (Starting a Session: 1,1,2,3; Complete Session: …4,**1**,6). Fixed to 1–4 and 1–7.
+- `events/tests/test_views.py`: one accidentally deleted blank line, reverted.
+- `MEMORY.md`: stale `.claude/prompts/...` paths updated to `.claude-projectctw/prompts/...`.
+
+### Concepts Covered
+- **`setUp` vs `setUpTestData`**: the skeleton defined `setUpTestData` on a `SimpleTestCase` subclass. Walked the class hierarchy in the installed Django source: `setUp` comes from `unittest.TestCase` (runs before each test; available on every Django test class), while `setUpTestData` exists only on `django.test.TestCase` (class-level, built around DB transaction rollback). On `SimpleTestCase` it is never called, and that fails silently. The user switched the skeleton to `setUp` holding `self.factory = RequestFactory()`.
+- **What belongs in `setUp` vs per test**: the user correctly reasoned that each scenario's stub returns a different response, so the middleware instance has to be built per test, not shared in `setUp`. Correction: partial vs full-page doesn't matter, because the stub renders nothing and the middleware reads only `status_code` and `Location`.
+- **Request URL vs redirect target**: the user correctly said the `RequestFactory` URL is irrelevant (no URL resolution runs; the middleware never reads `request.path`). Distinguished it from the `Location` on the stub's response, which *does* matter because it's the value asserted in `HX-Redirect`.
+- **Status codes live on responses, not requests**: the user asked how to set a status code on the request, or whether `follow=True` does it. Neither: the server (here, the stub `get_response`, standing in for `@login_required`) produces the status. `follow=True` is a `Client` option (follows redirects, which is the very browser behavior that caused the bug); `RequestFactory` has no such option.
+
+### Current State of `base/tests/test_middleware.py` (not working; contains a syntax error)
+The user's first draft of `test_htmx_and_redirect`. Problems identified, all left for the user to fix:
+1. No stub `get_response` exists. This is the main missing piece; nothing produces the redirect response.
+2. `HxRedirectMiddleware(request)` passes the request to the constructor (it expects `get_response`) and never invokes `__call__`.
+3. `HX-Request=True`: invalid keyword (hyphen), so this is a **syntax error**. Use the `headers=` parameter; header values are strings (htmx sends `"true"`).
+4. `follow=True`: not a `RequestFactory` option; remove it.
+5. `next` is placed on the request URL; the redirect target belongs on the stub response's `Location`.
+6. `response.statusCode` should be `status_code`.
+7. `assertContains(response.headders, ...)` checks body text, not headers. Use `assertEqual` on `response['HX-Redirect']`. Also a typo (`headders`).
+
+### Verification
+Suite not re-run after the draft, which can't import because of the syntax error. 74/74 passed at session start, before the draft was written. **Do not push**: CI would fail on the broken module.
+
+### Next Session
+- Open with: "What does the stub `get_response` look like, and where do you define it?" Then fix items 2–7 above.
+- Finish scenario 1, then scenarios 2 (non-htmx + redirect → untouched) and 3 (htmx + non-redirect → untouched).
+- Then discuss `coverage.py`, then the Plan page tab structure.
+
+---
+
 ## Session: 2026-09-26
 
 ### What We Did

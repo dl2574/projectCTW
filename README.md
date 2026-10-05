@@ -68,6 +68,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ Styled password change/reset flow (allauth's `password_change`, `password_reset`, `password_reset_from_key` + confirmation pages) — previously unstyled
 - ✅ `EventForm`/`CommentForm` migrated off `django-crispy-forms` to manual field rendering — matches sitewide form-styling convention; `crispy_forms`/`crispy_tailwind` dependency fully removed from the project (settings, requirements, venv)
 - ✅ Sitewide input styling refactor complete — opt-in `.form-input`/`.form-checkbox`/`.form-file` classes replace a bare `input` selector that leaked text-field styling onto checkboxes/file inputs; manual browser verification pass caught and fixed 3 theme-color bugs (checkbox fill, focus ring, file input button) left over from ungrouped Tailwind defaults
+- ✅ htmx-aware login redirects — custom `HxRedirectMiddleware` turns redirects on htmx requests (e.g. `@login_required`) into an `HX-Redirect` full-page navigation instead of swapping the login page into a partial
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
 - ✅ Email notifications on status transition (wired to transition_to_planning())
 - ✅ Case-insensitive email login — fixed a silently-ignored allauth setting that was defeating email-based authentication's built-in case-insensitivity
@@ -75,7 +76,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 
 ### Planned Features
 
-See our [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the complete feature plan.
+See our [Development Roadmap](.claude-projectctw/prompts/DEVELOPMENT_ROADMAP.md) for the complete feature plan.
 
 **Phase 1 Priorities:**
 - Event check-in system with QR codes and geofencing
@@ -304,14 +305,14 @@ We welcome contributions! ProjectCTW is working towards becoming an open source 
 
 1. Read the [Contributing Guidelines](CONTRIBUTING.md)
 2. Review the [Code of Conduct](CODE_OF_CONDUCT.md)
-3. Check the [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md)
+3. Check the [Development Roadmap](.claude-projectctw/prompts/DEVELOPMENT_ROADMAP.md)
 4. Fork the repository and create a feature branch
 5. Make your changes with tests
 6. Submit a pull request to the `development` branch
 
 ### Areas Where We Need Help
 
-- Expanding test coverage (we have 74 tests; target is 80%+ coverage)
+- Expanding test coverage (we have 77 tests; target is 80%+ coverage)
 - Frontend improvements and mobile responsiveness
 - Event planning UI (date voting, supply list, attendance)
 - Security review and hardening
@@ -332,7 +333,7 @@ ProjectCTW is under active development. Our roadmap includes 7 phases:
 6. **Phase 6: Analytics** - Impact tracking and reporting
 7. **Phase 7: Compliance** - Privacy, GDPR, accessibility
 
-See the complete [Development Roadmap](.claude/prompts/DEVELOPMENT_ROADMAP.md) for detailed feature lists and checkboxes.
+See the complete [Development Roadmap](.claude-projectctw/prompts/DEVELOPMENT_ROADMAP.md) for detailed feature lists and checkboxes.
 
 ---
 

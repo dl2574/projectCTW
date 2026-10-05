@@ -294,7 +294,7 @@ Feature requests will be reviewed and prioritized based on:
 
 ## Development Roadmap
 
-See [DEVELOPMENT_ROADMAP.md](.claude/prompts/DEVELOPMENT_ROADMAP.md) for the project's planned features and phases.
+See [DEVELOPMENT_ROADMAP.md](.claude-projectctw/prompts/DEVELOPMENT_ROADMAP.md) for the project's planned features and phases.
 
 ## Questions?
 
