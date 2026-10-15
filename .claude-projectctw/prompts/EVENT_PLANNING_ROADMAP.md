@@ -10,7 +10,7 @@ description: Implementation roadmap for the event planning workflow feature
 # Event Planning Features - Implementation Roadmap
 
 **Target**: Complete the event planning workflow (PROPOSAL → PLANNING → SCHEDULED)
-**Status**: In Progress — Models complete (Plan + open_date_proposals, ProposedDate, AttendanceCommitment, SupplyItem, SupplyCommitment), planView has @login_required, HTMX auth redirect middleware complete (implemented + 3 automated tests), UI pending
+**Status**: In Progress — Models complete (Plan + open_date_proposals, ProposedDate, AttendanceCommitment, SupplyItem, SupplyCommitment), planView has @login_required, HTMX auth redirect middleware complete (implemented + 3 automated tests), UI pending. Known `planView` bugs (found 2026-10-14 via coverage baseline, deferred to Plan page build-out): htmx branch renders `#event-plan` without `context`; non-GET non-htmx requests return `None` → 500
 **Owner**: David
 
 ---

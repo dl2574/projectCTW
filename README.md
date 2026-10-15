@@ -69,6 +69,7 @@ Starting as a pilot in Colorado Springs, CO, ProjectCTW aims to become a global 
 - ✅ `EventForm`/`CommentForm` migrated off `django-crispy-forms` to manual field rendering — matches sitewide form-styling convention; `crispy_forms`/`crispy_tailwind` dependency fully removed from the project (settings, requirements, venv)
 - ✅ Sitewide input styling refactor complete — opt-in `.form-input`/`.form-checkbox`/`.form-file` classes replace a bare `input` selector that leaked text-field styling onto checkboxes/file inputs; manual browser verification pass caught and fixed 3 theme-color bugs (checkbox fill, focus ring, file input button) left over from ungrouped Tailwind defaults
 - ✅ htmx-aware login redirects — custom `HxRedirectMiddleware` turns redirects on htmx requests (e.g. `@login_required`) into an `HX-Redirect` full-page navigation instead of swapping the login page into a partial
+- ✅ Test coverage measured with `coverage.py` (branch coverage) and enforced in CI with a minimum floor
 - 🚧 Event planning UI (date voting, supply lists, attendance) - *In Progress*
 - ✅ Email notifications on status transition (wired to transition_to_planning())
 - ✅ Case-insensitive email login — fixed a silently-ignored allauth setting that was defeating email-based authentication's built-in case-insensitivity
@@ -152,8 +153,10 @@ See our [Development Roadmap](.claude-projectctw/prompts/DEVELOPMENT_ROADMAP.md)
 3. **Install dependencies**
 
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    ```
+
+   `requirements-dev.txt` includes `requirements.txt` plus development/CI-only tools (e.g. `coverage`). Production installs `requirements.txt` only.
 
 4. **Set up environment variables**
 
@@ -222,9 +225,10 @@ projectCTW/
 ├── static/            # Static files (CSS, JS, images)
 ├── staticfiles/       # Collected static files (generated)
 ├── templates/         # HTML templates
-├── .claude/           # Claude Code configuration and documentation
+├── .claude-projectctw/ # Claude Code configuration and documentation
 ├── manage.py          # Django management script
-└── requirements.txt   # Python dependencies
+├── requirements.txt   # Production Python dependencies
+└── requirements-dev.txt # Dev/CI dependencies (includes requirements.txt)
 ```
 
 ### Running Tests
@@ -241,7 +245,14 @@ python manage.py test events.tests.test_models
 
 # Run a specific test class
 python manage.py test events.tests.test_models.EventTests
+
+# Run tests with coverage (config in .coveragerc, branch coverage on)
+coverage run manage.py test
+coverage report        # terminal summary; fails if below fail_under
+coverage html          # browsable report at htmlcov/index.html
 ```
+
+CI fails if total coverage drops below the `fail_under` floor in `.coveragerc` (currently 75%; baseline 78%).
 
 **Note**: We're actively expanding test coverage. Contributions of tests are highly valued!
 
@@ -282,7 +293,7 @@ python manage.py resetsecret     # Generate new SECRET_KEY in .env
 
 - **Development Branch** → Merge to `main` after testing
 - **Main Branch** → Triggers GitHub Actions
-- **GitHub Actions** → Runs system checks (`manage.py check --fail-level WARNING`) and tests
+- **GitHub Actions** → Runs system checks (`manage.py check --fail-level WARNING`) and tests under coverage (fails below the `.coveragerc` floor)
 - **Railway** → Auto-deploys if checks and tests pass
 
 Production URL: [www.projectctw.com](https://www.projectctw.com)
@@ -291,7 +302,7 @@ Production URL: [www.projectctw.com](https://www.projectctw.com)
 
 1. All development happens on the `development` branch
 2. Create pull requests to merge into `main`
-3. GitHub Actions runs system checks (`manage.py check --fail-level WARNING`), then the test suite
+3. GitHub Actions runs system checks (`manage.py check --fail-level WARNING`), then the test suite under coverage
 4. If checks and tests pass, Railway automatically deploys to production
 5. Database migrations run automatically via Railway pre-deploy command
 
@@ -312,7 +323,7 @@ We welcome contributions! ProjectCTW is working towards becoming an open source 
 
 ### Areas Where We Need Help
 
-- Expanding test coverage (we have 77 tests; target is 80%+ coverage)
+- Expanding test coverage (77 tests, 78% measured coverage; target is 80%+)
 - Frontend improvements and mobile responsiveness
 - Event planning UI (date voting, supply list, attendance)
 - Security review and hardening

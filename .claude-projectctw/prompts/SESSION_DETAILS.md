@@ -10,6 +10,40 @@ description: Chronological log of development sessions, newest first
 
 ---
 
+## Session: 2026-10-14
+
+### Working Model Change: User → Project Manager, Claude → Developer
+The user ended the Socratic mentorship model (Nov 2025 – Oct 2026). Claude now implements; the user owns scope (MVP-first, post-MVP work only when a requirement justifies it), architecture decisions, code review, and commits. Reasons: product and offensive-security goals over developer employment, faster cycles, shorter focused sessions.
+- Workflow: plan with proposed test scenarios → go-ahead → implement + tests → run suite → review handoff (what changed, why, where to look hardest) → user reviews and commits.
+- Claude proposes tests; the user reviews them and adds coverage where needed.
+- Main risk flagged: rubber-stamping. Rule: never approve code you can't explain.
+- Updated: global `~/.claude/CLAUDE.md`, `~/.claude/DEVELOPER_PROFILE.md`, `.claude-projectctw/CLAUDE.md` (Role + Development Rules replace Mentorship Rules), memory. Retired the CSS "be directive" memory; its "fix inconsistencies in passing" rule moved into the project CLAUDE.md.
+- Scope: ProjectCTW stays on the cautious full workflow. Lower-impact projects may run looser workflows to test speed vs. review quality.
+- Code review workflow: to be built from real reviews, not written up front. Two habits from the first review worth keeping: (1) re-run the verification commands yourself rather than trusting Claude's report; (2) look for what's *missing* (the user scanned the file tree for anything else to omit).
+
+### coverage.py Adopted (first feature under the new model)
+- `requirements-dev.txt` (new): `-r requirements.txt` + `coverage==7.16.2`. Keeps dev/CI tooling out of the Railway production install.
+- `.coveragerc` (new): `branch = True`, `source = .`; omits `.venv`, migrations, tests (`*/tests/*`, `*/test_*.py`, `*/tests.py`), `manage.py`, `*/management/commands/*`, settings/wsgi/asgi. The user reviewed and approved every omit entry. `fail_under = 75`.
+- CI: installs `requirements-dev.txt`; separate "Run Tests with Coverage" and "Coverage Report" steps, so a failing test and a coverage-floor failure show up separately.
+- Baseline: 72% at first; `notifications/tests.py` was missed by the omit patterns, so `*/tests.py` was added. 78% once management commands were omitted. CI on Postgres also reports 78%. Floor set at 75 (raised from the initially agreed 70 once the baseline moved).
+- Verified: 77/77 passing under coverage; `coverage report` exits 0 at the floor and 2 with `--fail-under=90`; CI run 38682103772 passed on commit `ac724f8`.
+
+### Findings from the Coverage Baseline (logged, not fixed)
+- **Untested access control (OWASP A01)**: `editEvent` creator check (`events/views.py:44`) and `UserUpdate.test_func` (`userProfile/views.py:31`). Next task.
+- **`planView` bugs**: htmx branch renders `#event-plan` without `context`; non-GET non-htmx request returns `None` → 500. Deferred to the Plan page build-out.
+- `message-test/` is publicly routed in production (`base/urls.py`). Remove or gate on DEBUG.
+- `django-browser-reload` is a dev tool sitting in production requirements. Move it to `requirements-dev.txt`.
+
+### Housekeeping
+- `.DS_Store` files were tracked before the `.gitignore` rule existed, so the rule had no effect. Fixed with `git rm --cached` on the 4 tracked copies.
+- CI annotations logged to the roadmap: Node 20 deprecation (bump `checkout`/`setup-python`), and the `ubuntu-latest` → Ubuntu 26 switch starting 2026-10-19 (watch the `psycopg2` source build).
+- README/CONTRIBUTING: install step now uses `requirements-dev.txt`; coverage commands and CI floor documented; stale `.claude/` path in the project tree fixed.
+
+### Next Session
+- **Authorization tests for `editEvent` and `UserUpdate`**: Claude proposes scenarios first; the user reviews and adds to them.
+
+---
+
 ## Session: 2026-10-05
 
 ### What We Did

@@ -154,9 +154,12 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [ ] Add tests for ProposedDate, Comment models
 - [x] Tests for profile picture upload — form validation (size limit, image type) in `UserChangeFormTests`
 - [ ] Tests for profile picture upload — view behavior (AccountProfileView)
-- [x] Adopt `coverage.py` — `.coveragerc` (branch coverage, migrations/tests/settings/management commands omitted), `requirements-dev.txt`, CI runs tests under coverage with `fail_under = 75`. Baseline 2026-10-14: 78%
+- [x] Adopt `coverage.py` — `.coveragerc` (branch coverage, migrations/tests/settings/management commands omitted), `requirements-dev.txt`, CI runs tests under coverage with `fail_under = 75`. Baseline 2026-10-14: 78% (local SQLite and CI Postgres agree)
 - [ ] Remove or `DEBUG`-gate the `message-test/` route in `base/urls.py` (test-only view publicly routed in production)
 - [ ] Move `django-browser-reload` from `requirements.txt` to `requirements-dev.txt` (dev-only tool currently installed in production)
+- [ ] CI maintenance (flagged 2026-10-14 by GitHub Actions annotations):
+  - [ ] Bump `actions/checkout@v4` and `actions/setup-python@v5` to current majors (Node.js 20 deprecation warning)
+  - [ ] Watch for breakage after `ubuntu-latest` → Ubuntu 26 (starts 2026-10-19). Likely suspect: `psycopg2` (source build, needs system libpq); `psycopg2-binary` or pinning `ubuntu-24.04` are the fallbacks
 
 ### Documentation
 - [ ] Add inline code comments for complex logic

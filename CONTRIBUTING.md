@@ -42,8 +42,9 @@ This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participatin
 
 3. **Install dependencies**
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    ```
+   (Includes `requirements.txt` plus dev/CI tools like `coverage`.)
 
 4. **Set up environment variables**
 
