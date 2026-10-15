@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
@@ -40,10 +41,10 @@ def createEvent(request):
 def editEvent(request, pk):
     event = get_object_or_404(Event, id=pk)
 
-    # Check if the logged-in user is the creator of the event
+    # Only the creator may edit. 403 rather than a silent redirect, so a
+    # failed access attempt is visible as one (in logs and to the client).
     if request.user != event.created_by:
-        # Redirect to the event detail page (or some other page)
-        return redirect(event)
+        raise PermissionDenied
 
     if request.method == "POST":
         form = EventForm(request.POST, instance=event)

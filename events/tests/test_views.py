@@ -171,3 +171,91 @@ class TestUpvoteProposalPage(TestCase):
         )
 
         self.assertEqual(self.test_event.upvotes.count(), 0)
+
+
+class TestEditEventAuthorization(TestCase):
+    """Only an event's creator may edit it. Denial tests also assert the DB row
+    is unchanged: a view could reject the user yet still have saved the form."""
+
+    password = "testpass123"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.UserModel = get_user_model()
+        cls.creator = cls.UserModel.objects.create_user(
+            username="edit_creator",
+            email="edit_creator@email.com",
+            password=cls.password,
+        )
+        cls.other_user = cls.UserModel.objects.create_user(
+            username="edit_other",
+            email="edit_other@email.com",
+            password=cls.password,
+        )
+        cls.test_event = Event.objects.create(
+            name="original name",
+            description="original description",
+            location="original location",
+            created_by=cls.creator,
+        )
+        cls.url = reverse("editEvent", kwargs={"pk": cls.test_event.pk})
+        cls.edit_data = {
+            "name": "tampered name",
+            "description": "tampered description",
+            "location": "tampered location",
+        }
+
+    def assertEventUnchanged(self):
+        self.test_event.refresh_from_db()
+        self.assertEqual(self.test_event.name, "original name")
+        self.assertEqual(self.test_event.description, "original description")
+        self.assertEqual(self.test_event.location, "original location")
+
+    def test_anonymous_get_redirects_to_login(self):
+        response = self.client.get(self.url)
+        self.assertRedirects(
+            response, f"{reverse('account_login')}?next={self.url}"
+        )
+
+    def test_anonymous_post_redirects_to_login_and_does_not_edit(self):
+        response = self.client.post(self.url, self.edit_data)
+        self.assertRedirects(
+            response, f"{reverse('account_login')}?next={self.url}"
+        )
+        self.assertEventUnchanged()
+
+    def test_non_creator_get_is_forbidden(self):
+        self.client.force_login(self.other_user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateNotUsed(response, "events/event_form.html")
+
+    def test_non_creator_post_is_forbidden_and_does_not_edit(self):
+        self.client.force_login(self.other_user)
+        response = self.client.post(self.url, self.edit_data)
+        self.assertEqual(response.status_code, 403)
+        self.assertEventUnchanged()
+
+    def test_creator_get_renders_prefilled_form(self):
+        self.client.force_login(self.creator)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "events/event_form.html")
+        self.assertEqual(response.context["form"].instance, self.test_event)
+
+    def test_creator_post_edits_event(self):
+        # Positive control: proves the denial tests pass because of the
+        # creator check, not because editing is broken for everyone.
+        self.client.force_login(self.creator)
+        response = self.client.post(self.url, self.edit_data)
+        self.assertRedirects(response, self.test_event.get_absolute_url())
+        self.test_event.refresh_from_db()
+        self.assertEqual(self.test_event.name, "tampered name")
+
+    def test_nonexistent_event_returns_404(self):
+        self.client.force_login(self.creator)
+        url = reverse(
+            "editEvent", kwargs={"pk": "00000000-0000-0000-0000-000000000000"}
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)

@@ -119,3 +119,83 @@ class EmailTemplateLogicTests(TestCase):
         self.assertContains(response, "action_send")
         self.assertContains(response, "action_remove")
         self.assertNotContains(response, "action_primary")
+
+
+class AccountProfileAuthorizationTests(TestCase):
+    """Users may only view and edit their own account settings. Denial tests
+    also assert the victim's row is unchanged."""
+
+    password = "testpass123"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.UserModel = get_user_model()
+        cls.owner = cls.UserModel.objects.create_user(
+            username="settings_owner",
+            email="settings_owner@email.com",
+            password=cls.password,
+            bio="original bio",
+        )
+        cls.other_user = cls.UserModel.objects.create_user(
+            username="settings_other",
+            email="settings_other@email.com",
+            password=cls.password,
+        )
+        cls.url = reverse("account_profile", kwargs={"slug": cls.owner.username})
+        cls.edit_data = {
+            "username": "hijacked",
+            "first_name": "",
+            "last_name": "",
+            "bio": "tampered bio",
+            "email_status_updates": "on",
+            "email_event_reminders": "on",
+        }
+
+    def assertOwnerUnchanged(self):
+        self.owner.refresh_from_db()
+        self.assertEqual(self.owner.username, "settings_owner")
+        self.assertEqual(self.owner.bio, "original bio")
+
+    def test_anonymous_get_redirects_to_login(self):
+        response = self.client.get(self.url)
+        self.assertRedirects(
+            response, f"{reverse('account_login')}?next={self.url}"
+        )
+
+    def test_other_user_get_is_forbidden(self):
+        self.client.force_login(self.other_user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_other_user_post_is_forbidden_and_does_not_edit(self):
+        self.client.force_login(self.other_user)
+        response = self.client.post(self.url, self.edit_data)
+        self.assertEqual(response.status_code, 403)
+        self.assertOwnerUnchanged()
+
+    def test_nonexistent_username_returns_404(self):
+        # Documents current behavior: this distinguishes "doesn't exist" (404)
+        # from "not yours" (403). Accepted because usernames are already public
+        # via the unauthenticated profile page and event/comment bylines.
+        self.client.force_login(self.other_user)
+        url = reverse("account_profile", kwargs={"slug": "no-such-user"})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_owner_get_renders_settings(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "userProfile/user_account.html")
+
+    def test_owner_post_edits_account(self):
+        # Positive control: proves the denial tests pass because of test_func,
+        # not because the form rejects the data for everyone.
+        self.client.force_login(self.owner)
+        response = self.client.post(self.url, self.edit_data)
+        self.assertRedirects(
+            response,
+            reverse("account_profile", kwargs={"slug": "hijacked"}),
+        )
+        self.owner.refresh_from_db()
+        self.assertEqual(self.owner.bio, "tampered bio")

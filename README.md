@@ -252,7 +252,7 @@ coverage report        # terminal summary; fails if below fail_under
 coverage html          # browsable report at htmlcov/index.html
 ```
 
-CI fails if total coverage drops below the `fail_under` floor in `.coveragerc` (currently 75%; baseline 78%).
+CI fails if total coverage drops below the `fail_under` floor in `.coveragerc` (currently 80%; measured 84% on 2026-10-15).
 
 **Note**: We're actively expanding test coverage. Contributions of tests are highly valued!
 

@@ -148,13 +148,15 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] Integration tests for status transitions (EventTransitionTests: 5 tests)
 - [ ] View tests for all event workflow pages
 - [ ] Form validation tests
-- [ ] Test authentication/permission checks — **next up** (gaps found by coverage baseline 2026-10-14):
-  - [ ] `editEvent`: non-creator cannot edit another user's event (GET and POST), creator can
-  - [ ] `UserUpdate.test_func`: user cannot edit another user's account settings
+- [x] Test authentication/permission checks (gaps found by coverage baseline 2026-10-14, closed 2026-10-15):
+  - [x] `editEvent`: `TestEditEventAuthorization` (7 tests). Non-creator now gets 403 instead of a silent redirect
+  - [x] `AccountProfileView.test_func`: `AccountProfileAuthorizationTests` (6 tests)
+- [ ] **Next up**: `TestUpvoteDetailPage` (`events/tests/test_views.py`) is an empty shell: fixtures and docstring, zero tests. Write the detail-page upvote tests (event-header partial + OOB sidebar-upvote-count fragment in one response)
+- [ ] Make account settings slug-less: `/account/settings/` acting on `request.user` instead of `settings/<username>/`. Removes the IDOR surface (OWASP A01) instead of guarding it. Touches `userProfile/urls.py`, `AccountProfileView` (`get_object` returns `request.user`), 4 templates linking `account_profile`. Current 403 (not yours) vs 404 (doesn't exist) difference accepted for now: usernames are already public via `/account/profile/<username>/` and event/comment bylines
 - [ ] Add tests for ProposedDate, Comment models
 - [x] Tests for profile picture upload — form validation (size limit, image type) in `UserChangeFormTests`
 - [ ] Tests for profile picture upload — view behavior (AccountProfileView)
-- [x] Adopt `coverage.py` — `.coveragerc` (branch coverage, migrations/tests/settings/management commands omitted), `requirements-dev.txt`, CI runs tests under coverage with `fail_under = 75`. Baseline 2026-10-14: 78% (local SQLite and CI Postgres agree)
+- [x] Adopt `coverage.py` — `.coveragerc` (branch coverage, migrations/tests/settings/management commands omitted), `requirements-dev.txt`, CI runs tests under coverage. Baseline 2026-10-14: 78% (local SQLite and CI Postgres agree). Floor raised 75 → 80 on 2026-10-15 (measured 84%)
 - [ ] Remove or `DEBUG`-gate the `message-test/` route in `base/urls.py` (test-only view publicly routed in production)
 - [ ] Move `django-browser-reload` from `requirements.txt` to `requirements-dev.txt` (dev-only tool currently installed in production)
 - [ ] CI maintenance (flagged 2026-10-14 by GitHub Actions annotations):

@@ -18,6 +18,6 @@ omit =
 
 [report]
 # Floor set just under the 2026-10-14 baseline (78%). Raise it as coverage grows.
-fail_under = 75
+fail_under = 80
 show_missing = True
 skip_covered = False

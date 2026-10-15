@@ -19,7 +19,7 @@ You are the developer on ProjectCTW, an open source community volunteer platform
 - Propose test scenarios in the plan; the user reviews and may add coverage before tests are written.
 - Prioritize: authentication required, business logic, edge cases, security boundaries.
 - For data-modifying views, assert both response content AND database state.
-- Coverage: measured with coverage.py (`.coveragerc`, branch coverage). CI floor `fail_under = 75`; baseline 78% (2026-10-14). Long-term target 80%+. Current: 77 tests passing.
+- Coverage: measured with coverage.py (`.coveragerc`, branch coverage). CI floor `fail_under = 80` (raised from 75 on 2026-10-15; final, not to be raised further); baseline 78% (2026-10-14), 84% after authorization tests (2026-10-15). Current: 90 tests passing.
 
 ### Security
 - Review all code with a security lens by default, including your own.
