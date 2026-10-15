@@ -96,6 +96,7 @@ description: Full phase-by-phase development roadmap for ProjectCTW
   - [ ] Show committed volunteer count
   - [ ] Send reminders to committed volunteers
 - [ ] Planning → Scheduled status transition
+- [ ] Rework `planView` when the Plan page is built out. Known bugs (found 2026-10-14): htmx branch renders `#event-plan` partial without `context`; non-GET non-htmx requests return `None` → 500 (use `@require_GET` or handle methods explicitly)
 
 ### Event Execution & Check-in
 - [ ] Event check-in system
@@ -147,10 +148,15 @@ description: Full phase-by-phase development roadmap for ProjectCTW
 - [x] Integration tests for status transitions (EventTransitionTests: 5 tests)
 - [ ] View tests for all event workflow pages
 - [ ] Form validation tests
-- [ ] Test authentication/permission checks
+- [ ] Test authentication/permission checks — **next up** (gaps found by coverage baseline 2026-10-14):
+  - [ ] `editEvent`: non-creator cannot edit another user's event (GET and POST), creator can
+  - [ ] `UserUpdate.test_func`: user cannot edit another user's account settings
 - [ ] Add tests for ProposedDate, Comment models
 - [x] Tests for profile picture upload — form validation (size limit, image type) in `UserChangeFormTests`
 - [ ] Tests for profile picture upload — view behavior (AccountProfileView)
+- [x] Adopt `coverage.py` — `.coveragerc` (branch coverage, migrations/tests/settings/management commands omitted), `requirements-dev.txt`, CI runs tests under coverage with `fail_under = 75`. Baseline 2026-10-14: 78%
+- [ ] Remove or `DEBUG`-gate the `message-test/` route in `base/urls.py` (test-only view publicly routed in production)
+- [ ] Move `django-browser-reload` from `requirements.txt` to `requirements-dev.txt` (dev-only tool currently installed in production)
 
 ### Documentation
 - [ ] Add inline code comments for complex logic

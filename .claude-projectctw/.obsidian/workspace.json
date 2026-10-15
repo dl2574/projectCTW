@@ -20,8 +20,21 @@
               "icon": "lucide-file",
               "title": "SESSION_DETAILS"
             }
+          },
+          {
+            "id": "431af74588483e97",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.14.4"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.14.4"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -157,7 +170,6 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "prompts/SESSION_DETAILS.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -184,7 +196,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "8067375cbc373431",
+  "active": "431af74588483e97",
   "lastOpenFiles": [
     "prompts/DEVELOPMENT_ROADMAP.md.tmp.11764.8148b596a470",
     "prompts/EVENT_PLANNING_ROADMAP.md",

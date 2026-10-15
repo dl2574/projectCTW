@@ -39,8 +39,11 @@ The user's first reason for not testing a 3xx without `Location` was "that would
 ### Verification
 Full suite: **77/77 passing** (74 + 3 new in `base/tests/test_middleware.py`). Middleware file confirmed restored with no diff after the break-it checks.
 
+### `coverage.py`: Decided to Adopt
+The user noted that the 80%+ coverage target can't currently be measured or enforced, so in practice it's arbitrary. Agreed to adopt `coverage.py`. Plan: run with `--branch` (today's middleware tests show why: line coverage would count the `if` as covered after scenario 1 alone), use the baseline and the `coverage html` report to find untested code, then choose a CI `--fail-under` threshold from the real baseline. Caveat: coverage measures lines executed, not test quality. The break-it check is what verifies quality.
+
 ### Next Session
-- Discuss `coverage.py`: what it measures (line vs branch coverage) and whether to adopt it now against the 80%+ target.
+- **Add `coverage.py`** (first task): install, run, review the baseline, then decide the CI threshold.
 - Then the next Event Planning Features item: Plan page structure (tab menu: Details/Plan/Supplies/Dates; access-control model still TBD).
 
 ---

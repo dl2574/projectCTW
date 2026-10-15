@@ -1,0 +1,23 @@
+[run]
+# Branch coverage reports untaken if/else paths, not just unexecuted lines.
+branch = True
+source = .
+omit =
+    .venv/*
+    */migrations/*
+    */tests/*
+    */test_*.py
+    */tests.py
+    manage.py
+    # Developer tooling, not application code.
+    */management/commands/*
+    # Executed top-to-bottom on import, so it always reads ~100% and says nothing.
+    projectCTW/settings.py
+    projectCTW/wsgi.py
+    projectCTW/asgi.py
+
+[report]
+# Floor set just under the 2026-10-14 baseline (78%). Raise it as coverage grows.
+fail_under = 75
+show_missing = True
+skip_covered = False
